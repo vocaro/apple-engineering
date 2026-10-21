@@ -1,0 +1,28 @@
+# Shared engineering knowledge
+
+Search the 57 captured practices and technical lessons with `eng knowledge QUERY`.
+
+- [maintenance](../guides/maintenance.md)
+- [simulator testing](../guides/simulator-testing.md)
+- [voiceover](../guides/voiceover.md)
+- [background mac testing](../guides/background-mac-testing.md)
+- [shared host](../guides/shared-host.md)
+- [evidence](../guides/evidence.md)
+- [measurement](../guides/measurement.md)
+- [packaging](../guides/packaging.md)
+- [python environments](../guides/python-environments.md)
+- [background processing](apple/background-processing.md)
+- [data protection](apple/data-protection.md)
+- [app extensions](apple/app-extensions.md)
+- [document parsing](apple/document-parsing.md)
+- [accessibility](apple/accessibility.md)
+- [framework lifetimes](apple/framework-lifetimes.md)
+- [framework execution identity](apple/framework-execution-identity.md)
+- [text layout and unicode](apple/text-layout-and-unicode.md)
+- [raster contracts](apple/raster-contracts.md)
+- [embedding correctness](ml/embedding-correctness.md)
+- [inference and evidence](ml/inference-and-evidence.md)
+- [scenes and recovery](apple/scenes-and-recovery.md)
+- [file handoffs and publication](apple/file-handoffs-and-publication.md)
+- [network import](apple/network-import.md)
+- [storekit environments](apple/storekit-environments.md)
