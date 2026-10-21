@@ -1,12 +1,17 @@
 """Portable Markdown link and agent-entry-size checks."""
 from pathlib import Path
 import re
+import os
+import subprocess
 from urllib.parse import unquote, urlsplit
 
 
 def check(root, paths=None):
     root = Path(root).resolve()
     failures = []
+    tracked = subprocess.run(["git", "-C", str(root), "ls-files", "-z"], capture_output=True, timeout=30)
+    tracked_names = {os.fsdecode(p) for p in tracked.stdout.split(b"\0") if p}
+    tracked_lower = {p.lower() for p in tracked_names}
     if paths is not None:
         files = paths
     else:
@@ -37,7 +42,15 @@ def check(root, paths=None):
             if not destination.exists():
                 failures.append(f"{path}: missing link: {raw}")
                 continue
-            # macOS may resolve the wrong case; verify the spelling component by component.
+            # Git names are canonical even if a case-insensitive worktree directory was
+            # created with another spelling by a build tool. Untracked files use disk names.
+            normalized = str(Path(os.path.normpath(destination)).relative_to(root))
+            if normalized in tracked_names or any(p.startswith(normalized.rstrip("/") + "/") for p in tracked_names):
+                continue
+            if normalized.lower() in tracked_lower:
+                failures.append(f"{path}: wrong-case link: {raw}")
+                continue
+            # macOS may resolve the wrong case; verify untracked spellings component by component.
             probe = path.parent
             for part in Path(relative).parts:
                 if part == "..": probe = probe.parent
