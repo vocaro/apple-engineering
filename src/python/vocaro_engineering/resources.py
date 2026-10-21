@@ -3,6 +3,11 @@
 The bridge holds StudyWright's shlock while publishing a guard; old gate/warm-push callers
 already wait on that guard. Exclusive work holds every old PDF slot. Crashed owners retain
 their guard for explicit inspection rather than treating a deadline as release.
+
+HEAVY_SLOTS jobs are always admitted. More, up to HEAVY_SLOTS_MAX, are admitted one at a time
+while the load average and memory pressure show spare capacity: a fixed count left the host
+idle behind jobs waiting on simulators, while ten unqueued builds starved watchdogd until the
+kernel panicked (2026-10-14). Admission cannot preempt a job that becomes heavy later.
 """
 import argparse
 import contextlib
@@ -37,9 +42,9 @@ def slot_directory():
     return Path("/tmp/pdfreflow-heavy-slots")
 
 
-def take_slot(directory, slots):
+def take_slot(directory, slots, start=0):
     """Compatibility API: one old-style slot descriptor, or None."""
-    for slot in range(slots):
+    for slot in range(start, slots):
         fd = os.open(Path(directory) / f"slot{slot}", os.O_RDWR | os.O_CREAT, 0o644)
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -48,6 +53,28 @@ def take_slot(directory, slots):
             continue
         return slot, fd
     return None
+
+
+def last_admission(directory, slots):
+    """When a holder last wrote its identity into a slot. Probing leaves new slot files empty."""
+    latest = 0
+    for slot in range(slots):
+        try:
+            status = (Path(directory) / f"slot{slot}").stat()
+        except FileNotFoundError:
+            continue
+        if status.st_size:
+            latest = max(latest, status.st_mtime)
+    return latest
+
+
+def memory_normal():
+    """Whether macOS reports normal memory pressure: level 1, where 2 is warning and 4 critical."""
+    if sys.platform != "darwin":
+        return False
+    result = subprocess.run(["/usr/sbin/sysctl", "-n", "kern.memorystatus_vm_pressure_level"],
+        capture_output=True, text=True)
+    return result.returncode == 0 and result.stdout.strip() == "1"
 
 
 def inherited(exclusive=False):
@@ -102,10 +129,16 @@ class Admission:
     def __init__(self, label, exclusive=False, timeout=5400):
         self.label, self.exclusive, self.timeout = label, exclusive, timeout
         self.directory = slot_directory()
+        cores = os.cpu_count() or 1
         self.slots = int(os.environ.get("HEAVY_SLOTS", "3"))
+        self.maximum = int(os.environ.get("HEAVY_SLOTS_MAX", max(self.slots, cores // 2)))
+        self.load_limit = float(os.environ.get("HEAVY_LOAD_LIMIT", 0.75 * cores))
+        # The one-minute load average shows a new job's load only gradually.
+        self.settle = float(os.environ.get("HEAVY_SETTLE_SECONDS", "30"))
         self.poll = float(os.environ.get("HEAVY_POLL_SECONDS", "1"))
-        if self.slots < 1 or self.poll <= 0 or timeout < 0:
+        if self.slots < 1 or self.maximum < self.slots or self.settle < 0 or self.poll <= 0 or timeout < 0:
             raise ValueError("Invalid resource limits")
+        self.waiting = None
         self.legacy = Path(os.environ.get("SW_GATE_LOCK_FILE", "/tmp/studywright-gate-suite.lock"))
         self.guard = Path(str(self.legacy) + ".warm-push-guard")
         self.identity = uuid.uuid4().hex
@@ -142,19 +175,52 @@ class Admission:
         if self.legacy.exists() and self.legacy.read_text().strip() == str(os.getpid()):
             self.legacy.unlink()
 
+    def _extra_refusal(self):
+        if self.maximum == self.slots:
+            return "no adaptive slots are configured"
+        settling = time.time() - last_admission(self.directory, self.maximum)
+        if settling < self.settle:
+            return f"the load does not yet show the job admitted {int(settling)}s ago"
+        try:
+            load = os.getloadavg()[0]
+        except OSError:
+            return "the load average is unavailable"
+        if load >= self.load_limit:
+            return f"load {load:.1f} is at or above {self.load_limit:g}"
+        if not memory_normal():
+            return "memory pressure is not normal"
+        return None
+
+    def _extra_slot(self):
+        """A slot beyond the guaranteed ones while the host shows spare capacity, or None."""
+        refusal = self._extra_refusal()
+        if refusal is None:
+            taken = take_slot(self.directory, self.maximum, start=self.slots)
+            if taken is not None:
+                return taken
+            refusal = f"all {self.maximum} slots are busy"
+        self.waiting = f"all {self.slots} guaranteed slots are busy and {refusal}"
+        return None
+
     def _attempt(self):
         self.directory.mkdir(parents=True, exist_ok=True)
         with (self.directory / "coordination.lock").open("a+") as bridge:
             fcntl.flock(bridge, fcntl.LOCK_EX)
             state = self._guard()
             if state is None:
+                self.waiting = "a foreign, dead or uncertain guard owner requires inspection"
                 return False
             if not self._legacy_lock():
+                self.waiting = "a legacy gate holds its lock"
                 return False
             try:
-                for _ in range(self.slots if self.exclusive else 1):
-                    taken = take_slot(self.directory, self.slots)
+                for _ in range(self.maximum if self.exclusive else 1):
+                    taken = take_slot(self.directory, self.maximum if self.exclusive else self.slots)
+                    if taken is None and not self.exclusive:
+                        taken = self._extra_slot()
                     if taken is None:
+                        if self.exclusive:
+                            self.waiting = f"exclusive work needs all {self.maximum} slots free"
                         for _slot, fd in self.descriptors:
                             os.close(fd)
                         self.descriptors = []
@@ -190,10 +256,10 @@ class Admission:
         while not self._attempt():
             waited = int(time.monotonic() - started)
             if reported is None or waited - reported >= 300:
-                print(f"heavy: all {self.slots} slots busy or reserved, waiting ({waited}s)", file=sys.stderr, flush=True)
+                print(f"heavy: waiting ({waited}s): {self.waiting}", file=sys.stderr, flush=True)
                 reported = waited
             if time.monotonic() - started >= self.timeout:
-                raise TimeoutError("Resource queue busy or an orphan requires inspection; no lock was reclaimed")
+                raise TimeoutError(f"Resource queue busy or an orphan requires inspection ({self.waiting}); no lock was reclaimed")
             time.sleep(self.poll)
         print(f"heavy: slot {','.join(str(slot) for slot, _fd in self.descriptors)} after {int(time.monotonic() - started)}s: {self.label[:160]}", file=sys.stderr, flush=True)
         return self

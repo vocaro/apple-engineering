@@ -58,8 +58,9 @@ toolkit, independently of the app fixture's checkout. Existing command names rem
 
 ## Coordination and evidence
 
-The resource coordinator honors `HEAVY_SLOT_DIR`/`HEAVY_SLOTS` and the StudyWright shlock/guard
-namespace. Exclusive work holds all heavy slots. Nested calls validate inherited admission
+The resource coordinator honors `HEAVY_SLOT_DIR` and the StudyWright shlock/guard namespace.
+`HEAVY_SLOTS` jobs are always admitted; more, up to `HEAVY_SLOTS_MAX`, are admitted one at a time
+while load and memory pressure show spare capacity. Exclusive work holds all heavy slots. Nested calls validate inherited admission
 descriptors. Unknown, dead or uncertain owners retain their guard for inspection; time passing
 does not release them. Never remove an uncertain guard without checking its recorded owner
 and descendants. [Shared host methods](guides/shared-host.md) describes the inherited rules.

@@ -10,6 +10,16 @@ One host-wide resource namespace for builds, suites, conversions and exclusive m
 
 [PDFReflowLib tools/heavy_slot.py](https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/heavy_slot.py), [studywright scripts/gate-lock.sh](https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/gate-lock.sh) and Pagepour’s duplicate implementation. Preserve compatibility with existing lock paths during migration.
 
+Ten agents each building on every core, with other lanes and Xcode indexing, kept watchdogd from
+checking in for 93 seconds and panicked an 18-core, 36 GB Mac (2026-10-14). A fixed limit of three
+then left the host idle while queued work waited behind jobs blocked on simulators. HEAVY_SLOTS
+jobs (3) are always admitted. Beyond them one job at a time is admitted, up to HEAVY_SLOTS_MAX
+(half the CPU count), while the one-minute load average is below HEAVY_LOAD_LIMIT (75% of the CPU
+count), macOS reports normal memory pressure, and no slot was taken in the last
+HEAVY_SETTLE_SECONDS (30) for the load average to show. Setting HEAVY_SLOTS_MAX to HEAVY_SLOTS
+restores a fixed limit. Admission cannot preempt: a job admitted while the host was quiet may
+become heavy later. Exclusive work holds every slot up to the maximum.
+
 ## Device reservations
 
 Ownership records, real mutual exclusion, explicit handoff, process handles, original settings, bounded windows and independent restoration checks.

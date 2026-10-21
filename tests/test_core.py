@@ -122,7 +122,7 @@ class ResourceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
         self.env = patch.dict(os.environ, {"HEAVY_SLOT_DIR": str(root / "slots"), "HEAVY_SLOTS": "2",
-            "HEAVY_POLL_SECONDS": "0.01", "SW_GATE_LOCK_FILE": str(root / "gate")})
+            "HEAVY_SLOTS_MAX": "3", "HEAVY_POLL_SECONDS": "0.01", "SW_GATE_LOCK_FILE": str(root / "gate")})
         self.env.start()
         self.saved = os.environ.pop(resources.TOKEN, None)
 
@@ -146,9 +146,47 @@ class ResourceTests(unittest.TestCase):
                 outputs.append(result.strip())
             self.assertEqual(outputs[0], outputs[1])
 
+    def hold(self, *slots):
+        directory = resources.slot_directory()
+        directory.mkdir(parents=True, exist_ok=True)
+        for slot in slots:
+            _slot, fd = resources.take_slot(directory, slot + 1, start=slot)
+            os.write(fd, b"other holder\n")
+            self.addCleanup(os.close, fd)
+
+    def test_spare_capacity_admits_jobs_beyond_the_guaranteed_slots_up_to_the_maximum(self):
+        self.hold(0, 1)
+        os.environ["HEAVY_SETTLE_SECONDS"] = "0"
+        with patch.object(resources.os, "getloadavg", return_value=(1.0, 1.0, 1.0)), patch.object(resources, "memory_normal", return_value=True), contextlib.redirect_stderr(StringIO()):
+            with resources.Admission("extra", timeout=0) as admitted:
+                self.assertEqual([slot for slot, _fd in admitted.descriptors], [2])
+            self.hold(2)
+            with self.assertRaisesRegex(TimeoutError, "all 3 slots are busy"):
+                with resources.Admission("beyond", timeout=0): pass
+
+    def test_load_memory_pressure_or_an_unsettled_admission_withholds_extra_slots(self):
+        self.hold(0, 1)
+        os.environ["HEAVY_LOAD_LIMIT"] = "4"
+        cases = [("load 9.0 is at or above 4", (9.0, 9.0, 9.0), True, "0"),
+            ("memory pressure is not normal", (1.0, 1.0, 1.0), False, "0"),
+            ("does not yet show the job admitted", (1.0, 1.0, 1.0), True, "3600")]
+        for reason, load, memory, settle in cases:
+            with self.subTest(reason):
+                os.environ["HEAVY_SETTLE_SECONDS"] = settle
+                with patch.object(resources.os, "getloadavg", return_value=load), patch.object(resources, "memory_normal", return_value=memory), contextlib.redirect_stderr(StringIO()) as error:
+                    with self.assertRaisesRegex(TimeoutError, reason):
+                        with resources.Admission("blocked", timeout=0): pass
+                self.assertIn(reason, error.getvalue())
+
+    def test_adaptive_limits_default_to_the_host_and_reject_a_maximum_below_the_guarantee(self):
+        os.environ.pop("HEAVY_SLOTS_MAX")
+        self.assertEqual(resources.Admission("default").maximum, max(2, (os.cpu_count() or 1) // 2))
+        os.environ["HEAVY_SLOTS_MAX"] = "1"
+        with self.assertRaises(ValueError): resources.Admission("invalid")
+
     def test_exclusive_admission_holds_all_legacy_slots_and_nested_calls_reuse_it(self):
         with resources.Admission("test", exclusive=True, timeout=0):
-            self.assertIsNone(resources.take_slot(resources.slot_directory(), 2))
+            self.assertIsNone(resources.take_slot(resources.slot_directory(), 3))
             with resources.Admission("nested", timeout=0) as nested:
                 self.assertTrue(nested.reused)
             self.assertTrue(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
