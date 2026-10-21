@@ -46,3 +46,13 @@ by design, because the coordinator cannot infer whether that exception left chil
 A recovery checks the recorded process birth and descriptor nonce: a free owned descriptor or
 a later foreign acquisition establishes that the old lock was released. Preserve every foreign
 reservation. Time passing alone establishes none of this.
+
+Legacy shell gates authenticate inherited exclusive admission for their exact lock namespace.
+The coordinator does not export a lock opt-out into the suite: regression fixtures retain
+independent real locks. A process wrapper must forward the admission descriptors, as the
+shared process supervisor does; copying the token environment alone does not transfer ownership.
+
+The default macOS pool uses the system's canonical user temporary directory, as reported by
+getconf DARWIN_USER_TEMP_DIR, independently of a command's private TMPDIR. It keeps the old
+pdfreflow-heavy-slots path. HEAVY_SLOT_DIR is an explicit namespace override for isolated tests;
+using a separate command scratch directory must not multiply the host's build budget.

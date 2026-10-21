@@ -54,6 +54,21 @@ class ConfigurationTests(unittest.TestCase):
             self.assertIn("Common engineering rules", result.stdout)
 
 
+    def test_generated_lane_outputs_do_not_change_the_project_source_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q", directory], check=True)
+            with contextlib.redirect_stdout(StringIO()): cli.main(["--project", directory, "init"])
+            path = root / "engineering.json"
+            value = json.loads(path.read_text())
+            value["lanes"] = {"check": {"command": [sys.executable, "-c", "print('checked')"]}}
+            path.write_text(json.dumps(value))
+            before = config.source_identity(root)
+            self.assertEqual(cli.main(["--project", directory, "run", "check"]), 0)
+            self.assertEqual(config.source_identity(root), before)
+
+
+
 class EvidenceTests(unittest.TestCase):
     def test_zero_tests_cannot_pass_but_a_swift_testing_run_is_not_its_zero_test_xctest_shim(self):
         for text in ["** TEST SUCCEEDED **", "Executed 0 tests, with 0 failures", "Ran 0 tests in 0.000s\nOK", "Test run with 0 tests in 0 suites passed"]:
@@ -116,6 +131,20 @@ class ResourceTests(unittest.TestCase):
         else: os.environ.pop(resources.TOKEN, None)
         self.env.stop()
         self.temp.cleanup()
+
+    def test_private_command_tmpdirs_do_not_create_separate_host_budgets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            environment = dict(os.environ)
+            environment.pop("HEAVY_SLOT_DIR", None)
+            command = [sys.executable, "-c", "from vocaro_engineering.resources import slot_directory; print(slot_directory())"]
+            environment["PYTHONPATH"] = str(config.TOOLKIT_ROOT / "src/python")
+            outputs = []
+            for name in ["first", "second"]:
+                folder = Path(directory) / name
+                folder.mkdir()
+                result = subprocess.check_output(command, text=True, env={**environment, "TMPDIR": str(folder)})
+                outputs.append(result.strip())
+            self.assertEqual(outputs[0], outputs[1])
 
     def test_exclusive_admission_holds_all_legacy_slots_and_nested_calls_reuse_it(self):
         with resources.Admission("test", exclusive=True, timeout=0):

@@ -17,7 +17,9 @@ configuration and prerequisites. A capability enables guidance; it does not gran
 use a device, screen, model, corpus or hosted runner.
 
 For a new repository, run `python3 /path/to/apple-engineering/bin/eng --project /path/to/NewRepo
-init`. Initialization is additive and runs no work. Select the applicable capabilities and add
+init`. Initialization is additive and runs no work. A missing .gitignore is initialized for generated
+outputs; an existing one is preserved. Existing projects must ignore .build/engineering so
+result logs do not become source inputs in subsequent evidence records. Select the applicable capabilities and add
 explicit argv-based lanes to engineering.json. Disposable simulators and the approved reserved
 pool are separate capabilities and cannot both be enabled. Conflicts or unknown fields fail
 validation. Existing AGENTS.md files are preserved: add the explicit `scripts/eng instructions`

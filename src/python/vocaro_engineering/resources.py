@@ -25,7 +25,16 @@ def process_start(pid):
 
 
 def slot_directory():
-    return Path(os.environ.get("HEAVY_SLOT_DIR") or Path(tempfile.gettempdir()) / "pdfreflow-heavy-slots")
+    if os.environ.get("HEAVY_SLOT_DIR"):
+        return Path(os.environ["HEAVY_SLOT_DIR"])
+    # Preserve the legacy macOS user-temp namespace even when a command uses a private TMPDIR.
+    # A process-local temporary directory must not create another host-wide build budget.
+    if sys.platform == "darwin":
+        base = subprocess.check_output(["/usr/bin/getconf", "DARWIN_USER_TEMP_DIR"], text=True, timeout=5).strip()
+        if not base:
+            raise RuntimeError("Cannot establish the host resource directory")
+        return Path(base) / "pdfreflow-heavy-slots"
+    return Path("/tmp/pdfreflow-heavy-slots")
 
 
 def take_slot(directory, slots):
@@ -73,6 +82,20 @@ def inherited(exclusive=False):
         return True
     except (KeyError, TypeError, OSError, ValueError) as error:
         raise RuntimeError(f"Invalid inherited resource admission: {error}") from error
+
+
+def publish_guard(path, state):
+    """Readers authenticate without the coordination lock, so publication is atomic."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, prefix=".vocaro-guard-", delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(state, stream)
+            stream.write("\n")
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 class Admission:
@@ -145,7 +168,7 @@ class Admission:
                 state["owners"][self.identity] = {"pid": os.getpid(), "start": born, "label": self.label,
                                                     "exclusive": self.exclusive}
                 # A legacy keeper cannot obtain shlock until this publication finishes.
-                self.guard.write_text(json.dumps(state) + "\n")
+                publish_guard(self.guard, state)
                 locks = []
                 for slot, fd in self.descriptors:
                     os.ftruncate(fd, 0)
@@ -189,11 +212,11 @@ class Admission:
             if state is not None:
                 if kind is None:
                     state["owners"].pop(self.identity, None)
-                    if state["owners"]: self.guard.write_text(json.dumps(state) + "\n")
+                    if state["owners"]: publish_guard(self.guard, state)
                     else: self.guard.unlink(missing_ok=True)
                 else:
                     state["owners"][self.identity]["uncertain"] = True
-                    self.guard.write_text(json.dumps(state) + "\n")
+                    publish_guard(self.guard, state)
         return False
 
 

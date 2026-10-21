@@ -19,6 +19,9 @@ def initialize(root, args):
         config_path.write_text(json.dumps({"schemaVersion": 1, "name": args.name or root.name,
             "toolkit": {"path": os.path.relpath(TOOLKIT_ROOT, root)},
             "capabilities": args.capability, "lanes": {}, "exceptions": []}, indent=2) + "\n")
+    ignored = root / ".gitignore"
+    if not ignored.exists():
+        ignored.write_text(".build/\n__pycache__/\n*.pyc\n")
     scripts = root / "scripts"
     scripts.mkdir(exist_ok=True)
     launcher = scripts / "eng"
