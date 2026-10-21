@@ -55,7 +55,20 @@ def inherited(exclusive=False):
                 raise ValueError("Admission descriptor does not match its lock")
             if item["nonce"] not in os.pread(item["fd"], 4096, 0).decode():
                 raise ValueError("Admission owner changed")
-        if exclusive and not token.get("exclusive"):
+        nonces = {item["nonce"] for item in token["locks"]}
+        if len(nonces) != 1:
+            raise ValueError("Admission descriptors have different owners")
+        legacy = os.environ.get("SW_GATE_LOCK_FILE", "/tmp/studywright-gate-suite.lock")
+        guard = Path(token.get("guard", legacy + ".warm-push-guard"))
+        state = json.loads(guard.read_text())
+        owner = state.get("owners", {}).get(next(iter(nonces)))
+        if state.get("vocaroEngineering") != 1 or not owner or owner.get("uncertain"):
+            raise ValueError("Admission owner has no active guard")
+        if process_start(owner["pid"]) != owner.get("start"):
+            raise ValueError("Admission owner identity changed")
+        if bool(token.get("exclusive")) != bool(owner.get("exclusive")):
+            raise ValueError("Admission capability differs from its owner")
+        if exclusive and not owner.get("exclusive"):
             raise ValueError("Cannot acquire exclusive admission inside shared admission")
         return True
     except (KeyError, TypeError, OSError, ValueError) as error:
@@ -140,7 +153,7 @@ class Admission:
                     os.set_inheritable(fd, True)
                     locks.append({"fd": fd, "path": str(self.directory / f"slot{slot}"), "nonce": self.identity})
                 self.previous = os.environ.get(TOKEN)
-                os.environ[TOKEN] = json.dumps({"schemaVersion": 1, "exclusive": self.exclusive, "locks": locks})
+                os.environ[TOKEN] = json.dumps({"schemaVersion": 1, "exclusive": self.exclusive, "guard": str(self.guard), "locks": locks})
                 return True
             finally:
                 self._unlock_legacy()
@@ -200,9 +213,6 @@ def main(argv=None):
     if not command: parser.error("a command is required")
     with Admission(" ".join(command), args.exclusive, args.timeout):
         environment = dict(os.environ)
-        if args.exclusive:
-            # The outer admission owns the legacy guard; do not acquire it again in a shell.
-            environment["SW_GATE_LOCK"] = "0"
         from vocaro_engineering.processes import supervise
         return supervise(command, cwd=Path.cwd(), env=environment)
 

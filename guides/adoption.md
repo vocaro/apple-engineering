@@ -3,7 +3,11 @@
 Clone `vocaro/apple-engineering` privately beside your projects. No installation or network is
 needed for normal local invocation. Python 3.9+ runs the source checkout directly; do not
 install a wheel of the Python directory without the repository's policies and source resources.
-Use `VOCARO_ENGINEERING_ROOT` when the checkout is elsewhere.
+Use `VOCARO_ENGINEERING_ROOT` when the checkout is elsewhere. Python guidance and knowledge
+commands work offline; guarded shared-resource lanes refresh operating policy from the remote.
+The existing StudyWright and Pagepour Swift test-support dependencies expect the sibling
+checkout path. A different Swift support location also requires updating those project
+manifests and their graph contracts; the Python environment variable changes only tool lookup.
 
 ## Existing and new projects
 

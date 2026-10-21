@@ -17,7 +17,7 @@
         "-v"
       ],
       "resource": "light",
-      "minimumTests": 20
+      "minimumTests": 21
     }
   },
   "exceptions": []

@@ -27,3 +27,16 @@ Current behavior in subject documents; repeatable procedures in runbooks; issue/
 Exact-case local links, instruction-size checks, snippets taken from compiled examples, generated test counts, fixture notices and historical-issue exceptions.
 
 [studywright scripts/lint-docs.sh](https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/lint-docs.sh), [EPUBLib scripts/check-docs.py](https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/check-docs.py) and [PDFReflowLib tools/update_doc_counts.py](https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/update_doc_counts.py). Reuse checker engines; keep paths, markers and exceptions local.
+
+## Portable negative controls
+
+An isolated checkout may itself live under a temporary directory. A test of a destination
+outside permitted temporary roots must choose an actually excluded parent, rather than assume
+the repository directory is excluded. Assert rejection before any write; a read-only existing
+parent supplies a safe negative control. Preserve the positive temporary-directory and
+symlink controls. The [StudyWright integration record](https://github.com/vocaro/studywright/issues/488)
+captures the regression found while moving development methods into this toolkit.
+
+Dependency-graph contracts also need explicit updates when a module moves. Keep the exact
+shipping dependency closure and test-only exclusions enforced after accepting a new provider;
+removing the negative controls would lose the boundary the extraction is meant to preserve.

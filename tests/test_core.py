@@ -56,9 +56,9 @@ class ConfigurationTests(unittest.TestCase):
 
 class EvidenceTests(unittest.TestCase):
     def test_zero_tests_cannot_pass_but_a_swift_testing_run_is_not_its_zero_test_xctest_shim(self):
-        for text in ["** TEST SUCCEEDED **", "Executed 0 tests, with 0 failures", "Ran 0 tests in 0.000s\nOK"]:
+        for text in ["** TEST SUCCEEDED **", "Executed 0 tests, with 0 failures", "Ran 0 tests in 0.000s\nOK", "Test run with 0 tests in 0 suites passed"]:
             with self.assertRaises(ValueError): evidence.require_tests(text)
-        self.assertEqual(evidence.require_tests("Executed 0 tests, with 0 failures\nTest run with 30 tests passed after 1s"), 30)
+        self.assertEqual(evidence.require_tests("Executed 0 tests, with 0 failures\nTest run with 30 tests in 2 suites passed after 1s"), 30)
 
         self.assertEqual(evidence.require_tests("Ran 43 tests in 0.5s\n\nOK",43),43)
 
@@ -152,6 +152,14 @@ class ResourceTests(unittest.TestCase):
         with patch.object(cli, "refresh_policy", return_value="policy"), patch.object(cli, "source_identity", return_value={}), patch.object(cli.processes, "run", side_effect=finished), contextlib.redirect_stderr(StringIO()):
             self.assertEqual(cli.main(["--project", str(root), "run", "empty"]), 2)
         self.assertFalse(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
+
+    def test_a_shared_owner_cannot_forge_exclusive_admission(self):
+        with resources.Admission("shared", timeout=0):
+            token = json.loads(os.environ[resources.TOKEN])
+            token["exclusive"] = True
+            os.environ[resources.TOKEN] = json.dumps(token)
+            with self.assertRaisesRegex(RuntimeError, "capability"):
+                resources.inherited(exclusive=True)
 
     def test_forged_inherited_descriptor_is_rejected(self):
         os.environ[resources.TOKEN] = json.dumps({"schemaVersion": 1, "locks": [{"fd": 999999, "path": "/not-a-lock", "nonce": "bad"}]})

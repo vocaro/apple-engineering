@@ -16,7 +16,7 @@ def sha256(path):
 
 def require_tests(text, minimum=1):
     counts = [int(n) for n in re.findall(r"Executed (\d+) tests?\b", text)]
-    counts += [int(n) for n in re.findall(r"Test run with (\d+) tests? (?:passed|failed)", text)]
+    counts += [int(n) for n in re.findall(r"Test run with (\d+) tests?(?: in \d+ suites?)? (?:passed|failed)", text)]
     counts += [int(n) for n in re.findall(r"^Ran (\d+) tests?\b", text, flags=re.M)]
     if not counts or max(counts) < minimum:
         raise ValueError(f"Expected at least {minimum} executed tests; observed {max(counts, default=0)}")
