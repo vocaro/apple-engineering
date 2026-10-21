@@ -94,6 +94,14 @@ budget does not allow it, work one at a time in one worktree. Put a scratch buil
 (`--scratch-path`) outside the repository and delete it once its result is read. Remove a
 worktree once its work has landed.
 
+A change to documents or scripts that builds nothing needs no full checkout. Add the worktree
+with `git worktree add --no-checkout`, list the paths with `git sparse-checkout set --no-cone`,
+then run `git checkout`. A link check needs each changed document's local link targets on disk,
+and a hook that lints every document on disk needs every document and its targets. That set was
+13 MB of studywright's 2.5 GB tracked tree (October 2026). Check `extensions.worktreeConfig`
+first: with it on, the sparse setting stayed in the new worktree's own configuration and left
+the main checkout whole.
+
 Keep a run's results directory only while it is worth reading: a run that passed removes its
 own, and a run with a failure or an unmeasured result keeps it and prints the path. Prune
 earlier runs' directories by count, naming each one removed. Keeping every run's results once
