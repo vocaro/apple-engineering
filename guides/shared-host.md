@@ -484,6 +484,12 @@ markers by hand. A free owned descriptor or a later foreign acquisition, checked
 recorded process birth and descriptor nonce, establishes that an old lock was released. Preserve
 every foreign reservation. Time passing alone establishes none of this.
 
+A push keeper's guard is `{"keeper": PID, "checkoutLock": PATH}`. Admission reads it as foreign
+and waits, so while it stands no session on the host is admitted to heavy work. `PATH/owner.json`
+lists each command the keeper ran, with its PID, process group, start time and observed
+descendants, plus `childrenUncertain`. Check each recorded process by PID and start time. This
+was observed when a studywright warm push's keeper died with uncertain children (2026-10-21).
+
 ## Ending a coordinated command
 
 Use the supplied `eng run` or resource CLI for commands. They return the child's status after
