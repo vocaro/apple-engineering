@@ -36,3 +36,13 @@ An image present only in the dyld shared cache may not be available to target-cr
 To see calls made into code you own, log from that code. Never start or attach a debugger to
 answer a framework question on the shared workstation; developer-password dialogs take the
 owner's keyboard. If one appears, stop your processes and leave the dialog for the owner.
+
+## Ending a coordinated command
+
+Use the supplied `eng run` or resource CLI for commands. They return the child's status after
+leaving admission normally. If using Admission directly, leave the context before raising
+SystemExit for a nonzero result. An exception inside the context retains its uncertain guard,
+by design, because the coordinator cannot infer whether that exception left children running.
+A recovery checks the recorded process birth and descriptor nonce: a free owned descriptor or
+a later foreign acquisition establishes that the old lock was released. Preserve every foreign
+reservation. Time passing alone establishes none of this.

@@ -5,6 +5,20 @@
     "path": "."
   },
   "capabilities": [],
-  "lanes": {},
+  "lanes": {
+    "python-tests": {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "resource": "light",
+      "minimumTests": 20
+    }
+  },
   "exceptions": []
 }

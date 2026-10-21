@@ -56,9 +56,11 @@ class ConfigurationTests(unittest.TestCase):
 
 class EvidenceTests(unittest.TestCase):
     def test_zero_tests_cannot_pass_but_a_swift_testing_run_is_not_its_zero_test_xctest_shim(self):
-        for text in ["** TEST SUCCEEDED **", "Executed 0 tests, with 0 failures"]:
+        for text in ["** TEST SUCCEEDED **", "Executed 0 tests, with 0 failures", "Ran 0 tests in 0.000s\nOK"]:
             with self.assertRaises(ValueError): evidence.require_tests(text)
         self.assertEqual(evidence.require_tests("Executed 0 tests, with 0 failures\nTest run with 30 tests passed after 1s"), 30)
+
+        self.assertEqual(evidence.require_tests("Ran 43 tests in 0.5s\n\nOK",43),43)
 
     def test_changed_missing_and_escaping_evidence_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
