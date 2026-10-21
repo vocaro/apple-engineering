@@ -1,8 +1,9 @@
 # Shared engineering repository
 
-Read agents/core.md and the capability relevant to the change. This repository is private;
-private project code and qualification evidence must not be published publicly. Keep the
-Python core standard-library only. Source lives in src/python, src/swift and src/objc.
+Read agents/core.md and the capability relevant to the change. This repository is public and
+MIT licensed. Keep raw private evidence in its private owning project or apple-engineering-evidence;
+publish only reviewed generic source, procedures and summaries here. Keep the Python core
+standard-library only. Source lives in src/python, src/swift and src/objc.
 Runtime libraries have separate repositories and do not import this toolkit.
 
 Run `python3 -m unittest discover -s tests -v` for Python changes. Preserve original upstream

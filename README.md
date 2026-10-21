@@ -2,12 +2,18 @@
 
 Maintained engineering rules, tools, test support and cross-project technical knowledge for
 EPUBLib, PDFReflowLib, StudyWright, Pagepour, MathMLLayout and new projects. This repository is
-private. The shipping libraries BackgroundTaskLib, FileProtectionLib and FileHandoffLib have
+public and [MIT licensed](LICENSE). The shipping libraries BackgroundTaskLib, FileProtectionLib and FileHandoffLib have
 separate private repositories and no dependency on this toolkit.
 
 ## Local use
 
-Clone this repository beside a project as `apple-engineering`, then run:
+Clone this repository beside a project as `apple-engineering` without credentials:
+
+```sh
+git clone https://github.com/vocaro/apple-engineering.git
+```
+
+From the project checkout, run:
 
 ```sh
 python3 scripts/eng doctor
@@ -65,8 +71,12 @@ It does not claim that a test count establishes every required acceptance condit
 
 Hosted Mac VoiceOver remains manually dispatched on the allowed disposable runner. Queue
 inspection spans configured repositories; only the current repository's runs count against its
-branch cap. Public project workflows that use this private toolkit require a scoped read-only
-deploy key. Ordinary public Swift package builds do not import this toolkit.
+branch cap. Public workflows check out this repository without a deploy key. Ordinary public
+Swift package builds do not import this toolkit.
+
+See [public access and evidence](guides/public-access.md) for contributor setup, local queue
+enrollment and private evidence boundaries. Private source links are supplemental provenance;
+using the toolkit requires no access to the private applications or production packages.
 
 ## Verification
 

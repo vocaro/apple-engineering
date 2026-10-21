@@ -30,5 +30,7 @@ refused that destination despite listing the same device in uppercase. The share
 helper validates and emits the canonical UUID. This is a destination lookup observation, not
 a failure of the tests or simulator runtime.
 
-The [shared-tooling qualification](https://github.com/vocaro/apple-engineering/issues/1)
-retains the test results and source identities for this lifecycle helper.
+The [private shared-tooling qualification](https://github.com/vocaro/apple-engineering-evidence/issues/1)
+retains the original test results and source identities for this lifecycle helper. The public
+regressions in tests/test_lifecycle.py reproduce the destination-spelling and ownership checks
+with injected simctl calls; they require no private evidence or live simulator.

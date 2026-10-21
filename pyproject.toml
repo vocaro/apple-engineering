@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "vocaro-engineering"
 version = "0.1.0"
 description = "Shared Apple engineering tools and maintained technical knowledge"
+license = {file = "LICENSE"}
 requires-python = ">=3.9"
 dependencies = []
 

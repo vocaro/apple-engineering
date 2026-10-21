@@ -1,6 +1,8 @@
 # Adoption and maintenance
 
-Clone `vocaro/apple-engineering` privately beside your projects. No installation or network is
+Clone the public MIT-licensed `vocaro/apple-engineering` beside your projects with
+`git clone https://github.com/vocaro/apple-engineering.git`. No GitHub credentials or private
+repository access are needed for that checkout. No installation or network is
 needed for normal local invocation. Python 3.9+ runs the source checkout directly; do not
 install a wheel of the Python directory without the repository's policies and source resources.
 Use `VOCARO_ENGINEERING_ROOT` when the checkout is elsewhere. Python guidance and knowledge

@@ -41,9 +41,24 @@ def gh(*arguments):
     return result.stdout.strip()
 
 
+def enrolled_repositories():
+    """Keep private account enrollment out of public consumer configuration."""
+    local = subprocess.run(["git", "config", "--local", "--get-all",
+                            "vocaroEngineering.hostedRepository"],
+                           cwd=ROOT, capture_output=True, text=True)
+    if local.returncode not in (0, 1):
+        raise SystemExit(f"Cannot read local hosted repository enrollment: {local.stderr.strip()}")
+    repositories = list(__eng_project_config__.get("hostedRepositories", []))
+    for repository in local.stdout.splitlines():
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository):
+            raise SystemExit("Invalid local hosted repository enrollment; use OWNER/REPO")
+        repositories.append(repository)
+    return list(dict.fromkeys(repositories)) or [None]
+
+
 def in_flight():
-    """This repository's runs that hold a runner or wait for one, oldest first."""
-    repositories = __eng_project_config__.get("hostedRepositories") or [None]
+    """Enrolled runs that hold a runner or wait for one, oldest first."""
+    repositories = enrolled_repositories()
     def listed(selection):
         repository, status = selection
         arguments = ["run", "list", "--status", status, "--limit", "100", "--json", FIELDS]
