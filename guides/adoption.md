@@ -41,14 +41,18 @@ belong in src/swift and link only to test/tool targets. No production package im
 
 The launcher resolves `VOCARO_ENGINEERING_ROOT` first, then `toolkit.path` from
 `engineering.json` (default `../apple-engineering`) relative to the checkout it runs in. A
-linked worktree, such as a session's under `.claude/worktrees`, usually has no clone beside it.
-Either set VOCARO_ENGINEERING_ROOT for the session, or give the project's adapter a fallback
-that tries the same relative path beside the repository's main checkout: a linked worktree's
-`.git` is a file naming its private Git directory, whose `commondir` file leads to the shared
-`.git`, whose parent is the main checkout. Reading those files needs no Git command, so script
-tests that replace Git with fakes still work. A submodule's `.git` file has no `commondir`, and
-a main checkout's `.git` is a directory; neither falls back. The adapter passes the clone it
-found to every shared script it runs.
+linked worktree, such as a session's under `.claude/worktrees`, usually has no clone beside it,
+so the launcher then tries the same relative path beside the repository's main checkout: a
+linked worktree's `.git` is a file naming its private Git directory, whose `commondir` file
+leads to the shared `.git`, whose parent is the main checkout. Reading those files needs no Git
+command, so script tests that replace Git with fakes still work. A submodule's `.git` file has
+no `commondir`, and a main checkout's `.git` is a directory; neither falls back. The adapter
+passes the clone it found to every shared script it runs.
+
+`toolkit_location` in `integrations/shared.py` implements this, and `integrations/eng.py`
+imports it. `init` installs them as `scripts/_engineering.py` and `scripts/eng`; a project that
+copied them earlier replaces both together, since the launcher needs the adapter's
+`toolkit_location`.
 
 ## Updating and rolling back
 

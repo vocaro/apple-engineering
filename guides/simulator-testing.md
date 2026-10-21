@@ -124,6 +124,9 @@ menu. SimulatorKit.framework moved from `Contents/Developer/Library/PrivateFrame
 - The missing Simulator.app is expected, not a broken Xcode install, and a check for a running
   `Simulator` process finds nothing. `SimulatorTrampoline.xpc` surviving in CoreSimulator does
   not mean Simulator.app should still exist.
+- A running Device Hub's process is `DeviceHub` (Xcode 27.1, 27A9275), although its bundle's
+  `CFBundleExecutable` is `DevicesTrampoline`. `pgrep -x DeviceHub` finds it without starting
+  it; `vocaro_engineering.simulators.speech.simulator_app()` checks for either app.
 - Tooling that hardcodes the old SimulatorKit path still attaches, takes screenshots and
   launches, but its taps and swipes silently do nothing and still report success. An editor's
   bundled simulator panel had this defect. `simctl` has no input command. XCUITest does not use

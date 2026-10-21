@@ -322,7 +322,9 @@ HTTPS has failure modes of its own:
   still descends from the new `origin/main` (`git merge-base --is-ancestor origin/main SHA`),
   push it again, and otherwise integrate and run the gates on the new tree. Push the gated
   commit by name (`SHA:refs/heads/main`) rather than `main`, so a retry never publishes a local
-  `main` another session advanced after the gates ran.
+  `main` another session advanced after the gates ran. In zsh, brace a variable in that refspec
+  (`"${sha}:refs/heads/main"`): an unbraced `$sha:refs/…` reads `:r` as a history modifier and
+  mangles the refspec.
 
 Follow the owned hook to its terminal result before starting more work. Record the exact commit,
 the clean tree and each complete gate result. A transport failure does not establish a test
