@@ -28,6 +28,10 @@ def initialize(root, args):
     if not launcher.exists():
         shutil.copyfile(TOOLKIT_ROOT / "integrations/eng.py", launcher)
         launcher.chmod(0o755)
+    # The launcher finds the toolkit through this adapter, also from a linked worktree.
+    adapter = scripts / "_engineering.py"
+    if not adapter.exists():
+        shutil.copyfile(TOOLKIT_ROOT / "integrations/shared.py", adapter)
     agents = root / "AGENTS.md"
     if not agents.exists():
         agents.write_text("# Contributor instructions\n\nRead shared guidance before work: `python3 scripts/eng instructions`.\n\nRecord project-specific product rules and justified exceptions here.\n")
