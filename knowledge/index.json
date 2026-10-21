@@ -6,8 +6,8 @@
       "title": "Shared-machine operating rules",
       "path": "guides/maintenance.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/AGENTS.md",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/AGENTS.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md"
       ]
     },
     {
@@ -16,7 +16,11 @@
       "path": "guides/maintenance.md",
       "sources": [
         "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/AGENTS.md#branches",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/check_closing_commits.py"
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/tools/check_closing_commits.py",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0012-an-issue-is-closed-by-what-main-holds.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/working-on-issues.md#landing-on-main",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate"
       ]
     },
     {
@@ -24,8 +28,12 @@
       "title": "Documentation and evidence ownership",
       "path": "guides/maintenance.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/AGENTS.md#where-a-write-up-goes",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/AGENTS.md#issue-workflow"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#where-a-write-up-goes",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#documentation-rules",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#issue-workflow",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0006-measurements-are-records.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0007-records-cite-commits-in-prose.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0013-deferring-work-keeps-its-coverage.md"
       ]
     },
     {
@@ -33,477 +41,3327 @@
       "title": "Documentation checks",
       "path": "guides/maintenance.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/lint-docs.sh",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/check-docs.py",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/update_doc_counts.py"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/lint-docs.sh",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/check-docs.py",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/tools/update_doc_counts.py",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#gates"
       ]
     },
     {
       "id": 5,
-      "title": "Simulator lifecycle",
-      "path": "guides/simulator-testing.md",
+      "title": "Portable negative controls",
+      "path": "guides/maintenance.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/test-ios.sh",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/device-testing.md#reuse-the-simulator-pool"
+        "https://github.com/vocaro/studywright/issues/488"
       ]
     },
     {
       "id": 6,
-      "title": "XCTest execution discipline",
-      "path": "guides/simulator-testing.md",
+      "title": "Heavy-work admission",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/run-voiceover-simulator.py",
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/testing.md#worker-depth"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/gate-lock.sh",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#handle-load-timeouts-and-retries"
       ]
     },
     {
       "id": 7,
-      "title": "Simulator VoiceOver",
-      "path": "guides/voiceover.md",
+      "title": "Scratch and result directories",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/testing.md#simulators",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/simulator_voiceover_activation.py"
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#parallel-gates",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#repeated-conversions-in-one-process",
+        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/AGENTS.md#git-and-concurrent-work"
       ]
     },
     {
       "id": 8,
-      "title": "Hosted Mac VoiceOver",
-      "path": "guides/voiceover.md",
+      "title": "Device reservations",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/testing.md#hosted-mac-sessions",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/hosted-run.py"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reserve-and-hand-off-shared-devices",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#handle-load-timeouts-and-retries",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#restore-release-and-keep-the-current-result-clear",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/run-mobile-ui-session.py"
       ]
     },
     {
       "id": 9,
-      "title": "Background Mac view testing",
-      "path": "guides/background-mac-testing.md",
+      "title": "Attended Mac sessions",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#mac-views-without-ui-automation",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/mac-reader-scene-driver/README.md"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reserve-and-hand-off-shared-devices",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md"
       ]
     },
     {
       "id": 10,
-      "title": "Stable snapshots and galleries",
-      "path": "guides/background-mac-testing.md",
+      "title": "Copies that share a bundle identifier",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#static-snapshots-and-accessibility",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/design-snapshots.md"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md"
       ]
     },
     {
       "id": 11,
-      "title": "Multiple displays and fold poses",
-      "path": "guides/simulator-testing.md",
+      "title": "Process supervision",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/simulator-capture/README.md",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/duo-pose/README.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#persistent-push-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/warm_push.py",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#handle-load-timeouts-and-retries",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/recognition-setup-ui-tests.md#ios-simulator-actual-app-actions"
       ]
     },
     {
       "id": 12,
-      "title": "Heavy-work admission",
+      "title": "Long-running measurements",
       "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/heavy_slot.py",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/gate-lock.sh"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#backgrounding-a-run",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#setup-build-and-run"
       ]
     },
     {
       "id": 13,
-      "title": "Device reservations",
+      "title": "Long pre-push checks",
       "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/device-testing.md#reserve-and-hand-off-shared-devices",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/run-mobile-ui-session.py"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#persistent-push-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#git-and-concurrent-work"
       ]
     },
     {
       "id": 14,
-      "title": "Process supervision",
+      "title": "Checkout provisioning and publication",
       "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/warm_push.py",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/run-voiceover-simulator.py"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#provisioning-a-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#persistent-push-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#eval-harness--answer-quality-evaluation",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees"
       ]
     },
     {
       "id": 15,
-      "title": "Checkout provisioning and publication",
+      "title": "Toolchain selection",
       "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#provisioning-a-checkout",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#persistent-push-checkout"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#setup-build-and-run",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#1-prerequisites"
       ]
     },
     {
       "id": 16,
-      "title": "Evidence collection",
-      "path": "guides/evidence.md",
+      "title": "Inspecting system code without starting it",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/reader-evidence/README.md",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#python-tests-and-historical-evidence"
+        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/AGENTS.md#debuggers",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#voiceovers-own-code-on-mac"
       ]
     },
     {
       "id": 17,
-      "title": "Honest outcome states",
-      "path": "guides/evidence.md",
+      "title": "Lock reclamation",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/run_swift_tests.py",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/testing.md#measurement-gates"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/gate-lock.sh",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/warm_push.py"
       ]
     },
     {
       "id": 18,
-      "title": "Performance and memory measurement",
-      "path": "guides/measurement.md",
+      "title": "Ending a coordinated command",
+      "path": "guides/shared-host.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/memory-testing.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/regression-testing.md#tests-that-pin-a-cost"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/gate-lock.sh"
       ]
     },
     {
       "id": 19,
-      "title": "Independent correctness checks",
-      "path": "guides/evidence.md",
+      "title": "Simulator lifecycle",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/external-validation.md",
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/testing.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/test-ios.sh",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#simulators",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reuse-the-simulator-pool",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#testing"
       ]
     },
     {
       "id": 20,
-      "title": "Corpus provenance",
-      "path": "guides/evidence.md",
+      "title": "Disposable simulators",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/AGENTS.md#test-corpora",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/corpus.md",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/AGENTS.md#security-licenses-and-dependencies"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/test-ios.sh",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate"
       ]
     },
     {
       "id": 21,
-      "title": "Swift package distribution checks",
-      "path": "guides/packaging.md",
+      "title": "Reserved simulator pool",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/check_revision_package.py",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/check-modules.py"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reuse-the-simulator-pool"
       ]
     },
     {
       "id": 22,
-      "title": "Python native-dependency preflight",
-      "path": "guides/python-environments.md",
+      "title": "CoreSimulator restarts",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/check-python-quarantine.py",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/scripts/check-all-python-env.sh"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reuse-the-simulator-pool"
       ]
     },
     {
       "id": 23,
-      "title": "Distribution artifact inspection",
-      "path": "guides/packaging.md",
+      "title": "Device Hub",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/validate-mac-archive.py",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/tools/check_privacy_manifest.py"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#simulators",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#setup-build-and-run",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#the-simulators-keyboard"
       ]
     },
     {
       "id": 24,
-      "title": "OS and model drift measurements",
-      "path": "guides/evidence.md",
+      "title": "Rotation",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/measuring.md#7-when-to-run--the-os-release-regression-protocol",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/AGENTS.md#development-and-verification"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#what-they-show",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/simulator-capture/README.md#active-simulator-display-evidence",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#simulators"
       ]
     },
     {
       "id": 25,
-      "title": "Continued-processing lifecycle",
-      "path": "knowledge/apple/background-processing.md",
+      "title": "Multiple displays and fold poses",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/Sources/PDFReflowKit/ContinuedProcessingSession.swift",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/background-grant/record.md"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#dedicated-duo-simulator-poses",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#drive-a-pose-transition-test",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/simulator-capture/README.md#active-simulator-display-evidence",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#simulators",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#coverage-ownership",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#iphone-duo--studywright-on-iphone-duo",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#architecture-and-product-constraints"
       ]
     },
     {
       "id": 26,
-      "title": "Progress, stalls and scheduler diagnosis",
-      "path": "knowledge/apple/background-processing.md",
+      "title": "Emulating a slow app",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/background-stall/record.md",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/continue-question/record.md",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/scripts/continued-processing-log.py"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#drive-a-pose-transition-test",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#slow-the-app-down-throughout-a-run"
       ]
     },
     {
       "id": 27,
-      "title": "Background compute eligibility and quality",
-      "path": "knowledge/apple/background-processing.md",
+      "title": "Package test hosts",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/ios-gpu-background/record.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/README.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#uikit-note-presentation-in-an-app-hosted-test-bundle",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-on-device-harness"
       ]
     },
     {
       "id": 28,
-      "title": "Data protection during locked execution",
-      "path": "knowledge/apple/data-protection.md",
+      "title": "UI test input and observation",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/Sources/PDFReflowKit/JobDirectory.swift",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/ingestion.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#reader-controls-probe",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/recognition-setup-ui-tests.md#ios-simulator-actual-app-actions",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#drive-a-pose-transition-test"
       ]
     },
     {
       "id": 29,
-      "title": "App extension memory and hardware qualification",
-      "path": "knowledge/apple/app-extensions.md",
+      "title": "XCTest execution discipline",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/converter-extension-693/record.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-simulator.py",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#worker-depth",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md#dedicated-duo-simulator-poses",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md#real-mac-reader-scenes",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#remaining-v1-work-and-post-v1-scope"
       ]
     },
     {
       "id": 30,
-      "title": "Extension process lifetime and XPC",
-      "path": "knowledge/apple/app-extensions.md",
+      "title": "Hung and buffered test runs",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/converter-extension-693/record.md#check-5-lifetime"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#corpus-runs"
       ]
     },
     {
       "id": 31,
-      "title": "Extension packaging, linking and shared containers",
-      "path": "knowledge/apple/app-extensions.md",
+      "title": "Debug and optimized Swift test runs",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/converter-extension-693/record.md#check-6-linking"
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#testing"
       ]
     },
     {
       "id": 32,
-      "title": "System-provided background UI",
-      "path": "knowledge/apple/background-processing.md",
+      "title": "Builds in a sandboxed agent environment",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/continued-processing-activity/record.md",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/continue-question/record.md"
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#031-release-verification"
       ]
     },
     {
       "id": 33,
-      "title": "Unicode and hostile archive paths",
-      "path": "knowledge/apple/document-parsing.md",
+      "title": "Invalid connectionUUID before tests launch",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/architecture.md#publication-model"
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#031-release-verification"
       ]
     },
     {
       "id": 34,
-      "title": "Parser choice can change text",
-      "path": "knowledge/apple/document-parsing.md",
+      "title": "Destination identity spelling",
+      "path": "guides/simulator-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/architecture.md#structural-text",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/text-extraction.md#contract"
+        "https://github.com/vocaro/apple-engineering-evidence/issues/1"
       ]
     },
     {
       "id": 35,
-      "title": "Accessibility observation can change layout",
-      "path": "knowledge/apple/document-parsing.md",
+      "title": "When a device is needed",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/native-viewer.md#layout"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#tests-are-automated",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#simulators",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project"
       ]
     },
     {
       "id": 36,
-      "title": "Command submission is not completion",
-      "path": "knowledge/apple/accessibility.md",
+      "title": "Owner devices and session windows",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/architecture.md#engine-contract",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/reader-controls.md#commands-appearance-and-state"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#tests-are-automated",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#physical-iphone-and-ipad",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#physical-devices"
       ]
     },
     {
       "id": 37,
-      "title": "Native renderer containment needs more than a byte limit",
-      "path": "knowledge/apple/accessibility.md",
+      "title": "Preflight",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/resvg-panic-boundary.py",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/scripts/resvg-panic-boundary.rs",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/native-viewer.md#limitations"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#physical-devices",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#diagnosing-a-device"
       ]
     },
     {
       "id": 38,
-      "title": "Framework safety includes object destruction and font lifetime",
-      "path": "knowledge/apple/framework-lifetimes.md",
+      "title": "devicectl states and timeouts",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/decisions/0002-pdfkit-extraction-gate.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/decisions/0016-a-conversion-holds-the-faces-it-reads.md"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#handle-load-timeouts-and-retries",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#physical-iphone-and-ipad",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#physical-devices",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5t-qualify-a-shelf-title-on-its-own-pack-title_quality"
       ]
     },
     {
       "id": 39,
-      "title": "Executable identity and execution environment can alter OCR",
-      "path": "knowledge/apple/framework-execution-identity.md",
+      "title": "UI automation authorization",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/cli-name-recognition-control/record.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/raster-environment/record.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/recognition-preparation-2026-10-02/record.md"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#physical-iphone-and-ipad",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#device-ui-tests",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#mac-ui-tests"
       ]
     },
     {
       "id": 40,
-      "title": "Streaming requires explicit ownership and backpressure",
-      "path": "knowledge/apple/framework-lifetimes.md",
+      "title": "Locked devices",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/architecture.md#serialization-and-resource-lifetime",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/memory-testing.md#repeated-conversions-in-one-process",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/pdfkit-repeated-conversions/record.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#device-ui-tests",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project"
       ]
     },
     {
       "id": 41,
-      "title": "Logical text recovery is different from forward bidi layout",
-      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "title": "Device host apps and signing",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/bidi-boundary.md"
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#page-retention-strategies",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#physical-devices",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-on-device-harness",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#estimating-a-devices-window",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5t-qualify-a-shelf-title-on-its-own-pack-title_quality"
       ]
     },
     {
       "id": 42,
-      "title": "Raster coordinates, conversions and lifetimes need separate contracts",
-      "path": "knowledge/apple/raster-contracts.md",
+      "title": "An isolated QA project",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/doc/document-raster-analysis.md",
-        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/measurements/converter-extension-693/record.md#page-379-on-ios"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/apple-books-workflow.md#isolated-mobile-qualification"
       ]
     },
     {
       "id": 43,
-      "title": "Concurrent ML workloads can silently corrupt results",
-      "path": "knowledge/ml/embedding-correctness.md",
+      "title": "Launching without XCTest",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/embedding.md"
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#physical-devices",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-pcc-ledger",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
       ]
     },
     {
       "id": 44,
-      "title": "Model compatibility includes preprocessing semantics",
-      "path": "knowledge/ml/embedding-correctness.md",
+      "title": "RunningBoard thermal termination of XCTest hosts",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/embedding.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
       ]
     },
     {
       "id": 45,
-      "title": "Inference availability must be tested through the real execution path",
-      "path": "knowledge/ml/inference-and-evidence.md",
+      "title": "Debug dylibs and signing digests",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/AGENTS.md#development-and-verification",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/engine.md#inference-seam-and-tiers"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6b-the-seam-pcc-lane"
       ]
     },
     {
       "id": 46,
-      "title": "Retrieval, attribution and truth are different checks",
-      "path": "knowledge/ml/inference-and-evidence.md",
+      "title": "Device screenshots",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/answer-authority.md#separate-decisions",
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/ruled-out.md"
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#device-ui-tests"
       ]
     },
     {
       "id": 47,
-      "title": "Durable recovery and actor isolation solve different failures",
-      "path": "knowledge/apple/scenes-and-recovery.md",
+      "title": "Diagnosing a device",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/ingestion.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#diagnosing-a-device",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
       ]
     },
     {
       "id": 48,
-      "title": "Network import policy must survive redirects and decompression",
-      "path": "knowledge/apple/network-import.md",
+      "title": "Device Hub touch on a physical device",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/components/ingestion.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/device-testing.md#device-hub"
       ]
     },
     {
       "id": 49,
-      "title": "Provider file URLs are temporary capabilities",
-      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "title": "Restoration and release",
+      "path": "guides/device-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/mac-share-intake.md#acceptance-and-handoff"
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#physical-iphone-and-ipad",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#restore-release-and-keep-the-current-result-clear"
       ]
     },
     {
       "id": 50,
-      "title": "A selected file does not grant its parent directory",
-      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "title": "Behavior belongs in headless models",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/save-destinations/record.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#testing",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#app-screen-and-testing-boundaries"
       ]
     },
     {
       "id": 51,
-      "title": "App Intent results and cancellation need ownership boundaries",
-      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "title": "What each layer establishes",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/shortcuts-conversion.md#failure-stopping-and-file-lifetime"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#app-screen-and-testing-boundaries",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#lanes"
       ]
     },
     {
       "id": 52,
-      "title": "StoreKit request success does not prove update delivery",
-      "path": "knowledge/apple/storekit-environments.md",
+      "title": "Lanes and push hooks",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/measurements/storekit-lifetime/record.md#mac-transaction-updates-on-2026-10-08",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/purchase-policy.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#lanes",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
       ]
     },
     {
       "id": 53,
-      "title": "Scene restoration is not just view reconstruction",
-      "path": "knowledge/apple/scenes-and-recovery.md",
+      "title": "Fixture launches",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/studywright/blob/f25d97a147e63c8c9a3bdbebaad2ea1c7e957e8c/doc/architecture.md#app-screen-and-testing-boundaries",
-        "https://github.com/vocaro/Pagepour/blob/e8cce638223f4751f4365b61ade888c3eeefb4bd/doc/mobile-windows.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#app-screen-and-testing-boundaries",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md"
       ]
     },
     {
       "id": 54,
-      "title": "A depth limit does not bound stack or total work",
-      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "title": "Tests own their files and defaults",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/limits.md#bounds"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#lanes"
       ]
     },
     {
       "id": 55,
-      "title": "Bidi wrapping needs paragraph context and physical geometry",
-      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "title": "Skips and source contracts",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/line-breaking.md",
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/directionality.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#lanes"
       ]
     },
     {
       "id": 56,
-      "title": "Font and image metrics have different units",
-      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "title": "Waits bound stalls",
+      "path": "guides/app-testing.md",
       "sources": [
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/fonts.md#math-value-adjustments",
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/images.md"
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#persistent-push-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#python-tests-and-historical-evidence"
       ]
     },
     {
       "id": 57,
+      "title": "XCTest failure handling",
+      "path": "guides/app-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#mac-views-without-ui-automation",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md"
+      ]
+    },
+    {
+      "id": 58,
+      "title": "Accessibility semantics as data",
+      "path": "guides/app-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/dogfooding.md#2026-09-13--session-5-shift-command-q-shortcut-fix-and-three-uitest-failure-diagnoses"
+      ]
+    },
+    {
+      "id": 59,
+      "title": "Diagnosing a failing UI test",
+      "path": "guides/app-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/dogfooding.md#2026-09-14--session-8-the-quizask-pane-open-failure-is-a-test-oracle-defect-not-a-broken-pane",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#coverage-ownership"
+      ]
+    },
+    {
+      "id": 60,
+      "title": "Test hosts and what they reach",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#mac-views-without-ui-automation"
+      ]
+    },
+    {
+      "id": 61,
+      "title": "Offscreen AppKit hosting",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#mac-views-without-ui-automation",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#the-mac",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate"
+      ]
+    },
+    {
+      "id": 62,
+      "title": "In-process accessibility actions",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#mac-views-without-ui-automation",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#native-mac-purchase-pane-without-ui-automation-on-2026-10-08",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage"
+      ]
+    },
+    {
+      "id": 63,
+      "title": "In-process key events",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md"
+      ]
+    },
+    {
+      "id": 64,
+      "title": "Sandboxed app-hosted tests",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#the-mac",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/save-destinations/record.md#validation"
+      ]
+    },
+    {
+      "id": 65,
+      "title": "Driving an owned app in the background",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-ocr-driver/main.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#validation",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/test-reader.md#verification"
+      ]
+    },
+    {
+      "id": 66,
+      "title": "Capturing a background window",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/test-reader.md#verification",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage"
+      ]
+    },
+    {
+      "id": 67,
+      "title": "Lock screen and display sleep",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project"
+      ]
+    },
+    {
+      "id": 68,
+      "title": "Foreground work is a separate lane",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
+      ]
+    },
+    {
+      "id": 69,
+      "title": "Building snapshot scenes",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#how-a-scenario-is-built",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility"
+      ]
+    },
+    {
+      "id": 70,
+      "title": "Rendering until stable",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#how-a-scenario-is-built",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#the-mac",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility"
+      ]
+    },
+    {
+      "id": 71,
+      "title": "Pinned render settings",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#compare-with-a-baseline"
+      ]
+    },
+    {
+      "id": 72,
+      "title": "Baselines and their review",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#compare-with-a-baseline",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/duo-pose/README.md"
+      ]
+    },
+    {
+      "id": 73,
+      "title": "Galleries and comparisons",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#review-them",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshot-interactions.md#current-coverage",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#run-them"
+      ]
+    },
+    {
+      "id": 74,
+      "title": "Window renders and system screenshots",
+      "path": "guides/background-mac-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#what-they-show",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshots.md#not-covered",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/design-snapshot-interactions.md#system-presentations",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#static-snapshots-and-accessibility"
+      ]
+    },
+    {
+      "id": 75,
+      "title": "Lanes and what each establishes",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#voiceover-testing",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#tests-are-automated"
+      ]
+    },
+    {
+      "id": 76,
+      "title": "Acceptance rule",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#acceptance-and-evidence",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#tests-are-automated"
+      ]
+    },
+    {
+      "id": 77,
+      "title": "Recording speech evidence",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#acceptance-and-evidence"
+      ]
+    },
+    {
+      "id": 78,
+      "title": "Speech fixtures and reference views",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#isolated-reader-and-fixture"
+      ]
+    },
+    {
+      "id": 79,
+      "title": "Harness pitfalls across lanes",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md"
+      ]
+    },
+    {
+      "id": 80,
+      "title": "Observing the rotor HUD and other transient overlays",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/reader-evidence/README.md#reproduce-offline-rotor-ocr",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence"
+      ]
+    },
+    {
+      "id": 81,
+      "title": "Physical iPhone and iPad",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#physical-iphone-and-ipad",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
+      ]
+    },
+    {
+      "id": 82,
+      "title": "Human review of generated speech",
+      "path": "guides/voiceover.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/tools/speechreview/introduction.md#how-to-review",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-wording-audit.md#accepted-evidence-and-remaining-human-review-scope"
+      ]
+    },
+    {
+      "id": 83,
+      "title": "Runner contract",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-simulator.py"
+      ]
+    },
+    {
+      "id": 84,
+      "title": "Muted speech capture",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-simulator.py"
+      ]
+    },
+    {
+      "id": 85,
+      "title": "Readiness and silent start",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators"
+      ]
+    },
+    {
+      "id": 86,
+      "title": "The xcodebuild diagnostics hang",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-simulator.py"
+      ]
+    },
+    {
+      "id": 87,
+      "title": "What stock simulator VoiceOver cannot do",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators"
+      ]
+    },
+    {
+      "id": 88,
+      "title": "Reading the rotor without activation",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators"
+      ]
+    },
+    {
+      "id": 89,
+      "title": "Timings and simulator geometry",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#investigating-cursor-activation"
+      ]
+    },
+    {
+      "id": 90,
+      "title": "VoiceOver's vot log",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 91,
+      "title": "Guarded cursor activation",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#investigating-cursor-activation",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/simulator_voiceover_activation.py"
+      ]
+    },
+    {
+      "id": 92,
+      "title": "Investigating cursor activation",
+      "path": "guides/voiceover-simulator.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#investigating-cursor-activation"
+      ]
+    },
+    {
+      "id": 93,
+      "title": "Where Mac sessions run",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#mac-voiceover-sessions",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#mac-speech-capture"
+      ]
+    },
+    {
+      "id": 94,
+      "title": "Speech capture and the key driver",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#mac-speech-capture",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-mac.py"
+      ]
+    },
+    {
+      "id": 95,
+      "title": "VoiceOver state and restoration",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#mac-speech-capture",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 96,
+      "title": "Key commands",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#mac-speech-capture",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 97,
+      "title": "Accessibility observer",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#page-actions-and-value-notifications",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#links"
+      ]
+    },
+    {
+      "id": 98,
+      "title": "Session grammar and per-session settings",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/run-voiceover-sessions.py"
+      ]
+    },
+    {
+      "id": 99,
+      "title": "Link verbosity",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#links"
+      ]
+    },
+    {
+      "id": 100,
+      "title": "Safari as an independent reference",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#safari-on-mac"
+      ]
+    },
+    {
+      "id": 101,
+      "title": "Reading VoiceOver's own code",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#voiceovers-own-code-on-mac"
+      ]
+    },
+    {
+      "id": 102,
+      "title": "Probing what VoiceOver asks the app",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 103,
+      "title": "Attended sessions",
+      "path": "guides/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/mac-reader-scene-driver/README.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#reserve-and-hand-off-shared-devices"
+      ]
+    },
+    {
+      "id": 104,
+      "title": "Purpose and limits",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions"
+      ]
+    },
+    {
+      "id": 105,
+      "title": "Preparing a disposable runner",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/.github/workflows/voiceover-mac.yml"
+      ]
+    },
+    {
+      "id": 106,
+      "title": "Dispatching a run",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/hosted-run.py",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#mac-voiceover-sessions"
+      ]
+    },
+    {
+      "id": 107,
+      "title": "Sharing the runner",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#sharing-the-runner"
+      ]
+    },
+    {
+      "id": 108,
+      "title": "Batching sessions",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#sharing-the-runner"
+      ]
+    },
+    {
+      "id": 109,
+      "title": "Caps and cancelling",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#sharing-the-runner",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#mac-voiceover-sessions"
+      ]
+    },
+    {
+      "id": 110,
+      "title": "Outcomes and downloads",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions"
+      ]
+    },
+    {
+      "id": 111,
+      "title": "Differences from a workstation",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions"
+      ]
+    },
+    {
+      "id": 112,
+      "title": "Billing check",
+      "path": "guides/hosted-runner.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#hosted-mac-sessions",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#mac-voiceover-sessions"
+      ]
+    },
+    {
+      "id": 113,
+      "title": "Test layers",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#results",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#qualification-complete"
+      ]
+    },
+    {
+      "id": 114,
+      "title": "Configuration files, schemes and test plans",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/project.yml",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/Config/PagepourPurchases.xctestplan",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#implementation"
+      ]
+    },
+    {
+      "id": 115,
+      "title": "Controlled-store tests",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourPurchaseTests/LifetimePurchaseTests.swift"
+      ]
+    },
+    {
+      "id": 116,
+      "title": "App-hosted StoreKitTest tests",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourPurchaseTests/StoreKitLifetimePurchaseTests.swift"
+      ]
+    },
+    {
+      "id": 117,
+      "title": "Purchase UI tests",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourPurchaseUITests/PurchaseUITests.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourPurchaseTests/MacPurchaseViewTests.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#native-mac-purchase-pane-without-ui-automation-on-2026-10-08"
+      ]
+    },
+    {
+      "id": 118,
+      "title": "The Mac StoreKit environment",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md#shared-engineering-guidance",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/smoke-test-mac-archive.sh"
+      ]
+    },
+    {
+      "id": 119,
+      "title": "Apple sandbox qualification",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourUITests/AppleSandboxPurchaseUITests.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#reproduce-the-real-device-probe"
+      ]
+    },
+    {
+      "id": 120,
+      "title": "TestFlight and production",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/mac-ocr-corpus/apple-installed-testflight/record.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/mac-app-store/record.md#qualification-boundary-and-release-follow-up"
+      ]
+    },
+    {
+      "id": 121,
+      "title": "Offline and recovery checks",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#owner-verified-physical-ipad-offline-relaunch"
+      ]
+    },
+    {
+      "id": 122,
+      "title": "Archive smoke check",
+      "path": "guides/storekit-testing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-app-store-release.md#exercise-the-archived-app",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/smoke-test-mac-archive.sh"
+      ]
+    },
+    {
+      "id": 123,
+      "title": "Public and private destinations",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/reader-evidence/README.md#extract-and-retain-a-completed-run",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5s-admit-private-holdouts-through-content-free-receipts",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-pcc-ledger"
+      ]
+    },
+    {
+      "id": 124,
+      "title": "Planning acceptance and diagnostic work",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#plan-the-acceptance-and-diagnostic-work",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md#shared-engineering-guidance",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-pcc-ledger"
+      ]
+    },
+    {
+      "id": 125,
+      "title": "Evidence collection",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-on-device-harness"
+      ]
+    },
+    {
+      "id": 126,
+      "title": "Evidence commands",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/reader-evidence/README.md#extract-and-retain-a-completed-run",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/reader-evidence/README.md#capture-and-verify-identities"
+      ]
+    },
+    {
+      "id": 127,
+      "title": "Source identities and receipts",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#python-tests-and-historical-evidence",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6-what-to-record",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#eval-harness--answer-quality-evaluation",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/pipeline.md"
+      ]
+    },
+    {
+      "id": 128,
+      "title": "Honest outcome states",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0014-an-unavailable-vision-leaves-its-tests-unmeasured.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/tools/run_swift_tests.py",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#measurement-gates",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage"
+      ]
+    },
+    {
+      "id": 129,
+      "title": "Late callbacks and quiet periods",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#adapter-contract-tests"
+      ]
+    },
+    {
+      "id": 130,
+      "title": "Independent correctness checks",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#adding-or-changing-a-regression",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#quiz-generation--quiz--exam-question-generation",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md"
+      ]
+    },
+    {
+      "id": 131,
+      "title": "Comparing runs across builds and environments",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/corpus.md#comparing-conversion-runs",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#acceptance-and-evidence"
+      ]
+    },
+    {
+      "id": 132,
+      "title": "Byte identity for refactors",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0004-byte-identity-gate.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#invariants"
+      ]
+    },
+    {
+      "id": 133,
+      "title": "Corpus provenance",
+      "path": "guides/evidence.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/AGENTS.md#test-corpora",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#books",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/corpus.md#real-document-development-corpus",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#security-licenses-and-dependencies",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/corpus.md#sourcing-and-re-ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/corpus.md#licensing-a-corpus-you-will-redistribute",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#real-world-corpus"
+      ]
+    },
+    {
+      "id": 134,
+      "title": "Harness scope and claims",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#pinned-standards-subset"
+      ]
+    },
+    {
+      "id": 135,
+      "title": "Importing upstream assertions",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#pinned-standards-subset",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#updating-fixtures-and-ci"
+      ]
+    },
+    {
+      "id": 136,
+      "title": "Reports",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#batch-rendering-and-reference-gallery"
+      ]
+    },
+    {
+      "id": 137,
+      "title": "Browser reference oracles",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#batch-rendering-and-reference-gallery"
+      ]
+    },
+    {
+      "id": 138,
+      "title": "Independent decoder oracles",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#independently-decoded-font-data"
+      ]
+    },
+    {
+      "id": 139,
+      "title": "Synthetic fixture oracles",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/bidi-text-tests.md",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#bidirectional-text"
+      ]
+    },
+    {
+      "id": 140,
+      "title": "Outcome classification and reviewed discrepancies",
+      "path": "guides/external-validation.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#larger-ar5iv-sample",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#pinned-standards-subset",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#updating-fixtures-and-ci"
+      ]
+    },
+    {
+      "id": 141,
+      "title": "Fresh baselines per OS build",
+      "path": "guides/os-drift.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#7-when-to-run--the-os-release-regression-protocol",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6-what-to-record",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers"
+      ]
+    },
+    {
+      "id": 142,
+      "title": "Triggers and tiers",
+      "path": "guides/os-drift.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#triggers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#tiers"
+      ]
+    },
+    {
+      "id": 143,
+      "title": "Gate versus inform",
+      "path": "guides/os-drift.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#what-gates-a-release-vs-what-merely-informs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#eval-harness--answer-quality-evaluation"
+      ]
+    },
+    {
+      "id": 144,
+      "title": "Supported means measured",
+      "path": "guides/os-drift.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#supported-os-matrix",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#derive-bars-from-the-platform-you-enforce-them-on"
+      ]
+    },
+    {
+      "id": 145,
+      "title": "OS-owned values in deterministic gates",
+      "path": "guides/os-drift.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#os-owned-recognition-inside-a-deterministic-gate",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#platform-drift--tracking-apples-moving-platform"
+      ]
+    },
+    {
+      "id": 146,
+      "title": "Fresh-process memory metrics",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#memory-regression-testing",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0015-the-ceilings-stay-on-peak-rss.md",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#svg-rendering-cost-probe"
+      ]
+    },
+    {
+      "id": 147,
+      "title": "Host pressure and unmeasured ceilings",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0009-an-unmeasured-ceiling-is-not-a-failure.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#parallel-gates",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees"
+      ]
+    },
+    {
+      "id": 148,
+      "title": "CPU, scheduling and core-wait time",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0017-time-waiting-for-a-core-is-not-the-conversions.md",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#local-gate"
+      ]
+    },
+    {
+      "id": 149,
+      "title": "Counting work instead of time",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#tests-that-pin-a-cost"
+      ]
+    },
+    {
+      "id": 150,
+      "title": "Repeated-process checks",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#repeated-conversions-in-one-process"
+      ]
+    },
+    {
+      "id": 151,
+      "title": "Leak investigation",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#isolating-pdfkit-growth"
+      ]
+    },
+    {
+      "id": 152,
+      "title": "Bounded reruns and campaigns",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#concurrency-campaigns"
+      ]
+    },
+    {
+      "id": 153,
+      "title": "Baselines and builds",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
+      ]
+    },
+    {
+      "id": 154,
+      "title": "Quality changes and model evaluation",
+      "path": "guides/measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 155,
+      "title": "Vocabulary",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#covered-vs-answered",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5p-separate-answer-correctness-trust-and-fallback-measurement_pack_answer_taxonomy"
+      ]
+    },
+    {
+      "id": 156,
+      "title": "Deterministic checks gate; model qualification informs",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#measuring-studywright",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#what-gates-a-release-vs-what-merely-informs"
+      ]
+    },
+    {
+      "id": 157,
+      "title": "Deterministic stages come first",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#grounding-bands-and-the-band-sweep-no-model",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
+      ]
+    },
+    {
+      "id": 158,
+      "title": "Positive controls and the shipped path",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#2-choosing-a-backend",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#4-reading-the-output"
+      ]
+    },
+    {
+      "id": 159,
+      "title": "Predeclaration",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-two-turn-legs-follow-up-grounding",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5m-predeclare-repair-versus-resample-quiz_repair_policy_runner",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5t-qualify-a-shelf-title-on-its-own-pack-title_quality"
+      ]
+    },
+    {
+      "id": 160,
+      "title": "Call plans and budgets",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#budgeting-the-fm-allotment",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-on-device-harness",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5k-predeclare-the-pcc-salvage-decomposition-quiz_decomposition_runner"
+      ]
+    },
+    {
+      "id": 161,
+      "title": "Stop rules",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-two-turn-legs-follow-up-grounding",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 162,
+      "title": "Same-session and null controls",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3-running-it",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-rerank-answer-measurement"
+      ]
+    },
+    {
+      "id": 163,
+      "title": "Paired comparisons",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#free-vs-structured-answer-path",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-retrieval-legs-no-model"
+      ]
+    },
+    {
+      "id": 164,
+      "title": "Clustering and variance",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6-what-to-record",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers"
+      ]
+    },
+    {
+      "id": 165,
+      "title": "Denominators",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#covered-vs-answered",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5o-separate-citation-coverage-from-precision-measurement_pack_citation_taxonomy",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#release-evidence-completeness-and-balanced-coverage"
+      ]
+    },
+    {
+      "id": 166,
+      "title": "Fitted regression bars",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#bar-sidedness-and-the-anomaly-flag",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#fitted-bars-become-the-gates-and-the-ratification-sitting",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#what-gates-a-release-vs-what-merely-informs"
+      ]
+    },
+    {
+      "id": 167,
+      "title": "Scoring",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5-probe-discipline",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5e-is-a-deterministic-rule-available-numeralanchormeasurement"
+      ]
+    },
+    {
+      "id": 168,
+      "title": "Human reading",
+      "path": "guides/model-evaluation.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5t-qualify-a-shelf-title-on-its-own-pack-title_quality",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-two-turn-legs-follow-up-grounding"
+      ]
+    },
+    {
+      "id": 169,
+      "title": "Swift package distribution checks",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/tools/check_revision_package.py",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/check-modules.py",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#gates",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#headless-adapter-checks"
+      ]
+    },
+    {
+      "id": 170,
+      "title": "Explicit imports and package identity",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#lanes",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#overview"
+      ]
+    },
+    {
+      "id": 171,
+      "title": "Generated Xcode projects",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#dogfood--developer-dogfooding-on-personal-material",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#gates"
+      ]
+    },
+    {
+      "id": 172,
+      "title": "Distribution artifact inspection",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/validate-mac-archive.py",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/read-signing-entitlements.swift",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/tools/check_privacy_manifest.py",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/licensing.md#shipping-in-a-closed-source-app"
+      ]
+    },
+    {
+      "id": 173,
+      "title": "Mac App Store export and TestFlight upload",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-app-store-release.md#export-a-local-app-store-package",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-app-store-release.md#upload-to-testflight",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/dogfood-builds.md#testflight"
+      ]
+    },
+    {
+      "id": 174,
+      "title": "Deployment floor assessment",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/deployment-floor.md#what-needs-27",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/deployment-floor.md#measured-on-ios-265"
+      ]
+    },
+    {
+      "id": 175,
+      "title": "Dependency licence gates",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/license-policy.md#how-it-is-enforced",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/license-policy.md#models",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/licensing.md#shipping-in-a-closed-source-app"
+      ]
+    },
+    {
+      "id": 176,
+      "title": "Core ML model resources",
+      "path": "guides/packaging.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#overview",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#platform-drift--tracking-apples-moving-platform",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md"
+      ]
+    },
+    {
+      "id": 177,
+      "title": "Python native-dependency preflight",
+      "path": "guides/python-environments.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/scripts/check-all-python-env.sh",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/testing.md#provisioning-a-checkout",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#python-dependency-preflight"
+      ]
+    },
+    {
+      "id": 178,
+      "title": "Dependency identity in receipts",
+      "path": "guides/python-environments.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#lock-projection"
+      ]
+    },
+    {
+      "id": 179,
+      "title": "Native packages follow the OS",
+      "path": "guides/python-environments.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#3b-the-legs-the-bars-and-the-current-numbers"
+      ]
+    },
+    {
+      "id": 180,
+      "title": "Map HTML alternatives and hiding as HTML-AAM does",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#hidden-text;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility"
+      ]
+    },
+    {
+      "id": 181,
+      "title": "VoiceOver speaks a role's own words",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 182,
+      "title": "An element without a name is read by its help or its contents",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 183,
+      "title": "SwiftUI puts named actions on the view it hosts",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 184,
+      "title": "SwiftUI controls take different shapes in each platform's tree",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md#names-values-and-states"
+      ]
+    },
+    {
+      "id": 185,
+      "title": "A layout priority is seen only from the outermost modifier",
+      "path": "knowledge/apple/accessibility.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md"
+      ]
+    },
+    {
+      "id": 186,
+      "title": "Qualify an extension's memory limit on the target hardware",
+      "path": "knowledge/apple/app-extensions.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#the-ipad",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#the-increased-memory-limit-entitlement",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#what-others-report"
+      ]
+    },
+    {
+      "id": 187,
+      "title": "invalidate() withdraws the host's hold; it does not end the process",
+      "path": "knowledge/apple/app-extensions.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#check-5-lifetime",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project"
+      ]
+    },
+    {
+      "id": 188,
+      "title": "Linking, resources and App Groups need per-platform checks",
+      "path": "knowledge/apple/app-extensions.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#check-6-linking",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/README.md#the-project",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/app-shell.md#the-app--app"
+      ]
+    },
+    {
+      "id": 189,
+      "title": "Managed asset packs need an app group, a downloader extension and a guard",
+      "path": "knowledge/apple/background-assets.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/app-shell.md#the-app--app",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/measurements/audits/os27-mac-assetpackmanager-appgroup.md"
+      ]
+    },
+    {
+      "id": 190,
+      "title": "A local pack and an openable pack are separate facts",
+      "path": "knowledge/apple/background-assets.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/app-shell.md#the-app--app"
+      ]
+    },
+    {
+      "id": 191,
+      "title": "Development builds need a mock server and device-side overrides",
+      "path": "knowledge/apple/background-assets.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/app/AssetPacks/README.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/dogfood-builds.md#local-mac-loop",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#dogfood--developer-dogfooding-on-personal-material"
+      ]
+    },
+    {
+      "id": 192,
+      "title": "Delivery is qualified only through Apple's distribution",
+      "path": "knowledge/apple/background-assets.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/app/AssetPacks/README.md#production-form"
+      ]
+    },
+    {
+      "id": 193,
+      "title": "Submission, acceptance and a grant are separate states",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/Sources/PDFReflowKit/ContinuedProcessingSession.swift",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/Sources/PDFReflowKit/BackgroundTaskAdapter.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/background-grant/record.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/ios-cpu-background/record.md#corrected-registration-and-native-background-proof",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#ios--ios-app-target--on-device-shipping"
+      ]
+    },
+    {
+      "id": 194,
+      "title": "A task whose count stops moving can be ended as stalled",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/background-stall/record.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/4a625316a5b4a4aafea5134dfcfec1a6991e9cbd/Sources/PDFReflowKit/ContinuedProcessingSystem.swift"
+      ]
+    },
+    {
+      "id": 195,
+      "title": "Starvation is not a hang",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/continue-question/record.md#why-ios-ended-the-books",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
+      ]
+    },
+    {
+      "id": 196,
+      "title": "Scheduler and power logs explain why a task ended",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/continued-processing-log.py",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/scripts/continued-processing-powerlog.py",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build"
+      ]
+    },
+    {
+      "id": 197,
+      "title": "iOS asks whether a slow task should continue",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/continue-question/record.md#the-question"
+      ]
+    },
+    {
+      "id": 198,
+      "title": "iOS already draws a continued-processing activity",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/continued-processing-activity/record.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#retain-reproducible-evidence"
+      ]
+    },
+    {
+      "id": 199,
+      "title": "Background compute needs a resource, an entitlement and its own qualification",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/ios-gpu-background/record.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/README.md#swift-api",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#remaining-v1-work-and-post-v1-scope"
+      ]
+    },
+    {
+      "id": 200,
+      "title": "Testing continued processing",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/device-testing.md#preflight-and-freeze-the-measured-build",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/ios-cpu-background/record.md#actual-system-cancellation-and-remaining-qualification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#remaining-v1-work-and-post-v1-scope"
+      ]
+    },
+    {
+      "id": 201,
+      "title": "On the Mac, hold a user-initiated activity",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/app-design.md#keeping-the-mac-awake"
+      ]
+    },
+    {
+      "id": 202,
+      "title": "Shared implementation",
+      "path": "knowledge/apple/background-processing.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/Sources/PDFReflowKit/BackgroundTaskAdapter.swift",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#shared-engineering-mechanisms"
+      ]
+    },
+    {
+      "id": 203,
+      "title": "Command submission is not completion",
+      "path": "knowledge/apple/command-lifecycles.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#engine-contract;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md#commands-appearance-and-state"
+      ]
+    },
+    {
+      "id": 204,
+      "title": "Publish state before the event that reports it",
+      "path": "knowledge/apple/command-lifecycles.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md#commands-appearance-and-state"
+      ]
+    },
+    {
+      "id": 205,
+      "title": "A background grant does not grant file access under lock",
+      "path": "knowledge/apple/data-protection.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/measurements/audits/os27-dataprotection-under-lock-ipad.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/Sources/PDFReflowKit/JobDirectory.swift"
+      ]
+    },
+    {
+      "id": 206,
+      "title": "A directory stamp governs only files created afterwards",
+      "path": "knowledge/apple/data-protection.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/measurements/audits/os27-dataprotection-stamping-fixed-ipad.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#check-2-the-app-group-container-mac-part"
+      ]
+    },
+    {
+      "id": 207,
+      "title": "Pass a typed class and keep the creating descriptor",
+      "path": "knowledge/apple/data-protection.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 208,
+      "title": "Verify protection classes on a device with a strong default",
+      "path": "knowledge/apple/data-protection.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion"
+      ]
+    },
+    {
+      "id": 209,
+      "title": "Shared implementation",
+      "path": "knowledge/apple/data-protection.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#shared-engineering-mechanisms"
+      ]
+    },
+    {
+      "id": 210,
+      "title": "Archive paths need byte-level delimiters and deliberate normalization",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#publication-model;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/integration.md#resource-paths"
+      ]
+    },
+    {
+      "id": 211,
+      "title": "Normalize text by scalar and by byte, not by Character",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#publication-model;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/text-extraction.md#contract;",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 212,
+      "title": "Element IDs compare code units, Swift strings do not",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/text-extraction.md#positions"
+      ]
+    },
+    {
+      "id": 213,
+      "title": "Parser choice can change text",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#publication-model;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#structural-text;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/text-extraction.md#contract;",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/external-validation.md#larger-ar5iv-sample;",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion;",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#web-import--web-import--authenticated-sources"
+      ]
+    },
+    {
+      "id": 214,
+      "title": "libxml2's HTML parser is not the HTML Standard",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/text-extraction.md#contract;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#pipeline"
+      ]
+    },
+    {
+      "id": 215,
+      "title": "Screen untrusted markup before any parser sees it",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#viewer-isolation;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/text-extraction.md#contract;",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/limits.md#bounds;",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/images.md"
+      ]
+    },
+    {
+      "id": 216,
+      "title": "Bound archive work by decoder calls, not by output alone",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#publication-model"
+      ]
+    },
+    {
+      "id": 217,
+      "title": "Apple's Compression inflater is not deterministic on damaged streams",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/architecture.md#publication-model;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#archive-mutation-probe"
+      ]
+    },
+    {
+      "id": 218,
+      "title": "Native renderer containment needs more than a byte limit",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#limitations;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/resvg-panic-boundary.py;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/scripts/resvg-panic-boundary.rs"
+      ]
+    },
+    {
+      "id": 219,
+      "title": "PDFKit's text layer and page model have gaps",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 220,
+      "title": "Core Graphics silently drops some JBIG2 masks",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#reconstruction-boundary;",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/behavior.md#jbig2maskrepair-masks-core-graphics-cannot-decode-434;",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/jbig2-decoding.md#why-core-graphics-fails"
+      ]
+    },
+    {
+      "id": 221,
+      "title": "Vision document recognition gives line order, not structure",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion;",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion;",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#the-pipeline"
+      ]
+    },
+    {
+      "id": 222,
+      "title": "Measure extraction against a naive and a reference extractor",
+      "path": "knowledge/apple/document-parsing.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5b-the-real-pdf-extraction-zoo-no-model-needed"
+      ]
+    },
+    {
+      "id": 223,
+      "title": "Provider file URLs are temporary capabilities",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#acceptance-and-handoff",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 224,
+      "title": "A complete staged directory's rename is acceptance",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#acceptance-and-handoff"
+      ]
+    },
+    {
+      "id": 225,
+      "title": "A Share extension cannot launch its containing app",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#acceptance-and-handoff",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 226,
+      "title": "Acknowledge intake only after durable admission",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#queue-durability-and-cleanup"
+      ]
+    },
+    {
+      "id": 227,
+      "title": "Snapshot a selected file before reading it",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion"
+      ]
+    },
+    {
+      "id": 228,
+      "title": "A selected file does not grant its parent directory",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/save-destinations/record.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/finder-pdf-service.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/app-shell.md#the-app--app"
+      ]
+    },
+    {
+      "id": 229,
+      "title": "App Intent file results last only through the shortcut",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/shortcuts-conversion.md#failure-stopping-and-file-lifetime",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/shortcuts-conversion.md#finder-selection--epub--save-file-or-open-file"
+      ]
+    },
+    {
+      "id": 230,
+      "title": "Shared implementation",
+      "path": "knowledge/apple/file-handoffs-and-publication.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mac-share-intake.md#headless-adapter-checks"
+      ]
+    },
+    {
+      "id": 231,
+      "title": "Vision keeps one compile per executable name on macOS",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/corpus.md#comparing-conversion-runs",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/recognition-preparation-2026-10-02/record.md"
+      ]
+    },
+    {
+      "id": 232,
+      "title": "The code-signing identifier also rewrites Vision's compile",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/corpus.md#comparing-conversion-runs",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#working-in-parallel-worktrees"
+      ]
+    },
+    {
+      "id": 233,
+      "title": "Recognition comparisons hold the executable name fixed",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/cli-name-recognition-control/record.md",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#comparing-runs-across-environments"
+      ]
+    },
+    {
+      "id": 234,
+      "title": "Vision can read one page several stable ways on one build",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/corpus.md#comparing-conversion-runs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#os-owned-recognition-inside-a-deterministic-gate"
+      ]
+    },
+    {
+      "id": 235,
+      "title": "Execution environment can change rasters and recognition",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/raster-environment/record.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index"
+      ]
+    },
+    {
+      "id": 236,
+      "title": "A warm-up recognition proves only its own reading",
+      "path": "knowledge/apple/framework-execution-identity.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/README.md#swift-api",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0014-an-unavailable-vision-leaves-its-tests-unmeasured.md"
+      ]
+    },
+    {
+      "id": 237,
+      "title": "Framework safety includes object destruction and font lifetime",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0002-pdfkit-extraction-gate.md",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 238,
+      "title": "A host's font work can abort a gated PDFKit read",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0016-a-conversion-holds-the-faces-it-reads.md"
+      ]
+    },
+    {
+      "id": 239,
+      "title": "Concurrency campaigns need controls and complete records",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#concurrency-campaigns"
+      ]
+    },
+    {
+      "id": 240,
+      "title": "PDFKit leaks every attributed string it returns",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#repeated-conversions-in-one-process",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/pdfkit-repeated-conversions/record.md"
+      ]
+    },
+    {
+      "id": 241,
+      "title": "Repeated conversions in one process accumulate framework-retained objects",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#repeated-conversions-in-one-process"
+      ]
+    },
+    {
+      "id": 242,
+      "title": "PDFKit loads a tagged document's whole structure tree on first text layout",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#structure-tree-text-layout-cost"
+      ]
+    },
+    {
+      "id": 243,
+      "title": "Streaming requires explicit ownership and backpressure",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#serialization-and-resource-lifetime",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#reconstruction-boundary",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/memory-testing.md#output-storage-budget"
+      ]
+    },
+    {
+      "id": 244,
+      "title": "An autorelease pool does not release what the run loop retains",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#books"
+      ]
+    },
+    {
+      "id": 245,
+      "title": "Native progress trees tie completion to object lifetime",
+      "path": "knowledge/apple/framework-lifetimes.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0003-awaited-progress-callbacks.md"
+      ]
+    },
+    {
+      "id": 246,
+      "title": "Network import policy must survive redirects and decompression",
+      "path": "knowledge/apple/network-import.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#web-import--web-import--authenticated-sources"
+      ]
+    },
+    {
+      "id": 247,
+      "title": "Traverse structure first and deduplicate in three layers",
+      "path": "knowledge/apple/network-import.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 248,
+      "title": "Fetched markup is untrusted input",
+      "path": "knowledge/apple/network-import.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#web-import--web-import--authenticated-sources"
+      ]
+    },
+    {
+      "id": 249,
+      "title": "Keep network import testable offline",
+      "path": "knowledge/apple/network-import.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 250,
+      "title": "Raster coordinates, conversions and lifetimes need separate contracts",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/document-raster-analysis.md#what-is-in-it",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 251,
+      "title": "Converting a raster through a context can retain a copy",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/document-raster-analysis.md#resource-lifetimes",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/architecture.md#serialization-and-resource-lifetime"
+      ]
+    },
+    {
+      "id": 252,
+      "title": "Worst-case allocation follows the algorithm, not the typical page",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/document-raster-analysis.md#resource-lifetimes"
+      ]
+    },
+    {
+      "id": 253,
+      "title": "Rasterized glyph ink can fall outside the typographic box",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/line-breaking.md#line-breaking"
+      ]
+    },
+    {
+      "id": 254,
+      "title": "Mac font smoothing explains iOS pixel differences",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/measurements/converter-extension-693/record.md#page-379-on-ios"
+      ]
+    },
+    {
+      "id": 255,
+      "title": "Exact pixel comparisons measure renderer drift",
+      "path": "knowledge/apple/raster-contracts.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#why-there-is-no-color-or-pixel-appearance-gate",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 256,
+      "title": "Durable recovery and actor isolation solve different failures",
+      "path": "knowledge/apple/scenes-and-recovery.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index"
+      ]
+    },
+    {
+      "id": 257,
+      "title": "Scene restoration is not just view reconstruction",
+      "path": "knowledge/apple/scenes-and-recovery.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#app-screen-and-testing-boundaries",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/measurements/audits/iphone-duo-acceptance-2026-10-07.md",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/mobile-windows.md"
+      ]
+    },
+    {
+      "id": 258,
+      "title": "A scene can be active while its presentation is still moving",
+      "path": "knowledge/apple/scenes-and-recovery.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#iphone-duo--studywright-on-iphone-duo"
+      ]
+    },
+    {
+      "id": 259,
+      "title": "A depth limit does not bound stack or total work",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/limits.md#bounds",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#tests-that-recurse-to-a-depth-limit",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 260,
+      "title": "Work budgets charge cached work its original cost",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/limits.md#bounds"
+      ]
+    },
+    {
+      "id": 261,
+      "title": "A remaining-stack guard keeps a reserve for work it cannot see",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/limits.md#worker-stack-coverage",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/Sources/MathMLLayout/LayoutEngine.swift"
+      ]
+    },
+    {
+      "id": 262,
+      "title": "Small recursive frames and heap cursors keep depth cheap",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#tests-that-recurse-to-a-depth-limit",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 263,
+      "title": "Darwin pads a requested thread stack size",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#worker-depth",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/Tests/MathMLLayoutTests/WorkerDepthTests.swift"
+      ]
+    },
+    {
+      "id": 264,
+      "title": "Compare a small worker against a reference worker in debug and release",
+      "path": "knowledge/apple/stack-and-work-bounds.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/limits.md#worker-stack-coverage",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#tests-that-recurse-to-a-depth-limit"
+      ]
+    },
+    {
+      "id": 265,
+      "title": "StoreKit request success does not prove update delivery",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#mac-transaction-updates-on-2026-10-08",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/PagepourPurchaseTests/StoreKitLifetimePurchaseTests.swift"
+      ]
+    },
+    {
+      "id": 266,
+      "title": "A Mac keeps one StoreKit environment per bundle ID",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/AGENTS.md#shared-engineering-guidance",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#native-mac-purchase-ui-on-2026-10-08",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/mac-app-store/record.md#build-01-3-uploaded-to-testflight-on-2026-10-08"
+      ]
+    },
+    {
+      "id": 267,
+      "title": "Local StoreKit on the Mac still shows dialogs",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#native-mac-purchase-ui-on-2026-10-08",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#mac-transaction-updates-on-2026-10-08"
+      ]
+    },
+    {
+      "id": 268,
+      "title": "StoreKitTest sessions are not the store's error and timing contract",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#results"
+      ]
+    },
+    {
+      "id": 269,
+      "title": "A verified entitlement, not a price or a flag, grants access",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/purchase-policy.md#implementation-and-release-checks",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/Pagepour/LifetimePurchase.swift",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#owner-verified-physical-ipad-offline-relaunch"
+      ]
+    },
+    {
+      "id": 270,
+      "title": "Sandbox purchases need a Sandbox Apple Account",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#sandbox-account-setup-and-rejected-purchase",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#native-mac-authentication-investigation",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/apple-sandbox.md#native-mac-purchase-sheet-on-2026-10-08"
+      ]
+    },
+    {
+      "id": 271,
+      "title": "TestFlight purchases do not reuse sandbox purchases",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/mac-ocr-corpus/apple-installed-testflight/record.md"
+      ]
+    },
+    {
+      "id": 272,
+      "title": "Trial state and store entitlements have different lifetimes",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/purchase-policy.md#accounting-and-persistence"
+      ]
+    },
+    {
+      "id": 273,
+      "title": "On-device verification keeps purchase data on the device",
+      "path": "knowledge/apple/storekit-environments.md",
+      "sources": [
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/app-store-listing.md#app-privacy-data-not-collected"
+      ]
+    },
+    {
+      "id": 274,
+      "title": "Cooperative-pool threads have small stacks",
+      "path": "knowledge/apple/swift-concurrency.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/regression-testing.md#tests-that-recurse-to-a-depth-limit",
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/Tests/PDFReflowLibTests/Support/StackOfItsOwn.swift"
+      ]
+    },
+    {
+      "id": 275,
+      "title": "Blocking waiters occupy cooperative threads",
+      "path": "knowledge/apple/swift-concurrency.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0002-pdfkit-extraction-gate.md"
+      ]
+    },
+    {
+      "id": 276,
+      "title": "Releasing many tasks onto a gate at once can starve the pool",
+      "path": "knowledge/apple/swift-concurrency.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0014-an-unavailable-vision-leaves-its-tests-unmeasured.md"
+      ]
+    },
+    {
+      "id": 277,
+      "title": "Awaited callbacks give ordering and backpressure",
+      "path": "knowledge/apple/swift-concurrency.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/decisions/0003-awaited-progress-callbacks.md"
+      ]
+    },
+    {
+      "id": 278,
+      "title": "Logical text recovery is different from forward bidi layout",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/PDFReflowLib/blob/dc89a4eccecb99943661709887fd2a61a1a51b29/doc/bidi-boundary.md"
+      ]
+    },
+    {
+      "id": 279,
+      "title": "Bidi wrapping needs paragraph context and physical geometry",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/line-breaking.md#line-breaking",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/directionality.md#directionality",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/bidi-text-tests.md#bidirectional-text-regressions"
+      ]
+    },
+    {
+      "id": 280,
+      "title": "Font and image metrics have different units",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/fonts.md#math-value-adjustments",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/images.md#images"
+      ]
+    },
+    {
+      "id": 281,
+      "title": "Content language steers glyph choice and line breaking",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 282,
       "title": "Spoken localization must preserve authored content and actual language",
       "path": "knowledge/apple/text-layout-and-unicode.md",
       "sources": [
-        "https://github.com/vocaro/MathMLLayout/blob/8e038411260803c3b272dff590129516e7d846d7/doc/speech-locales.md",
-        "https://github.com/vocaro/EPUBLib/blob/b63d9027c4d89b16c9b980f3e9dd9ec9ec172d50/doc/native-viewer.md#input-and-accessibility"
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-locales.md#matching-and-fallback",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-locales.md#complete-language-providers",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-locales.md#explicit-regional-inheritance"
+      ]
+    },
+    {
+      "id": 283,
+      "title": "VoiceOver speaks the language each item and range names",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility"
+      ]
+    },
+    {
+      "id": 284,
+      "title": "Sentinel languages test plumbing, not pronunciation",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-locales.md#exercised-extension-fixtures",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/speech-wording-audit.md#how-evidence-was-used"
+      ]
+    },
+    {
+      "id": 285,
+      "title": "Primary-strength collation is available through public Foundation APIs",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 286,
+      "title": "Language detection needs spread samples and a letter-density floor",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/contracts.md#language-contract",
+        "https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/doc/document-language.md#what-the-choice-means"
+      ]
+    },
+    {
+      "id": 287,
+      "title": "Spelled numerals parse and format through ICU per locale",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#grounding-verification-and-trust-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion"
+      ]
+    },
+    {
+      "id": 288,
+      "title": "Format characters are not whitespace",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#4-reading-the-output",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 289,
+      "title": "Unicode tables differ between runtimes",
+      "path": "knowledge/apple/text-layout-and-unicode.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/measurements/audits/judge-quote-blank-rule-parity-2026-10-14/readme.md"
+      ]
+    },
+    {
+      "id": 290,
+      "title": "Accessibility observation can change layout",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 291,
+      "title": "Lay out through a far target before scrolling to it",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#floats-and-positioned-boxes"
+      ]
+    },
+    {
+      "id": 292,
+      "title": "AppKit and UIKit text views scroll themselves",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 293,
+      "title": "TextKit 2 redraws a fragment when its layout changes, not when its attributes do",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 294,
+      "title": "TextKit 1 and TextKit 2 apply paragraph indents differently",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#floats-and-positioned-boxes;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#flex-and-grid-alignment"
+      ]
+    },
+    {
+      "id": 295,
+      "title": "A non-rectangular container can ask for lines forever",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#security"
+      ]
+    },
+    {
+      "id": 296,
+      "title": "Core Text justification depends on the paragraph's length",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout"
+      ]
+    },
+    {
+      "id": 297,
+      "title": "A text view takes its layout stack when it is made",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 298,
+      "title": "VoiceOver moves through a cache of the items around its cursor",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 299,
+      "title": "A layout change makes VoiceOver drop its cache about 0.8 s later",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#simulators"
+      ]
+    },
+    {
+      "id": 300,
+      "title": "UIKit's own text view elements are every paragraph",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 301,
+      "title": "The scroll indicator is a supplementary header that breaks reading order",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 302,
+      "title": "The rotor keeps its place only on the same element object",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 303,
+      "title": "Read All turns a page only after an item with causesPageTurn",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility"
+      ]
+    },
+    {
+      "id": 304,
+      "title": "UIKit offers the actions of every element that contains the item",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 305,
+      "title": "VoiceOver keeps an item's traits and actions as it found them",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/reader-controls.md#search-results;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 306,
+      "title": "A custom heading rotor must give the same answer twice",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 307,
+      "title": "Links and pictures in custom text need an element to stand on",
+      "path": "knowledge/apple/voiceover-ios.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 308,
+      "title": "VoiceOver enters a text view at its insertion point",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#continuous-scroll;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 309,
+      "title": "Post layout changes from the element that holds the text views",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#layout;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 310,
+      "title": "Links in an AppKit text view are children, not places",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#links"
+      ]
+    },
+    {
+      "id": 311,
+      "title": "VoiceOver focuses only an element that reports its focus",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#links;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 312,
+      "title": "Mac headings need a rotor, rich-text levels and child elements",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 313,
+      "title": "Never offer VoiceOver the accessibility element search",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 314,
+      "title": "Custom actions belong on the text area",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#input-and-accessibility;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#page-actions-and-value-notifications;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 315,
+      "title": "AppKit gives a client the text character for character",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#hidden-text;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 316,
+      "title": "Compare with Safari and a stock text view before blaming the app",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#safari-on-mac;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 317,
+      "title": "An in-process query does not see what VoiceOver is given",
+      "path": "knowledge/apple/voiceover-mac.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#coverage"
+      ]
+    },
+    {
+      "id": 318,
+      "title": "Decide whether a table holds data as WebKit does",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 319,
+      "title": "On iOS a data table is a container among the lines",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 320,
+      "title": "UIKit asks for the headers of a row and of a column, not of a cell",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions"
+      ]
+    },
+    {
+      "id": 321,
+      "title": "On the Mac VoiceOver meets a table only at an attachment character",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 322,
+      "title": "A cell that names its own header cells makes Mac VoiceOver quit",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 323,
+      "title": "Mac VoiceOver reads a header cell by what it holds",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 324,
+      "title": "A Mac cell is read by what it holds, not by what it says it is",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 325,
+      "title": "VoiceOver keeps what it made of an element",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 326,
+      "title": "Mac VoiceOver reads a group by its name and nothing of what it holds",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 327,
+      "title": "A row with nothing to say must fold into the next line",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#tables-on-mac"
+      ]
+    },
+    {
+      "id": 328,
+      "title": "Safari reads tables with web-page speech",
+      "path": "knowledge/apple/voiceover-tables.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/native-viewer.md#decisions;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#safari-on-mac;",
+        "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#harness-pitfalls-and-current-results"
+      ]
+    },
+    {
+      "id": 329,
+      "title": "Concurrent ML workloads can silently corrupt results",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion"
+      ]
+    },
+    {
+      "id": 330,
+      "title": "Model compatibility includes preprocessing semantics",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/ingestion.md#ingestion"
+      ]
+    },
+    {
+      "id": 331,
+      "title": "Embedding bytes depend on the execution environment",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6-what-to-record"
+      ]
+    },
+    {
+      "id": 332,
+      "title": "Summation order and unstable sorts reorder near ties",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/embedding.md#embedding-retrieval-and-the-index"
+      ]
+    },
+    {
+      "id": 333,
+      "title": "Rerank inside the retrieved set, not beside it",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 334,
+      "title": "Probe what a checkpoint encodes with a crossed design",
+      "path": "knowledge/ml/embedding-correctness.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5i-does-the-checkpoint-encode-who-a-sentence-is-about-name_geometry"
+      ]
+    },
+    {
+      "id": 335,
+      "title": "The framework's model types are not an app's inference interface",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#platform-drift--tracking-apples-moving-platform"
+      ]
+    },
+    {
+      "id": 336,
+      "title": "Context windows are small, OS-owned and read at runtime",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#tiers"
+      ]
+    },
+    {
+      "id": 337,
+      "title": "Private Cloud Compute needs an entitled app bundle",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#1-prerequisites",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 338,
+      "title": "Read typed errors before they cross the NSError bridge",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
+      ]
+    },
+    {
+      "id": 339,
+      "title": "Empty generation is intermittent and invisible to availability",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#1-prerequisites",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
+      ]
+    },
+    {
+      "id": 340,
+      "title": "A context overflow is either a prompt that never fit or a runaway",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#quiz-generation--quiz--exam-question-generation"
+      ]
+    },
+    {
+      "id": 341,
+      "title": "Rate limiting and quota refusal are distinguishable only on some routes and builds",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#budgeting-the-fm-allotment"
+      ]
+    },
+    {
+      "id": 342,
+      "title": "Quota metadata lags the refusal and cannot see exhaustion",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#pcc--private-cloud-compute-backend"
+      ]
+    },
+    {
+      "id": 343,
+      "title": "Xcode's availability override does not simulate quota",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#xcode-availability-and-quota-simulation"
+      ]
+    },
+    {
+      "id": 344,
+      "title": "The app-tier quota and the fm allowance are separate per-device pools",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#estimating-a-devices-window",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#budgeting-the-fm-allotment"
+      ]
+    },
+    {
+      "id": 345,
+      "title": "Metered PCC work needs a ledger and a first-refusal stop",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-pcc-ledger",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification"
+      ]
+    },
+    {
+      "id": 346,
+      "title": "The fm developer tool is a different route with its own gate and confounds",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#2-choosing-a-backend",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#budgeting-the-fm-allotment"
+      ]
+    },
+    {
+      "id": 347,
+      "title": "Guardrail modes depend on tier and generation kind",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers"
+      ]
+    },
+    {
+      "id": 348,
+      "title": "Guided generation constrains shape, not meaning",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#2-choosing-a-backend",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#quiz-generation--quiz--exam-question-generation"
+      ]
+    },
+    {
+      "id": 349,
+      "title": "A native session transcript grows with every turn",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-native-session-spike"
+      ]
+    },
+    {
+      "id": 350,
+      "title": "Directing a refusal sentence makes the model refuse",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#prompting-the-answer-and-follow-ups"
+      ]
+    },
+    {
+      "id": 351,
+      "title": "PCC output format can move scores by tens of points",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#triggers"
+      ]
+    },
+    {
+      "id": 352,
+      "title": "Images cost little and are priced only by displacement",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#6b-the-seam-pcc-lane"
+      ]
+    },
+    {
+      "id": 353,
+      "title": "Tool registration and token counting are model work",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#the-spotlight-tool-spike"
+      ]
+    },
+    {
+      "id": 354,
+      "title": "Latency is not a tier check",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#pcc--private-cloud-compute-backend",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers"
+      ]
+    },
+    {
+      "id": 355,
+      "title": "Generative results need hardware and the machine's model to itself",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#setup-build-and-run",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#backgrounding-a-run"
+      ]
+    },
+    {
+      "id": 356,
+      "title": "Claim only the privacy behavior the app controls",
+      "path": "knowledge/ml/foundation-models.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs"
+      ]
+    },
+    {
+      "id": 357,
+      "title": "Inference availability must be tested through the real execution path",
+      "path": "knowledge/ml/inference-and-evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/AGENTS.md#development-and-verification",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#inference-seam-and-tiers"
+      ]
+    },
+    {
+      "id": 358,
+      "title": "Retrieval, attribution and truth are different checks",
+      "path": "knowledge/ml/inference-and-evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/answer-authority.md#separate-decisions",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#tutor-prompts--tutor-prompts-session-instructions--citations"
+      ]
+    },
+    {
+      "id": 359,
+      "title": "Admitted conversation history validates its own claims",
+      "path": "knowledge/ml/inference-and-evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/architecture.md#key-decisions-and-trade-offs",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#tutor-prompts--tutor-prompts-session-instructions--citations"
+      ]
+    },
+    {
+      "id": 360,
+      "title": "An independent check is defined by what it could see",
+      "path": "knowledge/ml/inference-and-evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/answer-authority.md#factual-verification-and-calibration-boundary",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/answer-authority.md#frozen-v1-policy"
+      ]
+    },
+    {
+      "id": 361,
+      "title": "Calibrate a factual policy on held-out sources",
+      "path": "knowledge/ml/inference-and-evidence.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/answer-authority.md#factual-verification-and-calibration-boundary"
+      ]
+    },
+    {
+      "id": 362,
+      "title": "An injection effect is injected minus clean on paired trials",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 363,
+      "title": "A zero is meaningful only when the fixture guarantees exposure",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 364,
+      "title": "Keep response, parse and semantic coverage separate",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 365,
+      "title": "Retain every raw reply and dump every trial of a candidate",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 366,
+      "title": "Score both ways an answer can be lost",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 367,
+      "title": "Delimiters do not establish provenance",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/ruled-out.md#user-material--user-imported-study-material-on-device-ingestion",
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/components/engine.md#prompting-the-answer-and-follow-ups"
+      ]
+    },
+    {
+      "id": 368,
+      "title": "Injection behavior does not transfer across tiers or framings",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
+      ]
+    },
+    {
+      "id": 369,
+      "title": "Budget an injection run by literal calls",
+      "path": "knowledge/ml/prompt-injection-measurement.md",
+      "sources": [
+        "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
       ]
     }
   ]

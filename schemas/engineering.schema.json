@@ -33,16 +33,19 @@
       "items": {
         "enum": [
           "app-extensions",
+          "background-assets",
           "background-mac",
           "background-processing",
           "data-protection",
           "external-validation",
           "file-handoff",
+          "foundation-models",
           "measurement",
           "native-python",
           "packaging",
           "simulator-disposable",
           "simulator-pool",
+          "storekit",
           "voiceover"
         ]
       }

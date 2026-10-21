@@ -15,17 +15,28 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Read a comparison's merge-base once and use that commit, not a moving origin/main ref.
   Fetch before final verification. Check whether a referenced PR already merged before
   building on it, and record the commit each verification actually exercised.
-- Remove only task-owned scratch builds after recording results. Check available disk before
-  creating build worktrees. Evidence belongs with its issue or subject, not only on a branch.
+- An issue is closed by what main's tree holds: put `Closes #N` only on a commit that lands on
+  main with its content. To take your own change out of a tree, reverse your own commit's patch.
+- Remove only task-owned scratch builds after recording results. A building worktree can hold
+  8-14 GB: check `df -h /System/Volumes/Data` before creating build worktrees, because a full
+  volume fails every session. Evidence belongs with its issue or subject, not only on a branch.
 
 ## Tests and evidence
 
 - Automate tests. Do not ask the owner to tap, swipe, type, or repeat an observation that the
   automated acceptance lane already establishes. Report coverage automation cannot reach.
+- Before proposing a physical device, say what it would show that a simulator cannot; a check
+  said to need a finger usually needs a timing or input a UI test can make. Behavior a simulator
+  or the Mac does not enforce, such as data protection or extension memory limits, is qualified
+  only on the device.
 - Use the smallest relevant checks first. Verify a filtered run's executed count and expected
   identities: a successful command with zero selected tests establishes no coverage.
-- Keep passed, failed, skipped, and unavailable distinct. Require an independent positive
-  control before blaming an unavailable framework or model. Optional tests visibly skip.
+- Keep passed, failed, skipped and unmeasured distinct. An unmeasured result records its cause
+  (an unavailable framework, model or device, host pressure, an observation timeout) and is never
+  green. Require an independent positive control before blaming an unavailable framework or
+  model. Optional tests visibly skip.
+- Prove a new regression test fails on the old behavior. Deferring work lowers its priority; it
+  never removes tests, cases, contracts or gates.
 - Preserve raw observations with actual source/input/toolchain/runtime identities. Never
   rewrite a historical observation to match current behavior. A later hash does not establish
   what an earlier run used. Qualification claims name their measured platform and limits.
@@ -46,12 +57,17 @@ capabilities it uses and documents justified exceptions. Product policies remain
   inventory of other sessions' running work; never stop a process merely because it is busy.
 - Give simulator and device commands an explicit identifier. Never select `booted`, erase,
   shut down, or clean up a device another session owns. The configured simulator capability
-  determines whether disposable devices or an approved reserved pool are used.
+  determines whether disposable devices or an approved reserved pool are used. Do not open a
+  live simulator view unless the owner asked to watch.
+- Agree a window with the owner before any session on the paired iPhone or iPad (the iPhone is
+  the owner's personal phone), then reserve it. Approval of a run covers installing and
+  launching, not operating the device.
 - A tool timeout is an observation timeout. Follow the owned process to a terminal result
   before retrying. Preserve an uncertain orphan's reservation for recovery.
 - Do not run Mac VoiceOver or foreground UI automation on the owner's Mac without the required
   explicit authorization. Run Mac speech on the allowed disposable hosted runner. Never run
-  runner preparation commands on this workstation.
+  runner preparation commands on this workstation. A locked screen or sleeping display leaves
+  background Mac UI tests unmeasured; rerun them later, and never keep the Mac awake unasked.
 - Do not launch or attach a debugger, dtrace, or a sampler to another session's process. Use
   static disassembly for system-code questions and logging from code you own. If a password
   dialog appears, end your processes, leave the dialog alone, and tell the owner.
@@ -71,6 +87,8 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Keep agent entry points short. Read shared guidance through scripts/eng, then local rules.
   Shared guidance is not automatically loaded merely because a file links to it.
 - Preserve corpus provenance, licences, input identities and download restrictions. Permission
-  to use a collection in one project does not admit it to another project automatically.
+  to use a collection in one project does not admit it to another project automatically. Fetch
+  corpus sources only through the repository's pinned path; never bypass a bot challenge, and
+  where a site disallows automated agents, the owner fetches.
 - Avoid unrelated formatting churn, formatter changes, new dependencies or universal schemas
   when extracting a small mechanism. Keep one canonical provider per runtime module.

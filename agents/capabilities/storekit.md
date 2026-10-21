@@ -1,0 +1,3 @@
+# StoreKit
+
+Keep local StoreKit configuration in purchase test targets and schemes only. Grant access only from verified, unrevoked transactions and sync only on an explicit Restore. Request success does not prove update delivery: wait for the transaction update or the verified entitlement. Treat a Mac bundle ID's StoreKit environment as shared by every copy and read it from storekitagent's log. A person authenticates every sandbox and TestFlight purchase. Methods: guides/storekit-testing.md, knowledge/apple/storekit-environments.md; test helpers: the StoreKitTestSupport product in src/swift/EngineeringTestSupport.

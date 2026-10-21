@@ -2,6 +2,7 @@ import contextlib
 from io import StringIO
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -30,6 +31,12 @@ class ConfigurationTests(unittest.TestCase):
             for capabilities in [["typo"], ["simulator-disposable", "simulator-pool"]]:
                 (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example", "capabilities": capabilities}))
                 with self.assertRaises(ValueError): config.load(root)
+
+    def test_every_capability_has_guidance_and_a_schema_entry(self):
+        schema = json.loads((config.TOOLKIT_ROOT / "schemas/engineering.schema.json").read_text())
+        self.assertEqual(set(schema["properties"]["capabilities"]["items"]["enum"]), config.CAPABILITIES)
+        for capability in config.CAPABILITIES:
+            self.assertTrue((config.TOOLKIT_ROOT / "agents/capabilities" / f"{capability}.md").is_file(), capability)
 
     def test_lane_commands_are_argv_not_shell_source(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -111,9 +118,12 @@ class DocumentationTests(unittest.TestCase):
 
     def test_all_inventory_items_have_subjects_and_source_links(self):
         value = json.loads((config.TOOLKIT_ROOT / "knowledge/index.json").read_text())
-        self.assertEqual([e["id"] for e in value["entries"]], list(range(1, 58)))
+        self.assertEqual([e["id"] for e in value["entries"]], list(range(1, len(value["entries"]) + 1)))
         for entry in value["entries"]:
-            self.assertTrue((config.TOOLKIT_ROOT / entry["path"]).is_file())
+            path = config.TOOLKIT_ROOT / entry["path"]
+            self.assertTrue(path.is_file())
+            text = re.sub(r"```.*?```", "", path.read_text(), flags=re.S)
+            self.assertIn("## " + entry["title"], text.splitlines(), entry["path"])
             self.assertTrue(entry["sources"], entry["title"])
 
 

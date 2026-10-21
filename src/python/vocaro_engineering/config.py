@@ -8,6 +8,7 @@ CAPABILITIES = {
     "simulator-disposable", "simulator-pool", "voiceover", "background-mac",
     "packaging", "measurement", "native-python", "external-validation",
     "background-processing", "app-extensions", "data-protection", "file-handoff",
+    "storekit", "foundation-models", "background-assets",
 }
 
 

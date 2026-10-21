@@ -18,12 +18,17 @@ product rules. Run `python3 scripts/eng instructions` before work. Run `doctor` 
 configuration and prerequisites. A capability enables guidance; it does not grant permission to
 use a device, screen, model, corpus or hosted runner.
 
-For a new repository, run `python3 /path/to/apple-engineering/bin/eng --project /path/to/NewRepo
-init`. Initialization is additive and runs no work. A missing .gitignore is initialized for generated
-outputs; an existing one is preserved. Existing projects must ignore .build/engineering so
-result logs do not become source inputs in subsequent evidence records. Select the applicable capabilities and add
-explicit argv-based lanes to engineering.json. Disposable simulators and the approved reserved
-pool are separate capabilities and cannot both be enabled. Conflicts or unknown fields fail
+For a new repository, run
+`python3 /path/to/apple-engineering/bin/eng --project /path/to/NewRepo init`. Initialization is
+additive and runs no work. A missing .gitignore is initialized for generated outputs; an
+existing one is preserved. Existing projects must ignore .build/engineering so result logs do
+not become source inputs in subsequent evidence records. Select the applicable capabilities and
+add explicit argv-based lanes to engineering.json. Give each lane a `resource` of `light`,
+`heavy` or `exclusive`: `eng run` refreshes the operating policy and admits heavy and exclusive
+lanes through [heavy-work admission](shared-host.md#heavy-work-admission), writes the lane's log
+and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, fails a
+successful run that executed fewer tests. Disposable simulators and the approved reserved pool
+are separate capabilities and cannot both be enabled. Conflicts or unknown fields fail
 validation. Existing AGENTS.md files are preserved: add the explicit `scripts/eng instructions`
 entry yourself when adopting into a repository that already has instructions.
 
@@ -31,6 +36,19 @@ Use `eng knowledge QUERY` to find subject documents. Capture future findings wit
 commit, the original evidence link, applicability and limits; add an index entry. Runtime
 mechanisms belong in a focused Swift package when a concrete consumer needs them. Test helpers
 belong in src/swift and link only to test/tool targets. No production package imports the CLI.
+
+## Locating the toolkit from a worktree
+
+The launcher resolves `VOCARO_ENGINEERING_ROOT` first, then `toolkit.path` from
+`engineering.json` (default `../apple-engineering`) relative to the checkout it runs in. A
+linked worktree, such as a session's under `.claude/worktrees`, usually has no clone beside it.
+Either set VOCARO_ENGINEERING_ROOT for the session, or give the project's adapter a fallback
+that tries the same relative path beside the repository's main checkout: a linked worktree's
+`.git` is a file naming its private Git directory, whose `commondir` file leads to the shared
+`.git`, whose parent is the main checkout. Reading those files needs no Git command, so script
+tests that replace Git with fakes still work. A submodule's `.git` file has no `commondir`, and
+a main checkout's `.git` is a directory; neither falls back. The adapter passes the clone it
+found to every shared script it runs.
 
 ## Updating and rolling back
 

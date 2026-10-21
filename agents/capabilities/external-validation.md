@@ -1,3 +1,3 @@
 # External validation
 
-Use independently specified expectations, retain upstream assertions and provenance, bound fuzz cases and worker-stack coverage, and compare geometry, semantics and pixels separately. Keep domain rendering rules and baseline policy in the owning library.
+Take expectations from standards, independent decoders, reference engines or constructed fixtures, never from the library. Import upstream assertions with per-case provenance and pins; bind oracles to input hashes and skip visibly on a mismatch. Geometry decides outcomes and pixels are for review. Classify every outcome; a reviewed discrepancy keeps its upstream expectation and is never re-baselined automatically. Assert worker-stack claims on exactly sized stacks (Darwin pads requested sizes) in debug and release. Domain rules and baseline policy stay in the owning library.
