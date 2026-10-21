@@ -73,16 +73,17 @@ class ReaderEvidenceSettingsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "LOG_MARKER"):
             module["reader_log"](LOG, "")
 
-    def test_an_adapter_from_before_the_settings_keeps_its_behavior(self):
-        # Pagepour's adapter defines only PROFILES until it supplies the settings itself.
-        module = adapter(PROFILES={"share-simulator": ("Shown",), "mobile-windows": ("Shown",), "spoken": ("Shown",)})
+    def test_an_adapter_with_only_profiles_gets_no_product_defaults(self):
+        # Pagepour's names once were the module's own; an adapter now has to supply its settings.
+        module = adapter(PROFILES={"share-simulator": ("Shown",), "mobile-windows": ("Shown",)})
+        self.assertEqual((module["SIMULATOR_PROFILES"], module["LOG_MARKER"], module["PRIVATE_LOG_LINES"]),
+                         (None, None, None))
         self.host("physical iPhone")
-        for profile in ("share-simulator", "mobile-windows"):
-            with self.assertRaises(ValueError):
-                self.retain(module, profile, profile)
-        retained = self.retain(module, "spoken", "spoken")
-        self.assertEqual((retained / "spoken-output.log").read_text(),
-                         "READER VIEWPORT Book: <address>\nTest Case 'probe' passed.\n")
+        with self.assertRaisesRegex(ValueError, "LOG_MARKER"):
+            self.retain(module, "share-simulator", "unconfigured")
+        self.assertFalse((self.root / "unconfigured").exists())
+        with self.assertRaisesRegex(ValueError, "LOG_MARKER"):
+            module["reader_log"](LOG)
 
 
 if __name__ == "__main__":

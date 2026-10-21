@@ -22,11 +22,6 @@ PROFILES = globals().get("PROFILES", {})
 SIMULATOR_PROFILES = globals().get("SIMULATOR_PROFILES")
 LOG_MARKER = globals().get("LOG_MARKER")
 PRIVATE_LOG_LINES = globals().get("PRIVATE_LOG_LINES")
-if PROFILES and SIMULATOR_PROFILES is None and LOG_MARKER is None and PRIVATE_LOG_LINES is None:
-    # Pagepour's adapter, which defined only PROFILES before these existed. Remove this once it
-    # defines them.
-    SIMULATOR_PROFILES, LOG_MARKER, PRIVATE_LOG_LINES = (
-        ("share-simulator", "mobile-windows"), "READER", ("READER CAPTURE ROOT ",))
 IDENTITY_KEYS = {"deviceId", "deviceID", "deviceName", "deviceIdentifier", "udid"}
 
 
