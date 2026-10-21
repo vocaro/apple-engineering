@@ -140,6 +140,17 @@ class ResourceTests(unittest.TestCase):
         with self.assertRaises(TimeoutError):
             with resources.Admission("blocked", timeout=0): pass
 
+    def test_zero_test_failure_releases_a_confirmed_finished_lane(self):
+        root = Path(self.temp.name)
+        (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Zero",
+            "lanes": {"empty": {"command": ["unused"], "resource": "heavy", "minimumTests": 1}}}))
+        def finished(*args, **kwargs):
+            kwargs["log_path"].write_text("Executed 0 tests, with 0 failures")
+            return 0
+        with patch.object(cli, "refresh_policy", return_value="policy"), patch.object(cli, "source_identity", return_value={}), patch.object(cli.processes, "run", side_effect=finished), contextlib.redirect_stderr(StringIO()):
+            self.assertEqual(cli.main(["--project", str(root), "run", "empty"]), 2)
+        self.assertFalse(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
+
     def test_forged_inherited_descriptor_is_rejected(self):
         os.environ[resources.TOKEN] = json.dumps({"schemaVersion": 1, "locks": [{"fd": 999999, "path": "/not-a-lock", "nonce": "bad"}]})
         with self.assertRaises(RuntimeError): resources.inherited()

@@ -127,12 +127,16 @@ def main(argv=None):
                     raise
                 finally:
                     (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
-                if result == 0 and lane.get("minimumTests"):
-                    evidence.require_tests((directory / "run.log").read_text(), lane["minimumTests"])
                 return result
-            if resource == "light": return execute()
-            with resources.Admission(args.lane, exclusive=resource == "exclusive"):
-                return execute()
+            if resource == "light": result = execute()
+            else:
+                with resources.Admission(args.lane, exclusive=resource == "exclusive"):
+                    result = execute()
+            # The command has a confirmed terminal result. Coverage validation cannot turn
+            # that completed process into an orphan reservation.
+            if result == 0 and lane.get("minimumTests"):
+                evidence.require_tests((directory / "run.log").read_text(), lane["minimumTests"])
+            return result
         return 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"eng: {error}", file=sys.stderr)
