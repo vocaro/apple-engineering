@@ -15,7 +15,7 @@ def command(*arguments, timeout=120):
 
 class Simulator:
     def __init__(self, udid, *, run=command):
-        self.udid = str(uuid.UUID(udid))
+        self.udid = str(uuid.UUID(udid)).upper()
         self.run = run
 
     def boot(self):

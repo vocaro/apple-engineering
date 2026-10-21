@@ -10,7 +10,7 @@ from vocaro_engineering.simulators.lifecycle import disposable, reserved
 class LifecycleTests(unittest.TestCase):
     def test_failure_cleans_up_only_its_created_device(self):
         calls = []
-        identifier = str(uuid.uuid4())
+        identifier = str(uuid.uuid4()).upper()
         def run(*args, **kwargs):
             calls.append(args)
             if args[0] == "create": return identifier
@@ -24,7 +24,7 @@ class LifecycleTests(unittest.TestCase):
         self.assertNotIn("booted", str(calls))
 
     def test_interrupted_creation_recovers_only_the_unique_name(self):
-        own, other = str(uuid.uuid4()), str(uuid.uuid4())
+        own, other = str(uuid.uuid4()).upper(), str(uuid.uuid4()).upper()
         calls, name = [], None
         def run(*args, **kwargs):
             nonlocal name
@@ -42,7 +42,7 @@ class LifecycleTests(unittest.TestCase):
 
     def test_pool_adapter_never_shuts_down_or_deletes_its_device(self):
         calls = []
-        device = reserved(str(uuid.uuid4()), run=lambda *args, **kw: calls.append(args))
+        device = reserved(str(uuid.uuid4()).upper(), run=lambda *args, **kw: calls.append(args))
         device.screenshot("result.png")
         self.assertEqual(calls, [("io", device.udid, "screenshot", "result.png")])
         with self.assertRaises(ValueError): reserved("booted")
