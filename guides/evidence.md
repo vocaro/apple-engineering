@@ -4,6 +4,15 @@ These mechanisms and lessons apply when the stated capability is present. Origin
 measurements establish their recorded platform and workload; they do not establish
 universal behavior on later operating systems or in a different application.
 
+## Public and private destinations
+
+Review source and payloads before publishing a record. Private integration logs, personal
+device identities and raw private transcripts belong in their private owning project or the
+private apple-engineering-evidence archive. Public articles and issues can retain reviewed
+methods, source identities, results and limits. Private provenance links are supplemental;
+public contributors must be able to run the tools without those records. See
+[public access](public-access.md) for the repository boundary.
+
 ## Evidence collection
 
 Sequential xcresult export, before/after app/test/manifest identities, allowlisted retention, redaction, source reconstruction, hash indexes and offline observer replay.

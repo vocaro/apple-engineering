@@ -62,6 +62,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
 
 - Keep behavior and limits in a subject document; procedures in its runbook; actual issue or
   release verification at its owning issue or release. Link evidence rather than copying it.
+- Match evidence to its destination's audience. Keep private payloads, device identities and
+  raw private transcripts in a private owning project or evidence archive. Public summaries
+  contain reviewed results and reproducible methods; they do not require private access.
 - Capture reusable findings in this repository's subject articles, with source revision,
   applicability, counterexamples and limits. Link private implementations without copying app
   policy into a universal default. Keep evidence identities and original outcomes intact.
