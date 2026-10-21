@@ -18,7 +18,9 @@ jobs (3) are always admitted. Beyond them one job at a time is admitted, up to H
 count), macOS reports normal memory pressure, and no slot was taken in the last
 HEAVY_SETTLE_SECONDS (30) for the load average to show. Setting HEAVY_SLOTS_MAX to HEAVY_SLOTS
 restores a fixed limit. Admission cannot preempt: a job admitted while the host was quiet may
-become heavy later. Exclusive work holds every slot up to the maximum.
+become heavy later. Exclusive work holds every slot up to the maximum. Each process reads these
+variables from its own environment, so set them for every session or for none: an exclusive job
+holds only the slots below its own maximum, and a caller with a higher one can take slots above it.
 
 ## Device reservations
 
