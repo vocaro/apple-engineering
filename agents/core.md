@@ -10,6 +10,8 @@ capabilities it uses and documents justified exceptions. Product policies remain
   `commit -a`. Do not reset a shared checkout to remove somebody else's work.
 - Work on an isolated branch or worktree when concurrent changes require it. Inspect the
   project's integration policy: private projects currently integrate directly to main.
+- When one command acts on several branches, name the exact refs from your own task records.
+  A prefix match can include another session's branch; never use it as an ownership test.
 - Read a comparison's merge-base once and use that commit, not a moving origin/main ref.
   Fetch before final verification. Check whether a referenced PR already merged before
   building on it, and record the commit each verification actually exercised.
