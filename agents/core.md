@@ -41,6 +41,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
   does not override the owner's current restrictions or authorize an attended session.
 - Coordinate heavy builds and measurements through the shared resource queue. An exclusive
   measurement conflicts with heavy work; nested work reuses its inherited admission.
+- Before a full gate, inspect active test and gate processes across the host, including
+  checkouts outside the usual worktree directories. A checkout path alone is not a complete
+  inventory of other sessions' running work; never stop a process merely because it is busy.
 - Give simulator and device commands an explicit identifier. Never select `booted`, erase,
   shut down, or clean up a device another session owns. The configured simulator capability
   determines whether disposable devices or an approved reserved pool are used.
