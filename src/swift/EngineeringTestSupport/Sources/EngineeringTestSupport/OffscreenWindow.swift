@@ -20,7 +20,10 @@ import ApplicationServices
     }
 }
 
-/// Reads this process's accessibility tree. It grants no cross-process accessibility access.
+/// Reads this process's own accessibility tree from an app-hosted test bundle. In a plain
+/// SwiftPM test process the same call returned `kAXErrorNotImplemented` (macOS 27.0), so there
+/// `attribute` returns nil; see guides/background-mac-testing.md#test-hosts-and-what-they-reach.
+/// It grants no cross-process accessibility access.
 @MainActor public enum AccessibilityRead {
     public static func attribute<T>(_ element: AXUIElement, _ name: String) -> T? {
         var value: CFTypeRef?
