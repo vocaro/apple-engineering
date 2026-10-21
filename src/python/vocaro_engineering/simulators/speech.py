@@ -11,6 +11,8 @@ from vocaro_engineering.voiceover import activation
 
 TEST_ENDED = re.compile(r"^Test Case '.*testCaptureNavigation\]' (passed|failed) \(([\d.]+) seconds\)", re.M)
 FAILURES = re.compile(r"^.* error: (?:-\[.*?\] : )?(.*)$", re.M)
+# The apps that show a simulator live, by process name: Device Hub from Xcode 27, Simulator.app before.
+SIMULATOR_VIEWS = {"DeviceHub": "Device Hub", "Simulator": "Simulator.app"}
 
 def now():
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
@@ -50,7 +52,15 @@ def keep_muted(session, state_reader=None):
 
 
 def simulator_app():
-    return bool(subprocess.run(["pgrep", "-x", "Simulator"], capture_output=True).stdout.strip())
+    """The name of a running app that shows simulators live, or None; it starts nothing.
+
+    Xcode 27 has no Simulator.app: its Device Hub runs as a `DeviceHub` process
+    (guides/simulator-testing.md#device-hub).
+    """
+    for process, name in SIMULATOR_VIEWS.items():
+        if subprocess.run(["pgrep", "-x", process], capture_output=True).stdout.strip():
+            return name
+    return None
 
 
 def stop(process):

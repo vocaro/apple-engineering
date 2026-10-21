@@ -21,7 +21,9 @@ project keeps its probe, fixture, build and device defaults in its own runner.
 - Boot with `simctl` alone and wait for `xcrun simctl bootstatus UDID -b`. Never open a live
   simulator view (Device Hub) or a tool that controls a simulator's screen unless the owner
   asked to watch: such a tool asks the owner to approve each device, and a disposable device is
-  new on every run.
+  new on every run. `speech.simulator_app()`, read before and after the run, names a running
+  simulator view (Device Hub, or Simulator.app before Xcode 27) or returns None; report whether
+  one was already running or started during the run.
 - Mute each simulator before anything runs ([below](#muted-speech-capture)).
 - Build the probe once for the simulator; a simulator build needs no signing team. Then run one
   `xcodebuild test-without-building` per simulator at the same time, each with its own result
