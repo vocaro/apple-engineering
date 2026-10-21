@@ -131,6 +131,84 @@ worktrees survived. Keep notes, counting scripts and proposed commit messages th
 a reboot in the worktree's ignored `.build/`. The device record now lives outside `/private/tmp`
 ([device reservations](#device-reservations)).
 
+## Reclaiming disk space
+
+The rules above slow growth; they do not recover what crashed or finished sessions left behind.
+Reclaiming that needs proof that nobody's live work is in it, and a quiet session, a passed
+deadline or a finished-sounding name proves nothing. `eng disk` takes the inventory and changes
+nothing:
+
+```sh
+python3 scripts/eng disk
+```
+
+It reads the whole home directory with `du`, so it takes several minutes, and prints each
+item's size, the reason for its status and the exact command that would remove it. A
+**candidate** is proven unowned by the rules below. An **owner** item shows no sign of a session
+using it, but only the owner can say whether it is still wanted: Xcode's default simulators, a
+runtime no device uses, archives, test results, a directory no repository has registered and a
+worktree outside the session directories. Everything else is **kept**: in use, owned, of unclear
+ownership, or holding work or evidence. Other large directories are listed for the owner and are
+never candidates.
+
+- **In use.** One `lsof` and `ps` census of the account's processes is taken first. A path is in
+  use when a process's working directory, an open file or a path in its arguments lies inside
+  it, and a path in use is kept. Every candidate has also been unchanged for `--min-idle-hours`
+  (24 by default): a worktree created a moment ago at origin/main is clean and landed before its
+  session's first process starts.
+- **Linked worktrees** of every main checkout in `~/Development`, from `git worktree list`. A
+  candidate lies in its project's `.claude/worktrees` or `.codex/worktrees` or in
+  `~/.codex/worktrees`, is unlocked (Claude Code locks an agent's worktree while the agent
+  runs), has no process, is clean (no modified or untracked path) and has landed: its HEAD is
+  contained in origin/main, or every one of its commits has an equal patch there and none is a
+  merge. Ignored files under a `measurements` or `evidence` directory keep it. The inventory reads
+  origin/main once per repository and does not fetch, so work that landed after the last fetch
+  stays kept. Its `git status` runs with `GIT_OPTIONAL_LOCKS=0`, so it never refreshes another
+  session's index. The command is `git worktree remove` without `--force`, which itself refuses
+  a dirty tree and leaves the branch. A session left open in a removed worktree cannot run
+  commands there again; its work is on main and its branch remains.
+- **Simulators**, from `simctl list -j`. Only a disposable device can be a candidate: its unique
+  name carries a UUID, as the [disposable lifecycle](simulator-testing.md#disposable-simulators)
+  names it, and a pool or default device's name never does. It must also be shut down, unused
+  for the idle time, absent from every process's arguments and files, and unnamed, by UDID or
+  name, in every device record (the device record and any legacy `/private/tmp` handoff file).
+  An unreadable record keeps every device. Xcode's default devices and unavailable named devices
+  are owner items; any other named device is a pool member or one made by hand and is kept. A
+  runtime no device uses is an owner item: a lane may create its devices on it next.
+- **Build caches.** A DerivedData folder in `~/Library/Developer/Xcode` (named
+  `NAME-<28 letters>`) is a candidate when its `info.plist` names a workspace that no longer
+  exists; one without `info.plist` is an owner item, and the folders every build shares
+  (`ModuleCache.noindex`, `SDKExplicitPrecompiledModules`) are kept. A SwiftPM scratch (a
+  directory holding `workspace-state.json`) or an Xcode `-derivedDataPath` directory under
+  `/private/tmp` or the user temporary directory is a candidate when it lies outside every
+  checkout. Claude Code keeps each session's scratchpad in
+  `/private/tmp/claude-UID/<checkout path, each other character a hyphen>/<session>/`; while
+  that checkout exists, or a process still works inside its path (a session whose worktree was
+  removed can still be running there), the session may return, so its scratch builds are kept.
+  Hyphens in names make that match loose, which only keeps more. A clone or artifact in SwiftPM's
+  cache, `~/Library/Caches/org.swift.swiftpm`, is a candidate too: SwiftPM fetches it again.
+- **Results.** Result bundles, and run directories whose `owner` file records a finished run's
+  PID and start time, are owner items; a run whose recorded process still has that start time is
+  kept.
+
+`eng disk --delete` runs only on a terminal and asks once per category. Immediately before each
+removal it takes a fresh census and checks that candidate again, refuses an `rm` inside any
+working tree or reached through a link, and appends every decision to
+`~/Library/Application Support/vocaro-engineering/disk-reclaimed.jsonl`. It never runs an owner
+item's command. Sizes are allocated sizes from `du`; APFS clones share blocks, so removing one
+can free less than its size. Run the inventory again after removing worktrees: DerivedData whose
+workspace went with them becomes a candidate.
+
+On 2026-10-21 the 1.8 TiB data volume had 21 GiB free. Of about 1.74 TiB used, a measurement
+archive held 314 GiB, linked worktrees 150 GiB (nearly all in use or unlanded), `/private/tmp`
+116 GiB (76 GiB of it agent session scratch, mostly Xcode derived data built in scratchpads),
+simulators 79 GiB (one default iPhone 23 GiB), simulator runtimes 38 GiB, and applications,
+another account and a virtual machine about 300 GiB together. About 600 GiB lay in folders the
+shell cannot read, which macOS privacy protection hides (`~/.Trash`, Mail, Messages, app
+containers), and in system data; the inventory reports that remainder rather than guessing at
+it. The inventory found 37 GiB of candidates, almost all derived data in finished sessions'
+scratchpads, and 76 GiB of owner items, 48 GiB of them Xcode's default simulators.
+
 ## Device reservations
 
 Physical devices, and simulators of the reserved pool under the simulator-pool capability, are

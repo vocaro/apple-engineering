@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 
-from . import __version__, docs, evidence, processes, resources
+from . import __version__, disk, docs, evidence, processes, resources
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
 
 
@@ -83,12 +83,15 @@ def main(argv=None):
     source = commands.add_parser("source")
     source.add_argument("name", choices=["voiceover-ax-observer.swift", "voiceover-link-verbosity.swift",
                                         "probe-simulator-voiceover-activation.m"])
+    disk.add_arguments(commands.add_parser("disk", help="inventory reclaimable disk space; changes nothing without --delete"))
     args = parser.parse_args(argv)
     root = args.project.resolve()
     try:
         if args.action == "init":
             initialize(root, args)
             return 0
+        # The inventory covers the whole host, so it needs no project configuration.
+        if args.action == "disk": return disk.execute(args)
         config = load(root)
         if args.action == "instructions": instructions(config)
         elif args.action == "doctor":

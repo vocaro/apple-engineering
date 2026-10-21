@@ -20,6 +20,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Remove only task-owned scratch builds after recording results. A building worktree can hold
   8-14 GB: check `df -h /System/Volumes/Data` before creating build worktrees, because a full
   volume fails every session. Evidence belongs with its issue or subject, not only on a branch.
+- When the volume runs short, run `python3 scripts/eng disk` and tell the owner what it found.
+  It proves what nobody owns; never remove what another session left on your own judgment, and
+  leave `--delete`, which asks on a terminal, to the owner.
 
 ## Tests and evidence
 
