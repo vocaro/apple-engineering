@@ -16,6 +16,17 @@ import tempfile
 
 
 PROFILES = globals().get("PROFILES", {})
+# Also the project's, from its adapter or as arguments: the profiles whose evidence must come
+# from a simulator, the prefix of the app's own log lines, and the log lines withheld because
+# they name a private location.
+SIMULATOR_PROFILES = globals().get("SIMULATOR_PROFILES")
+LOG_MARKER = globals().get("LOG_MARKER")
+PRIVATE_LOG_LINES = globals().get("PRIVATE_LOG_LINES")
+if PROFILES and SIMULATOR_PROFILES is None and LOG_MARKER is None and PRIVATE_LOG_LINES is None:
+    # Pagepour's adapter, which defined only PROFILES before these existed. Remove this once it
+    # defines them.
+    SIMULATOR_PROFILES, LOG_MARKER, PRIVATE_LOG_LINES = (
+        ("share-simulator", "mobile-windows"), "READER", ("READER CAPTURE ROOT ",))
 IDENTITY_KEYS = {"deviceId", "deviceID", "deviceName", "deviceIdentifier", "udid"}
 
 
@@ -62,16 +73,21 @@ def scrub(value):
     return value
 
 
-def reader_log(value):
+def reader_log(value, marker=None, withheld=None):
+    """The app's own log lines, which start with marker, the lines continuing them, and test cases."""
+    marker = marker or LOG_MARKER
+    withheld = tuple((PRIVATE_LOG_LINES or ()) if withheld is None else withheld)
+    if not marker:
+        raise ValueError("the project adapter must define LOG_MARKER, the prefix of the app's log lines")
     lines = []
     continuation = False
     for line in value.splitlines():
-        if line.startswith("READER CAPTURE ROOT "):
+        if line.startswith(withheld):
             continuation = False
-            continue  # Private synchronization path contains the simulator/container identity.
-        if line.startswith("READER") or line.startswith("Test Case "):
+            continue  # A private location, such as a path holding a simulator's identity.
+        if line.startswith(marker) or line.startswith("Test Case "):
             lines.append(scrub(line))
-            continuation = line.startswith("READER")
+            continuation = line.startswith(marker)
         elif continuation and line and not re.match(r"^\s*t =|^\d{4}-|^/|^Test |^\*\*", line):
             lines.append(scrub(line))
         else:
@@ -100,15 +116,16 @@ def export_result(result, prefix):
     ], check=True, stdout=subprocess.DEVNULL)
 
 
-def retain(prefix, destination, profile, text_only=False):
+def retain(prefix, destination, profile, text_only=False, simulator_profiles=None, marker=None, withheld=None):
     fresh(destination)
     source = Path(str(prefix) + "-attachments")
     rows = load(source / "manifest.json")
     metadata = {name: scrub(load(Path(str(prefix) + "-" + name + ".json")))
                 for name in ("summary", "tests", "revision")}
-    if profile in ("share-simulator", "mobile-windows") and "simulator" not in str(metadata["revision"].get("host", "")).lower():
+    simulator_profiles = SIMULATOR_PROFILES if simulator_profiles is None else simulator_profiles
+    if profile in (simulator_profiles or ()) and "simulator" not in str(metadata["revision"].get("host", "")).lower():
         raise ValueError(profile + " requires an explicit simulator host receipt")
-    log = reader_log(Path(str(prefix) + ".log").read_text(encoding="utf-8"))
+    log = reader_log(Path(str(prefix) + ".log").read_text(encoding="utf-8"), marker, withheld)
     destination.parent.mkdir(parents=True, exist_ok=True)
     # Stage a complete package before exposing it at the requested destination.
     with tempfile.TemporaryDirectory(prefix=".reader-evidence-", dir=destination.parent) as stage:

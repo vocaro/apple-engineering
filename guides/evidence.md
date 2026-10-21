@@ -152,9 +152,17 @@ of relative paths to SHA-256. It rejects an empty receipt, absolute or escaping 
 changed bytes. It does not look for files the receipt omits.
 
 `src/python/vocaro_engineering/reader_evidence.py` collects test-result evidence. A project
-adapter defines `PROFILES`, which maps each publication profile to the attachment-name prefixes
-it may retain, and then loads the module. No command launches an app, controls a device or
-changes accessibility settings.
+adapter defines its product's settings and then loads the module. No command launches an app,
+controls a device or changes accessibility settings.
+
+- `PROFILES` maps each publication profile to the attachment-name prefixes it may retain.
+- `SIMULATOR_PROFILES` names the profiles whose run must have a simulator host receipt.
+- `LOG_MARKER` is the prefix of the app's own runner-log lines, such as `READER`; `retain`
+  refuses to run without it.
+- `PRIVATE_LOG_LINES` lists prefixes of log lines withheld because they name a private
+  location, such as a simulator's container path.
+
+`retain` and `reader_log` also take these as arguments.
 
 ```sh
 python3 ADAPTER receipt PREFIX-revision.json --metadata RUN.json FILE...
