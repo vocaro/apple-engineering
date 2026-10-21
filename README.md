@@ -66,7 +66,9 @@ The resource coordinator honors `HEAVY_SLOT_DIR` and the StudyWright shlock/guar
 while load and memory pressure show spare capacity. Exclusive work holds all heavy slots. Nested calls validate inherited admission
 descriptors. Unknown, dead or uncertain owners retain their guard for inspection; time passing
 does not release them. Never remove an uncertain guard without checking its recorded owner
-and descendants. [Shared host methods](guides/shared-host.md) describes the inherited rules.
+and descendants. Device reservations live in one record per account, changed only under its lock
+by `vocaro_engineering.devices`; a deadline or a vanished run never releases one.
+[Shared host methods](guides/shared-host.md) describes the inherited rules.
 
 Evidence checks reject zero selected tests, changed bytes and escaping manifest paths.
 Swift Testing's positive result is distinct from its zero-test XCTest shim. The toolkit records

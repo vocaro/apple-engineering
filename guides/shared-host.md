@@ -120,34 +120,74 @@ once, say so, and build again from nothing. Report a failure only after the clea
 A reboot empties `/private/tmp`. The reboot after the 2026-10-14 panic removed a coordinator's
 scratch, a shared baseline, every agent's notes and the handoff records kept there; the
 worktrees survived. Keep notes, counting scripts and proposed commit messages that must outlive
-a reboot in the worktree's ignored `.build/`.
+a reboot in the worktree's ignored `.build/`. The device record now lives outside `/private/tmp`
+([device reservations](#device-reservations)).
 
 ## Device reservations
 
 Physical devices, and simulators of the reserved pool under the simulator-pool capability, are
-used only under a real reservation recorded in a shared, human-readable handoff record kept
-outside every repository. Every session on the host reserves in the same record, so a project
-names its location; committed documentation keeps no device identifiers or live session details.
-An entry records:
+used only under a real reservation in the host's one device record, a human-readable JSON file
+outside every repository: `~/Library/Application Support/vocaro-engineering/device-handoff.json`
+of the account the sessions run as. `src/python/vocaro_engineering/devices.py` is its only
+writer. It finds the record from the account's home directory, not `HOME` or `TMPDIR`, so a
+session with a private environment joins the same record; `VOCARO_DEVICE_RECORD` names an
+isolated record for tests only. Committed documentation keeps no device identifiers or live
+session details. An entry records:
 
-- the device and the owning session, with a fresh revision;
-- reserved, testing or released state, whether a run is active, and its process or tool handle;
+- the device and the owning session, with the revision the helper assigns;
+- reserved, testing or released state, whether a run is active, and the process whose end ends
+  the run;
 - the purpose, the expected release time and the bounded run being attempted;
 - the original accessibility settings, and the apps, outputs and owner data to preserve;
 - at handoff, the terminal outcome, the restoration checks and the explicit release time.
 
-The JSON handoff is a coordination record, not a mutex. Agree ownership with the other session
-first. Read the record fresh immediately before claiming, write it by compare-and-replace (stage
-the new file, refuse when the record changed since the read, then rename it into place), update
-only your own entry and never overwrite another device's. More than one record can exist:
-reserve in the one sessions are updating now, which the newest update time shows, and resolve
-unclear ownership before any device work.
+Read and change the record through the helper's CLI, or from a script through
+`devices.Record()` and its `reserve`, `update`, `release` and `recover` methods:
+
+```sh
+export PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python"
+python3 -m vocaro_engineering.devices status
+python3 -m vocaro_engineering.devices show iPhone    # the entry and its revision; 0 if new
+python3 -m vocaro_engineering.devices reserve iPhone --owner SESSION --revision N \
+  --device UDID --purpose "…" --release-by 2026-10-21T18:00:00Z \
+  --set 'originalSettings={"voiceoverEnabled": false}' --set 'preservation=…'
+python3 -m vocaro_engineering.devices update iPhone --owner SESSION --revision N --set 'run=…'
+python3 -m vocaro_engineering.devices release iPhone --owner SESSION --revision N \
+  --outcome "…" --restoration "…"
+```
+
+The record is a coordination record, not a mutex: agree ownership with the other session first.
+Each change takes an exclusive lock, reads the record fresh, refuses unless the entry is still at
+the revision the caller read and, for an update or release, still the caller's, and replaces the
+file whole without rewriting any other entry. A refusal changes nothing: read the entry again
+and decide afresh. Each change prints the entry's new revision, which the caller's next change
+names. The lock covers one change, never a reservation. One device is never held under two
+keys, and the helper takes only a canonical uppercase UDID, never a name or `booted`.
+
+Sessions used to keep ad hoc records in `/private/tmp`. In October 2026 two were live at once,
+so two sessions could reserve one device in different files; unlocked read-modify-write could
+lose another session's entry; and the restart after the 2026-10-14 panic emptied `/private/tmp`
+while device work could still be running. The helper refuses a record there.
+`devices import PATH… --by SESSION` merges such a file once, by its SHA-256, and leaves the file
+untouched. Every entry survives: a held version stays current over a released one, the later
+activity wins between equals, the other version is kept in the entry's `importedVersions`, and
+two holds of one device leave it uncertain. `status` names a legacy file whose current bytes
+were never imported; once it is imported, stop writing it.
 
 A device is released only explicitly. A passed expected release time, an idle screen or a silent
 session proves nothing: obtain the release and verify the device's state freshly. A deadline
-never releases a device. Release yours during offline analysis instead of holding an idle
-reservation, and preserve a live or uncertain reservation until recovery confirms its work has
-stopped.
+never releases a device; `status` reports an overdue entry and changes nothing. Release yours
+during offline analysis instead of holding an idle reservation. `release` refuses while a run is
+active: record its confirmed terminal result first.
+
+Preserve a live or uncertain reservation until recovery confirms its work has stopped, as a
+heavy-work guard is preserved. Marking a run active records its process
+(`hostProcessIdentifier`) and that process's start time. An active run whose process is gone, or
+has another start time, is an orphan; an entry marked `uncertain` or `restoration-unverified` is
+uncertain. Neither is reserved again until its owner releases it or
+`devices recover KEY --by SESSION --revision N --verified "…"` records an attended recovery: by
+the owner or a session they agreed, once the run's processes have stopped and the device's
+settings and apps are verified. Recovery refuses while the recorded process still runs.
 
 Give every command the device's explicit identifier: the canonical uppercase UDID of a device
 you own or have reserved, never a name or `booted`. [Simulator testing](simulator-testing.md)
@@ -168,7 +208,8 @@ A launcher for one bounded session in a granted interval:
 - counts `xcodebuild` start-up in that limit: on a busy Mac it took nearly five minutes to begin
   a session whose steps then took one;
 - never changes VoiceOver, uninstalls apps or deletes data;
-- updates only its own entry, and refuses an ownership change or a concurrent record change;
+- updates only its own entry through the device record's helper, naming the revision its
+  previous change returned, so an ownership change or a concurrent change is refused;
 - keeps ownership and records `restoration-unverified` when restoration fails; an unconfirmed
   termination does not release the device.
 
@@ -182,7 +223,7 @@ and verify absence separately.
 
 To release, verify the original accessibility and keyboard settings, the absence of owned test
 processes and the measured build identities. Remove only the exact owned app and runner bundles,
-verify their absence, update the record, and tell the other session that the device is released,
+verify their absence, release the entry, and tell the other session that the device is released,
 including any unresolved restoration state.
 
 ## Attended Mac sessions
@@ -423,7 +464,7 @@ appears, stop your processes, leave the dialog for the owner and say so. Samplin
 
 ## Lock reclamation
 
-Two kinds of marker coexist, and they are reclaimed differently:
+Three kinds of marker coexist, and they are reclaimed differently:
 
 - The legacy shlock gate file (`/tmp/studywright-gate-suite.lock` by default) holds a PID, and
   `shlock` reclaims it once that process is gone, so a killed gate does not strand the next one.
@@ -432,6 +473,10 @@ Two kinds of marker coexist, and they are reclaimed differently:
   or by time, because a dead keeper's compilers or simulator children can outlive it. Gates
   check the guard before trying `shlock`, and admission refuses to proceed while any guard owner
   is dead, foreign or uncertain.
+- The device record's lock (`device-handoff.json.lock` beside the record) is an `flock` held for
+  one change. The kernel releases it when its process ends, so it needs no reclamation, and its
+  file is never removed. A reservation in the record ends only by its owner's release or an
+  attended recovery ([device reservations](#device-reservations)).
 
 Recovery of a guard is attended. Inspect its recorded owner, that owner's command processes and
 any reserved tree; stop or wait for all of the transaction's children; then remove the abandoned

@@ -2,9 +2,10 @@
 
 The owner and concurrent sessions keep using this Mac. Builds use the common heavy slots;
 whole-machine measurements and gate suites exclude heavy work. Physical devices need a window
-agreed with the owner first. Every device needs a real reservation and the project's
-human-readable handoff, which is a coordination record, not a mutex. A deadline alone never
-releases a device.
+agreed with the owner first. Every device needs a real reservation in the host's one
+human-readable device record, changed only through `vocaro_engineering.devices`, which is a
+coordination record, not a mutex. Do not reserve in the earlier `/private/tmp` handoff files. A
+deadline alone never releases a device.
 
 Do not take over the screen, keyboard, pointer or Mac VoiceOver without the required explicit
 owner authorization. A Mac VoiceOver session on this Mac is only for what a hosted runner cannot
