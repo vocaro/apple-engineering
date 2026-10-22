@@ -115,6 +115,91 @@ after changing them ask for the fragments on screen to be drawn again.
   text will lay them out, container included, or every later box and page moves by the
   difference.
 
+## TextKit 2 sizes an attachment past a tab from the line's start
+
+TextKit 2 asks an attachment for its size with
+`attachmentBounds(for:location:textContainer:proposedLineFragment:position:)`. The proposed line
+fragment was the whole container, with none of the paragraph's indents taken out, so an
+attachment that fills the rest of its line works that out from `position`. Left to right
+without a tab, the last call's `position.x` was where TextKit 2 then drew the attachment. Past a
+tab it was not. When sizing, TextKit 2 measured the tab's stop from the line's start and added
+the line's left indent. When drawing, it measured the stop from the paragraph's edge, as TextKit
+1 did both times.
+
+- Past a list marker's tab, in a paragraph whose first-line indent F is less than its head indent
+  H and whose one stop is at H, the attachment was sized at F + H and drawn at H. The first-line
+  indent was counted twice, so the rest of the line came out F narrower than the room it was
+  drawn in: 22.14 points with F 22.14 and H 32. On a later line the head indent was counted
+  twice instead.
+- Taking the line's left indent off `position` corrects it only where the stop found from the
+  line's start is the stop found from the paragraph's edge, as a marker's tab to the head indent
+  is. Past a bare tab in a paragraph indented 40 on every line, at a default interval of 36, the
+  attachment was sized at 76 and drawn at 72: 4 points off, not 40. Past a stop the marker had
+  already passed, the position was short: sized at 22 and drawn at 48. At a default interval with
+  F < H and a narrow marker, the two stops were the same and the position was again F too far.
+  Recognize a marker's tab by its paragraph (F < H, one stop at H, a tab just before the
+  attachment) rather than correcting past every tab.
+- TextKit 2 called the method up to three times for each layout, the first at 0. Only the last
+  call's `position` fits these rules.
+- Right to left, TextKit 2 measured the stop from the line's start both when sizing and when
+  drawing. It drew the stop from the first line's start less the tail indent T, as in [the entry
+  above](#textkit-1-and-textkit-2-apply-paragraph-indents-differently). It gave `position.x` as
+  T, the line's left indent there, plus the advance from the line's start. The room to the left
+  of the attachment, taken as the container less F less `position`, matched the drawing without
+  a tab and was T short past one. With F 10, H 40, T 22 and the stop at H, the attachment was
+  drawn at 642…692, which leaves 670 points to the tail indent; 720 − 10 − 62 is 648. With T 0
+  the two agreed.
+- TextKit 1's `glyphPosition` was where it drew, the left edge left to right and the right edge
+  right to left, except past a `.left` stop right to left (below).
+- Two drawing differences appeared along the way. Left to right, TextKit 2 put the next stop
+  past the last explicit one at that stop plus the default interval, where TextKit 1 put it at a
+  multiple of the interval from the paragraph's edge. Right to left, a `.left` stop gave the same
+  TextKit 2 numbers as a `.natural` one, while TextKit 1 set the attachment straight after the
+  marker, 17.23 from the edge, instead of at the stop.
+
+A place in the table is the attachment's left edge left to right, and its right edge measured
+from the container's right edge right to left; `position.x` is as TextKit 2 passed it. The
+default interval is 36 unless stated.
+
+| Paragraph | Before it | TextKit 2 `position.x` | TextKit 2 drew | TextKit 1 drew |
+| --- | --- | --- | --- | --- |
+| F 22.14, H 32, one stop at H | `•\t` | 54.14 | 32 | 32 |
+| F 10, H 40, one stop at H, T 0 or 22 | `•\t` | 50 | 40 | 40 |
+| F 0, H 40, one stop at H | `•\t` | 40 | 40 | 40 |
+| H 40, one stop at 80, on the second line | `\t` | 120 | 80 | 80 |
+| F 10 or 18, H 40, no stops | `•\t` | 46 or 54 | 36 | 36 |
+| F = H = 40, no stops | `\t` | 76 | 72 | 72 |
+| F = H = 40, no stops, interval 30.89 | `\t` | 70.89 | 61.78 | 61.78 |
+| F = H = 40, one stop at H | `•\t` | 80 | 76 | 72 |
+| F = H = 50, one stop at 30 | `•\t` | 80 | 66 | 72 |
+| F 10, H 40, one stop at 12 | `•\t` | 22 | 48 | 36 |
+| F 10, H 40, one stop at H | nothing, or `ab` | 10, 28.03 | 10, 28.03 | 10, 28.03 |
+| Right to left: F 10, H 40, one stop at H, T 0 | `•\t` | 40 | 50 | 40 |
+| Right to left: the same with T 22 | `•\t` | 62 | 28 | 40 |
+| Right to left: F = H = 40, no stops, T 0 or 22 | `\t` | 36 or 58 | 76 or 54 | 72 |
+| Right to left: F 10, H 40, one stop at H, T 0 or 22 | nothing | 0 or 22 | 10 | 10 |
+
+Measured 2026-10-22 on macOS 27.2 (26B5091g), Xcode 27.2 (27B5028f) and Swift 6.4 on a
+MacBookPro18,2, with [a probe](../../src/swift/TextKit/textkit-tab-attachment-position.swift)
+that needs no window: `swift textkit-tab-attachment-position.swift`, and `--calls` to list every
+sizing call. It lays out one paragraph with `NSTextContentStorage`, `NSTextLayoutManager` and a
+plain `NSTextContainer` 720 points wide with `lineFragmentPadding` 0. The paragraph is in the
+16-point system font, with a 50-point attachment followed by text. The drawn place is the layout
+fragment's frame plus `frameForTextAttachment(at:)`. It agreed with the line fragment's
+`locationForCharacter(at:)`, and with a letter set in the attachment's place. Repeated runs
+gave the same numbers. Not measured: iOS, other macOS releases, a text view,
+`lineFragmentPadding` other than 0, center, right and decimal stops, a first-line indent greater
+than the head indent, and a container that supplies its own line rectangles. The rules above
+are inferred from these cases, not from Apple documentation.
+
+A reader met this in list items. Where a table opened an item, its first row came out 22 points
+narrower than the item left to right, and 58 right to left in a reader that also moves
+right-to-left stops to undo the entry above
+([EPUBLib#750](https://github.com/vocaro/EPUBLib/pull/750),
+[verification](https://github.com/vocaro/EPUBLib/issues/376#issuecomment-6341970318)). Its first
+fix took the left indent off past every tab. Review found that this put a full-width image past
+an authored tab 18 points beyond the column, and the fix kept corrects only past a marker's tab.
+
 ## A non-rectangular container can ask for lines forever
 
 TextKit keeps asking a text container that is not a plain rectangle for the next line down for

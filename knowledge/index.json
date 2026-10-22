@@ -3363,6 +3363,17 @@
       "sources": [
         "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/measuring.md#5g-can-a-document-give-the-model-orders-injectionprobemeasurement"
       ]
+    },
+    {
+      "id": 370,
+      "title": "TextKit 2 sizes an attachment past a tab from the line's start",
+      "path": "knowledge/apple/textkit-layout.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/pull/750",
+        "https://github.com/vocaro/EPUBLib/issues/376#issuecomment-6341970318",
+        "https://github.com/vocaro/EPUBLib/blob/4b7a47e8d834ae4774b9d24edb9c1066d0c7b97e/Sources/EPUBViewing/Native/Rich/ReaderAttachment.swift",
+        "https://github.com/vocaro/EPUBLib/blob/4b7a47e8d834ae4774b9d24edb9c1066d0c7b97e/Sources/EPUBViewing/Native/View/ReaderTextContainer.swift"
+      ]
     }
   ]
 }

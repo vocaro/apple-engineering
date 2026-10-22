@@ -45,14 +45,14 @@ See [adoption and maintenance](guides/adoption.md) for updates, rollback and new
 - `agents/core.md` and `agents/capabilities/`: common operating rules and enabled methods.
 - `policies/shared-host.md`: current operating policy; `eng policy refresh` fetches main and
   reads that exact document without executing newly fetched code.
-- [Knowledge index](knowledge/README.md): 369 practices and technical lessons with their
+- [Knowledge index](knowledge/README.md): 370 practices and technical lessons with their
   applicability and limits, in 43 subject documents. Guides in `guides/` hold methods and
   procedures; articles in `knowledge/` hold observed Apple platform and model behavior. They are
   self-contained: a project keeps only its own fixtures, decisions and results, and links here.
 - `src/python/vocaro_engineering/`: standard-library-only engineering implementations.
 - `src/swift/`: maintained Swift source, including the test-only EngineeringTestSupport package
-  (with a separate StoreKitTestSupport product for purchase tests) and VoiceOver observer
-  utilities. Native simulator dispatch source is in `src/objc/`.
+  (with a separate StoreKitTestSupport product for purchase tests), VoiceOver observer utilities
+  and a TextKit layout probe. Native simulator dispatch source is in `src/objc/`.
 - `integrations/`: small project launchers and compatibility adapters.
 
 App fixture generation, launch arguments, privacy retention profiles, corpus approvals and

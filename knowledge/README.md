@@ -1,6 +1,6 @@
 # Shared engineering knowledge
 
-Search the 369 captured practices and technical lessons with `eng knowledge QUERY`. Guides hold
+Search the 370 captured practices and technical lessons with `eng knowledge QUERY`. Guides hold
 methods and procedures; knowledge articles hold observed Apple platform behavior and its limits.
 
 ## Shared host and maintenance
