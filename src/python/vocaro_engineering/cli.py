@@ -49,13 +49,40 @@ def instructions(config):
         print(f"Project exception — {exception['rule']}: {exception['reason']}")
 
 
-def refresh_policy(root):
+def refresh_policy(root, stream=None):
     subprocess.run(["git", "-C", str(TOOLKIT_ROOT), "fetch", "origin",
                     "refs/heads/main:refs/remotes/origin/main"], check=True, timeout=120)
     commit = subprocess.check_output(["git", "-C", str(TOOLKIT_ROOT), "rev-parse", "origin/main"], text=True).strip()
     text = subprocess.check_output(["git", "-C", str(TOOLKIT_ROOT), "show", f"{commit}:policies/shared-host.md"], text=True)
-    print(f"Policy source: {commit}\n\n{text}")
+    print(f"Policy source: {commit}\n\n{text}", file=stream)
     return commit
+
+
+def record(directory, receipt, work):
+    """Run work, then write its exit status or failure beside the source identities."""
+    directory.mkdir(parents=True, exist_ok=True)
+    try:
+        result = work()
+        receipt["exitStatus"] = result
+    except BaseException as error:
+        receipt["outcome"] = "failed-or-interrupted"
+        receipt["error"] = str(error)
+        raise
+    finally:
+        (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    return result
+
+
+def admit(root, args):
+    command = args.command[1:] if args.command[:1] == ["--"] else args.command
+    if not command: raise ValueError("Name the command: eng admit [--exclusive] -- COMMAND")
+    # The policy goes to stderr so that stdout carries only the command's own output.
+    receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
+               "policy": refresh_policy(root, sys.stderr), "command": command,
+               "directory": str(Path.cwd()), "exclusive": args.exclusive}
+    with resources.Admission(" ".join(command), args.exclusive, args.timeout):
+        return record(root / ".build/engineering/admit", receipt,
+                      lambda: processes.supervise(command, cwd=Path.cwd()))
 
 
 def main(argv=None):
@@ -70,8 +97,15 @@ def main(argv=None):
     commands.add_parser("instructions")
     policy = commands.add_parser("policy")
     policy.add_argument("operation", choices=["refresh"])
-    run = commands.add_parser("run")
+    run = commands.add_parser("run", help="run a configured lane, admitting a heavy or exclusive one")
     run.add_argument("lane")
+    admission = commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
+        "test, a simulator run) through the host's heavy-work admission: eng admit -- COMMAND; add --exclusive "
+        "for a gate suite or whole-machine measurement")
+    admission.add_argument("--exclusive", action="store_true", help="hold every slot: a gate suite or whole-machine measurement")
+    admission.add_argument("--timeout", type=float, default=5400, help="seconds to wait for admission (default 5400)")
+    admission.add_argument("command", nargs=argparse.REMAINDER, help="the command and its arguments, after --; "
+        "it runs in the current directory")
     evid = commands.add_parser("evidence")
     evid.add_argument("operation", choices=["verify"])
     evid.add_argument("directory", type=Path)
@@ -104,6 +138,7 @@ def main(argv=None):
                 "missingCommands": missing}, indent=2))
             return int(bool(missing))
         elif args.action == "policy": refresh_policy(root)
+        elif args.action == "admit": return admit(root, args)
         elif args.action == "source":
             from .support import source_path
             print(source_path(args.name))
@@ -123,21 +158,11 @@ def main(argv=None):
             resource = lane.get("resource", "light")
             policy_commit = refresh_policy(root) if resource != "light" else None
             directory = root / ".build/engineering" / args.lane
-            directory.mkdir(parents=True, exist_ok=True)
             receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
                        "policy": policy_commit, "command": lane["command"]}
             def execute():
-                try:
-                    result = processes.run(lane["command"], cwd=root, log_path=directory / "run.log",
-                                           timeout=lane.get("timeout"))
-                    receipt["exitStatus"] = result
-                except BaseException as error:
-                    receipt["outcome"] = "failed-or-interrupted"
-                    receipt["error"] = str(error)
-                    raise
-                finally:
-                    (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
-                return result
+                return record(directory, receipt, lambda: processes.run(lane["command"], cwd=root,
+                              log_path=directory / "run.log", timeout=lane.get("timeout")))
             if resource == "light": result = execute()
             else:
                 with resources.Admission(args.lane, exclusive=resource == "exclusive"):

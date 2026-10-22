@@ -120,7 +120,7 @@ run through heavy-work admission:
 ```sh
 python3 scripts/eng run LANE
 # Without a configured lane:
-PYTHONPATH=ENGINEERING_ROOT/src/python python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   xcodebuild test -project APP.xcodeproj -scheme PURCHASE_UI_SCHEME \
   -destination 'platform=iOS Simulator,id=UDID' -parallel-testing-enabled NO
 ```
@@ -181,8 +181,7 @@ development-signed build. They are opt-in qualification, never part of an ordina
   reaches every test runner process; here the test reads `SANDBOX_RESTORE`:
 
   ```sh
-  TEST_RUNNER_SANDBOX_RESTORE=1 PYTHONPATH=ENGINEERING_ROOT/src/python \
-    python3 -m vocaro_engineering.resources -- xcodebuild test-without-building \
+  TEST_RUNNER_SANDBOX_RESTORE=1 python3 scripts/eng admit -- xcodebuild test-without-building \
     -xctestrun MANIFEST.xctestrun -destination 'platform=iOS,id=DEVICE_ID' \
     -only-testing:UI_TESTS/SandboxPurchaseUITests/testRestoreAndRelaunch \
     -parallel-testing-enabled NO

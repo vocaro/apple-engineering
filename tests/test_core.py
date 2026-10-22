@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src/python"))
-from vocaro_engineering import cli, config, docs, evidence, resources
+from vocaro_engineering import cli, config, docs, evidence, processes, resources
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -125,6 +125,22 @@ class DocumentationTests(unittest.TestCase):
             text = re.sub(r"```.*?```", "", path.read_text(), flags=re.S)
             self.assertIn("## " + entry["title"], text.splitlines(), entry["path"])
             self.assertTrue(entry["sources"], entry["title"])
+
+    def test_what_agents_are_told_to_read_names_the_admission_commands(self):
+        """eng instructions, eng policy refresh and eng --help each say how to admit heavy work."""
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example"}))
+            with contextlib.redirect_stdout(StringIO()) as instructions:
+                cli.main(["--project", directory, "instructions"])
+        with contextlib.redirect_stdout(StringIO()) as usage, self.assertRaises(SystemExit):
+            cli.main(["--help"])
+        # The policy refresh prints this document from main.
+        policy = (config.TOOLKIT_ROOT / "policies/shared-host.md").read_text()
+        for name, text in [("instructions", instructions.getvalue()), ("help", usage.getvalue()), ("policy", policy)]:
+            text = " ".join(text.split())
+            with self.subTest(name):
+                self.assertIn("eng admit -- COMMAND", text)
+                self.assertIn("--exclusive", text)
 
 
 class ResourceTests(unittest.TestCase):
@@ -241,6 +257,66 @@ class ResourceTests(unittest.TestCase):
     def test_forged_inherited_descriptor_is_rejected(self):
         os.environ[resources.TOKEN] = json.dumps({"schemaVersion": 1, "locks": [{"fd": 999999, "path": "/not-a-lock", "nonce": "bad"}]})
         with self.assertRaises(RuntimeError): resources.inherited()
+
+    def admit(self, *arguments):
+        root = Path(self.temp.name)
+        (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Admit"}))
+        receipt = root / ".build/engineering/admit/source.json"
+        receipt.unlink(missing_ok=True)
+        with patch.object(cli, "refresh_policy", return_value="policy") as policy, patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stderr(StringIO()) as error:
+            result = cli.main(["--project", str(root), "admit", *arguments])
+        if policy.called:
+            # The policy goes to stderr, leaving stdout to the command.
+            self.assertEqual(policy.call_args.args, (root.resolve(), error))
+        return result, policy, json.loads(receipt.read_text()) if receipt.exists() else None
+
+    def test_admit_runs_a_command_in_the_current_directory_inside_admission(self):
+        work = Path(self.temp.name) / "work"
+        work.mkdir()
+        self.addCleanup(os.chdir, os.getcwd())
+        os.chdir(work)
+        probe = ("from pathlib import Path\nfrom vocaro_engineering import resources\n"
+                 "assert resources.inherited()\n"
+                 "try: resources.inherited(exclusive=True)\nexcept RuntimeError: held = 'shared'\nelse: held = 'exclusive'\n"
+                 "Path('admitted').write_text(held)\nraise SystemExit(7)")
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        for options, held in [([], "shared"), (["--exclusive"], "exclusive")]:
+            with self.subTest(held), patch.dict(os.environ, {"PYTHONPATH": str(config.TOOLKIT_ROOT / "src/python")}):
+                result, policy, receipt = self.admit(*options, "--", sys.executable, "-c", probe)
+                self.assertEqual(result, 7)
+                self.assertEqual((work / "admitted").read_text(), held)
+                policy.assert_called_once()
+                self.assertEqual(receipt["command"], [sys.executable, "-c", probe])
+                self.assertEqual((receipt["exitStatus"], receipt["policy"], receipt["exclusive"]), (7, "policy", held == "exclusive"))
+                self.assertEqual(Path(receipt["directory"]).resolve(), work.resolve())
+                self.assertFalse(guard.exists())
+                self.assertIsNone(os.environ.get(resources.TOKEN))
+
+    def test_admit_without_a_command_refreshes_and_admits_nothing(self):
+        result, policy, receipt = self.admit("--exclusive")
+        self.assertEqual(result, 2)
+        policy.assert_not_called()
+        self.assertIsNone(receipt)
+        self.assertFalse(resources.slot_directory().exists())
+
+    def test_a_command_that_cannot_start_releases_admission(self):
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        unexecutable = Path(self.temp.name) / "check-all.sh"
+        unexecutable.write_text("#!/bin/sh\nexit 0\n")
+        for command in [str(Path(self.temp.name) / "swfit-typo"), str(unexecutable)]:
+            with self.subTest(command):
+                # A retained guard would make every later admission wait; fail instead.
+                result, _policy, receipt = self.admit("--timeout", "0", "--", command, "test")
+                self.assertEqual(result, 2)
+                self.assertEqual(receipt["outcome"], "failed-or-interrupted")
+                self.assertIn("did not start", receipt["error"])
+                self.assertFalse(guard.exists())
+                with contextlib.redirect_stderr(StringIO()):
+                    with self.assertRaises(processes.NotStarted):
+                        resources.main(["--timeout", "0", "--", command])
+                self.assertFalse(guard.exists())
+                with contextlib.redirect_stderr(StringIO()):
+                    with resources.Admission("next", timeout=0): pass
 
 
 if __name__ == "__main__": unittest.main()

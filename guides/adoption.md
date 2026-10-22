@@ -27,10 +27,14 @@ add explicit argv-based lanes to engineering.json. Give each lane a `resource` o
 `heavy` or `exclusive`: `eng run` refreshes the operating policy and admits heavy and exclusive
 lanes through [heavy-work admission](shared-host.md#heavy-work-admission), writes the lane's log
 and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, fails a
-successful run that executed fewer tests. Disposable simulators and the approved reserved pool
-are separate capabilities and cannot both be enabled. Conflicts or unknown fields fail
-validation. Existing AGENTS.md files are preserved: add the explicit `scripts/eng instructions`
-entry yourself when adopting into a repository that already has instructions.
+successful run that executed fewer tests. Heavy work that no lane names, such as a filtered
+test run, goes through `eng admit [--exclusive] -- COMMAND`. Give a project with a simulator,
+measurement or VoiceOver capability heavy lanes for its tests and an exclusive lane for its
+gate, so the commands its agents run most are admitted by name. Disposable simulators and the
+approved reserved pool are separate capabilities and cannot both be enabled. Conflicts or
+unknown fields fail validation. Existing AGENTS.md files are preserved: add the explicit
+`scripts/eng instructions` entry yourself when adopting into a repository that already has
+instructions.
 
 Use `eng knowledge QUERY` to find subject documents. Capture future findings with their source
 commit, the original evidence link, applicability and limits; add an index entry. Runtime

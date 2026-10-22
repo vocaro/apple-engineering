@@ -17,18 +17,27 @@ def snapshot():
     return result
 
 
+class NotStarted(OSError):
+    """The command could not be started, so it left no process to wait for."""
+
+
 def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
     """Wait for the owned root and observed descendants, including separate process groups.
 
     PID start identities prevent signalling a reused PID. An uncertain or interrupted run
     raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
+    A command that cannot start raises NotStarted, which admission releases.
     """
     environment = dict(os.environ) if env is None else env
     token = json.loads(environment.get("VOCARO_RESOURCE_TOKEN", "{}"))
     descriptors = tuple(item["fd"] for item in token.get("locks", []))
-    child = subprocess.Popen(command, cwd=cwd, env=environment, stdout=stdout,
-        stderr=subprocess.STDOUT if stdout is not None else None, start_new_session=True,
-        pass_fds=descriptors)
+    try:
+        child = subprocess.Popen(command, cwd=cwd, env=environment, stdout=stdout,
+            stderr=subprocess.STDOUT if stdout is not None else None, start_new_session=True,
+            pass_fds=descriptors)
+    except (OSError, ValueError) as error:
+        # Popen reaps a child whose exec failed before it raises; nothing else ran.
+        raise NotStarted(f"Command did not start: {error}") from error
     known, born = {}, None
     started = time.monotonic()
     expired = False

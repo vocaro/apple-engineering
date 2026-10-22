@@ -45,7 +45,7 @@ compiled. Build each package into an empty scratch directory, through admission 
 host, and delete it afterwards:
 
 ```sh
-PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   swift build --package-path PACKAGE --scratch-path "$SCRATCH/PACKAGE" \
   --explicit-target-dependency-import-check error
 ```

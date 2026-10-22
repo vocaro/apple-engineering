@@ -147,6 +147,11 @@ and the exit status or `failed-or-interrupted`. After a zero exit, a lane with `
 fails unless the log reports at least that many executed XCTest, Swift Testing or unittest
 tests.
 
+`python3 scripts/eng admit -- COMMAND` records the same fields, with the directory the command
+ran in and whether it was exclusive, in `.build/engineering/admit/source.json`. Its output stays
+on the terminal, so it writes no log, and the next admitted command in that checkout replaces
+the receipt: copy it with the run's output when it is evidence.
+
 `python3 scripts/eng evidence verify DIRECTORY` checks `DIRECTORY/receipt.json`, a version 1 map
 of relative paths to SHA-256. It rejects an empty receipt, absolute or escaping paths and
 changed bytes. It does not look for files the receipt omits.

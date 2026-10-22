@@ -273,10 +273,12 @@ class Admission:
             fcntl.flock(bridge, fcntl.LOCK_EX)
             for _slot, fd in self.descriptors:
                 os.close(fd)
-            # An exception may leave unobserved children. Retain the guard for inspection.
+            # An exception may leave unobserved children. Retain the guard for inspection,
+            # unless the command could not start: a mistyped name must not stop the host.
             state = self._guard()
             if state is not None:
-                if kind is None:
+                from vocaro_engineering.processes import NotStarted
+                if kind is None or issubclass(kind, NotStarted):
                     state["owners"].pop(self.identity, None)
                     if state["owners"]: publish_guard(self.guard, state)
                     else: self.guard.unlink(missing_ok=True)

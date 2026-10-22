@@ -10,18 +10,33 @@ On the shared host, builds, `swift test`, `xcodebuild test`, gate suites, corpus
 conversions run through heavy-work admission: one host-wide resource namespace with bounded
 concurrency. Run a configured lane with `python3 scripts/eng run LANE`; a lane whose `resource`
 is `heavy` or `exclusive` is admitted, and a `light` lane runs directly. Run any other heavy
-command through the resource CLI:
+command, such as a filtered test run, with `eng admit`:
 
 ```sh
-PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   xcodebuild test -scheme SCHEME -destination "platform=iOS Simulator,id=UDID"
 ```
 
 Add `--exclusive` for a whole-machine measurement or a gate suite whose budgets assume a quiet
-host. Public project documentation may show plain commands for outside contributors on their
-own machines; the admission rule is about this host. Project adapters (a `heavy_slot.py` shim,
+host; `--timeout` bounds the wait for admission. The command runs in the current directory with
+its output on the terminal. Like a heavy lane, `eng admit` first refreshes the operating policy,
+printing it to standard error, and records the command's receipt in
+`.build/engineering/admit/source.json`. It needs no `PYTHONPATH` and works from a session
+worktree ([locating the toolkit](adoption.md#locating-the-toolkit-from-a-worktree)). A toolkit
+clone older than `admit` reaches the same queue through the resource CLI:
+
+```sh
+PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- COMMAND
+```
+
+Public project documentation may show plain commands for outside contributors on their own
+machines; the admission rule is about this host. Project adapters (a `heavy_slot.py` shim,
 scripts that import `vocaro_engineering.resources`) all call
-`src/python/vocaro_engineering/resources.py`; there is no second queue to keep in step.
+`src/python/vocaro_engineering/resources.py`; there is no second queue to keep in step. A
+private slot pool, such as `mkdir` locks in a scratch directory, is a second queue that the host
+queue cannot see: it ignores load and memory pressure, and nothing makes its gate exclusive.
+One such pool ran ten agents' builds beside another session's full gate, and the load average
+reached 764 (October 2026).
 
 Ten agents each building on every core, with other lanes and Xcode indexing, kept watchdogd from
 checking in for 93 seconds and panicked an 18-core, 36 GB Mac (2026-10-14). A fixed limit of
@@ -350,9 +365,9 @@ and processes rather than launching a duplicate. Wait for a confirmed terminal r
 starting dependent tests or pushes. Never infer termination from a missing parent or an expired
 observation wait.
 
-Supervise the process group you own. The toolkit's `processes.supervise`, which `eng run` and
-the resource CLI use (`eng run` with a unique log per lane under `.build/engineering/LANE/`),
-follows these rules:
+Supervise the process group you own. The toolkit's `processes.supervise`, which `eng run`,
+`eng admit` and the resource CLI use (`eng run` with a unique log per lane under
+`.build/engineering/LANE/`), follows these rules:
 
 - Start the command in a new session and process group. Capture the root's start identity
   (`ps -o lstart=`) before `poll()` can reap it; once reaped, its PID cannot seed adoption or
@@ -367,6 +382,10 @@ follows these rules:
   interrupted or otherwise uncertain run raises and admission keeps its guard for inspection; a
   confirmed terminal exit keeps its status and releases normally. A push keeper is stricter: any
   failure leaves its guards in place even after the observed children drain.
+- A command that cannot start, such as a mistyped name or a script without its executable bit,
+  raises `NotStarted` and releases admission. `Popen` reaps the child whose exec failed before
+  it raises, so nothing is left to inspect; keeping the guard would stop every session's
+  admission over a typo.
 
 Terminate only an observed launch PID whose current executable still matches; an unknown or
 reused PID never authorizes termination, and a cleanup error keeps the first failure.

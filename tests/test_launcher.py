@@ -47,8 +47,8 @@ class WorktreeLauncherTests(unittest.TestCase):
     def provision(self, beside):
         (beside / "apple-engineering").symlink_to(config.TOOLKIT_ROOT, target_is_directory=True)
 
-    def launch(self, checkout, **environment):
-        return subprocess.run([sys.executable, str(checkout / "scripts/eng"), "instructions"],
+    def launch(self, checkout, *arguments, **environment):
+        return subprocess.run([sys.executable, str(checkout / "scripts/eng"), *(arguments or ["instructions"])],
                               capture_output=True, text=True, env={**self.environment, **environment})
 
     def test_init_installs_the_adapter_the_launcher_imports(self):
@@ -65,6 +65,17 @@ class WorktreeLauncherTests(unittest.TestCase):
         adapter = shared_adapter()
         self.assertEqual(adapter.main_checkout(self.worktree), self.main)
         self.assertEqual(adapter.toolkit_location(self.worktree), config.TOOLKIT_ROOT)
+
+    def test_worktree_launcher_reaches_admission_without_pythonpath(self):
+        self.provision(self.base)
+        self.assertNotIn("PYTHONPATH", self.environment)
+        usage = self.launch(self.worktree, "--help")
+        self.assertEqual(usage.returncode, 0, usage.stderr)
+        self.assertIn("admit", usage.stdout)
+        # Stops before refreshing the policy, which would fetch the real toolkit's remote.
+        missing = self.launch(self.worktree, "admit", "--exclusive")
+        self.assertEqual(missing.returncode, 2)
+        self.assertIn("eng admit [--exclusive] -- COMMAND", missing.stderr)
 
     def test_worktree_without_any_clone_names_the_main_checkout_sibling(self):
         result = self.launch(self.worktree)

@@ -367,17 +367,16 @@ Observing content that scrolls:
 ## XCTest execution discipline
 
 On the shared host, run builds and tests through heavy-work admission: a configured lane
-(`python3 scripts/eng run LANE`) or the resource CLI below. Public project docs may show plain
-commands for contributors on their own machines.
+(`python3 scripts/eng run LANE`) or `python3 scripts/eng admit -- COMMAND`, as below. Public
+project docs may show plain commands for contributors on their own machines.
 
 Build once, then run the built products against explicit destinations:
 
 ```sh
-PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   xcodebuild build-for-testing -scheme SCHEME -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath DERIVED
-TEST_RUNNER_EXAMPLE_FLAG=1 \
-  PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+TEST_RUNNER_EXAMPLE_FLAG=1 python3 scripts/eng admit -- \
   xcodebuild test-without-building -xctestrun DERIVED/Build/Products/MANIFEST.xctestrun \
   -destination "platform=iOS Simulator,id=UDID" -only-testing:TARGET/CLASS/testMethod \
   -parallel-testing-enabled NO -collect-test-diagnostics never -resultBundlePath FRESH.xcresult
@@ -461,8 +460,7 @@ Copy a generated `.xctestrun` to narrow, freeze or edit it:
   the test's own file and line, and needs no `sudo`. Sample only your own processes:
 
 ```sh
-NSUnbufferedIO=YES PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" \
-  python3 -m vocaro_engineering.resources -- swift test --filter SUITE > run.log 2>&1 &
+NSUnbufferedIO=YES python3 scripts/eng admit -- swift test --filter SUITE > run.log 2>&1 &
 pid=$!
 # Once run.log stops growing, follow this run's newest descendants to its xctest.
 while child=$(pgrep -n -P "$pid"); do pid=$child; done
@@ -491,9 +489,9 @@ sample "$pid" 2 -file hang.txt
   [stack and work bounds](../knowledge/apple/stack-and-work-bounds.md).
 
 ```sh
-PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   swift test --scratch-path .build/debug-tests
-PYTHONPATH="$VOCARO_ENGINEERING_ROOT/src/python" python3 -m vocaro_engineering.resources -- \
+python3 scripts/eng admit -- \
   swift test -c release -Xswiftc -enable-testing --scratch-path .build/release-tests
 ```
 
