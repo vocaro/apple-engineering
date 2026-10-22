@@ -425,6 +425,9 @@ Background a long run with its output redirected to a log.
 - In zsh, the shell agents' commands run in, `status` is a read-only parameter. `status=$?`
   after a run fails, stops the wrapper and loses the run's exit code: a 48-minute gate's result
   had to be read back from its log (October 2026). Capture it as `rc=$?`.
+- Apple's `git grep -E` has no `\b`: a pattern using it matches nothing and exits 1, exactly as
+  a search that found nothing does. A sweep for British spellings read that silence as a clean
+  tree (October 2026). Use `git grep -w`, or `grep -E`, which honors `\b`.
 - Wait for a run by its own completion signal, a line its wrapper appends or a file it
   publishes, never by `pgrep -f PATTERN` from a shell, whose own command line matches the
   pattern.

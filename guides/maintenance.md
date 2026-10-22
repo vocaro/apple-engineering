@@ -241,8 +241,9 @@ Unity's `MonoBehaviour`, URLs, a list item's first `<em>` (a cited title) and a 
 project lists the rest in engineering.json's `spelling`, each mapped to its reason: `skip` for
 paths of recorded observations or retained upstream text (a key ending in `/` is a directory),
 `exemptPhrases` for a standard's terms, `exemptRuns` for whole identifiers another project
-named, and `exemptTokens` for proper names. Fix a hit by spelling the word the American way;
-never widen a pattern to make one go away.
+named, and `exemptTokens` for proper names. A bare case of another project's type cannot be
+told from a project's own name, so mark it: `case .cancelled:  // spelling: keep, URLError.Code`.
+Fix a hit by spelling the word the American way; never widen a pattern to make one go away.
 
 ## Portable negative controls
 
