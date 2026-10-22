@@ -28,7 +28,7 @@ Import individual assertions, each with its provenance:
 - the original and normalized input, their SHA-256 and every transformation;
 - the expected value and the upstream tolerance.
 
-Ship the original upstream files and licence. Repackage a fixture only in ways that keep the
+Ship the original upstream files and license. Repackage a fixture only in ways that keep the
 measured data byte-identical (for a font converted from WOFF, its MATH table and glyph metrics),
 record the original and repackaged hashes and check them at test time.
 
@@ -44,7 +44,7 @@ the ordinary opaque drawing for bounds checks and images.
 
 The importer accepts only reviewed expression and assertion forms and never executes upstream
 JavaScript. Its pins reject source and fixture hash mismatches. Changing the upstream revision
-is an explicit source review: inspect the assertions, fonts, licence and normalization, rerun
+is an explicit source review: inspect the assertions, fonts, license and normalization, rerun
 debug and release builds, regenerate the reference comparison, review the gallery and keep the
 original failures.
 

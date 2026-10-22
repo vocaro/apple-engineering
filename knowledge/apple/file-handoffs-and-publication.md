@@ -48,7 +48,7 @@ embeds the SwiftUI host as a child with its own root view.
   unreadable existing snapshot blocks intake and cleanup, preserving the evidence for recovery.
 - Capture the destination and settings with the batch at admission, and route every intake
   surface (share, Services, Open With, the file picker) through the same admission helper.
-- Keep accepted copies while their jobs are retained, including failed, cancelled and completed
+- Keep accepted copies while their jobs are retained, including failed, canceled and completed
   history. Delete them only after all of an intake's jobs are durably removed; published outputs
   stay. Never expire accepted intake because the app is not running.
 - Remove abandoned staging only after acquiring its kernel lease, so a live extension's staging

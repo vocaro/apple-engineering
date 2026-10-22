@@ -100,7 +100,7 @@ freeze the category rules, risk bars, minimum coverage, uncertainty limits, sour
 and any escalation budget.
 
 Report denominators, generated and served coverage, wrong confident answers, falsely supporting
-citations, correct answers withheld or unnecessarily labelled, the quality of tentative answers,
+citations, correct answers withheld or unnecessarily labeled, the quality of tentative answers,
 and conflicts assessed correctly. Report every tier, source shape and origin separately, so
 pooled success cannot hide a failing group. The general methods for pairing, clustering and bars
 are in [model evaluation](../../guides/model-evaluation.md).

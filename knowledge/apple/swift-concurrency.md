@@ -48,7 +48,7 @@ their priority then runs only when one of them gets through.
 - `NSLock.lock()` cannot observe task cancellation. Try the lock once; when it is contended,
   wait in short timed `lock(before:)` intervals, checking cancellation between them, and check
   again after acquiring.
-- A cancelled waiter returns while the holder continues, and a framework call already running
+- A canceled waiter returns while the holder continues, and a framework call already running
   cannot be interrupted. The wait interval is a cancellation-check policy, not a latency
   guarantee.
 

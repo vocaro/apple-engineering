@@ -39,7 +39,7 @@ class NotStarted(OSError):
 def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
     """Wait for the owned root and observed descendants, including separate process groups.
 
-    PID start identities prevent signalling a reused PID. An uncertain or interrupted run
+    PID start identities prevent signaling a reused PID. An uncertain or interrupted run
     raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
     Descendants still running LINGER seconds after the root exits are reported on stderr and
     stopped; the root's status stands once they are gone, and one that survives SIGKILL is

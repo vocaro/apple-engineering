@@ -267,36 +267,36 @@ spaced from their letters), and Vision recognized about a third of a Hindi docum
 Vision's `RecognizeDocumentsRequest` requires OS 26. A build that compiles at a floor is no
 evidence that it behaves there.
 
-## Dependency licence gates
+## Dependency license gates
 
-Enforce licences with gates over the pinned, fully resolved dependency graph, not by hand. Pin
+Enforce licenses with gates over the pinned, fully resolved dependency graph, not by hand. Pin
 everything (`Package.resolved`, `uv.lock`), so dependencies change only when a lockfile changes,
 which is the review checkpoint.
 
 - Gate the shipping closure, the runtime dependency graph, not development extras: audit tooling
   drags in copyleft transitives that never ship, and a gate that reports them is one people
   learn to ignore.
-- Classify Python licences across all three declaration mechanisms (PEP 639
+- Classify Python licenses across all three declaration mechanisms (PEP 639
   `License-Expression`, OSI classifiers and the legacy free-text field), on word tokens rather
   than substrings, checking forbidden patterns first so a compound naming one copyleft operand
-  fails whole. Fail an unclassifiable licence. Plant GPL, LGPL, AGPL, proprietary and undeclared
-  fixtures as negative controls. A distribution that points at a bundled licence file passes
+  fails whole. Fail an unclassifiable license. Plant GPL, LGPL, AGPL, proprietary and undeclared
+  fixtures as negative controls. A distribution that points at a bundled license file passes
   only after a dated review.
 - For Swift, enumerate the transitive graph (`swift package show-dependencies`) and fail any
-  resolved identity missing from a register that records its licence, read from the package's
+  resolved identity missing from a register that records its license, read from the package's
   own `LICENSE` file. A test asserts the resolved closure equals the register exactly.
 - A binary outside SwiftPM's graph, such as a static library with Rust components, needs its own
   verified inventory: the pinned upstream lockfile, binary and source identities and the
-  retained licence texts.
+  retained license texts.
 - Code a dependency ported into its own sources is in no graph. Check the dependency's own
   third-party notices against yours, and that no copied code or web resource ships.
 - Derive the third-party notices from the graphs, with a `--check` that fails when they are
-  stale. Omit versions there: attribution identifies a component and its licence, and versions
+  stale. Omit versions there: attribution identifies a component and its license, and versions
   belong in the SBOM.
 - An SBOM (CycloneDX, for example) snapshots the whole build environment, development tooling
   included; the gates and notices cover the shipping closure. Replace a release's SBOM only
   after the new one validates.
-- Apache-2.0 §4 requires redistributing the licence text and any `NOTICE` file; listing the
+- Apache-2.0 §4 requires redistributing the license text and any `NOTICE` file; listing the
   component in the notices does not discharge that.
 - A shipped model's weights must permit commercial use and redistribution. Review its
   training-data provenance in its papers and appendices, not only its card, because a card-level

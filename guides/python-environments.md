@@ -58,4 +58,4 @@ it, without rewriting the older observation.
 Native wheels can stop loading on a new macOS: on macOS 27 (2026), scipy 1.15's `_propack`
 extension did not load, while scipy 1.16.3 did. Pin such packages to the range observed to work,
 record why beside the pin, and assert that development-only packages stay out of the shipping
-closure ([packaging](packaging.md#dependency-licence-gates)).
+closure ([packaging](packaging.md#dependency-license-gates)).

@@ -73,7 +73,7 @@ gh run download RUN_ID --name ARTIFACT --dir DIR
   starts the run from the branch checked out, or from `--ref`, with that branch's workflow file,
   and takes `gh workflow run`'s `-f KEY=VALUE` inputs.
 - It starts nothing, says why and exits 1 when the branch already has its share of runs
-  ([caps](#caps-and-cancelling)), or, for a run from the branch checked out, when the steps fail
+  ([caps](#caps-and-canceling)), or, for a run from the branch checked out, when the steps fail
   the project's `scripts/run-voiceover-sessions.py --check` with each input passed as a
   `VOICEOVER_`-prefixed variable. The runner makes the same check only after waiting for a
   runner, so the local check saves the wait.
@@ -127,7 +127,7 @@ engineering.json names the project's own `repository` (OWNER/REPO), the public
   and 95 of 97 keys recorded the same first phrase as at the fixed pause. It cuts the hint that
   follows a move short. Use it to explore and to walk across controls, never for evidence.
 
-## Caps and cancelling
+## Caps and canceling
 
 - Keep at most two runs in flight for a branch, and one while any run is waiting for a runner.
   A run counts as waiting for its first seconds, before GitHub gives it a runner, so a second

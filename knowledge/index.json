@@ -1010,7 +1010,7 @@
     },
     {
       "id": 109,
-      "title": "Caps and cancelling",
+      "title": "Caps and canceling",
       "path": "guides/hosted-runner.md",
       "sources": [
         "https://github.com/vocaro/EPUBLib/blob/2d6e8600046aa6da0573e422385b3089d116d20d/doc/testing.md#sharing-the-runner",
@@ -1627,7 +1627,7 @@
     },
     {
       "id": 175,
-      "title": "Dependency licence gates",
+      "title": "Dependency license gates",
       "path": "guides/packaging.md",
       "sources": [
         "https://github.com/vocaro/studywright/blob/f1d1178e03949b2a6fb20dc6d85618988c0d01b2/doc/license-policy.md#how-it-is-enforced",

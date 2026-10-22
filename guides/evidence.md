@@ -289,7 +289,7 @@ own expectations:
   [Swift concurrency](../knowledge/apple/swift-concurrency.md)).
 - An end-of-test probe sees only a framework that is still failing; a failure that recovered
   during the test goes unseen.
-- `swift test` can only pass or fail, and a cancelled test passes. Run it through a wrapper that
+- `swift test` can only pass or fail, and a canceled test passes. Run it through a wrapper that
   reads an out-of-band report of unmeasured tests, starts from a fresh report file each run,
   treats an unreadable report as a failure and maps the result to 0, 1 or 3. A simulation switch
   that makes the probe report unavailability proves the treatment on a working host; every line
@@ -433,7 +433,7 @@ refactor, and goes through reviewed expectation changes.
 ## Corpus provenance
 
 Pin every external input in a committed manifest: byte count and SHA-256, or the extractor
-identity where a consumer holds the pin, plus licence, retrieval date, provenance note and the
+identity where a consumer holds the pin, plus license, retrieval date, provenance note and the
 exact derivation command. Keep source and attribution URLs separate from the direct download
 URL.
 
@@ -471,19 +471,19 @@ Respect each site's automated-access policy:
 - Commit the raw bytes of a source that changes in place and is not archived elsewhere; for it,
   a checksum can only say that the original is gone.
 
-Licences:
+Licenses:
 
-- Pin the exact licence-verified snapshot or edition. Later editions can carry different terms,
+- Pin the exact license-verified snapshot or edition. Later editions can carry different terms,
   and the freer label is often the one that circulates: pin the artifact, not the name of the
   work or curriculum.
-- A catalog's licence label is metadata, not clearance; the work's own statement governs.
+- A catalog's license label is metadata, not clearance; the work's own statement governs.
   Illustrated works often credit figures under other terms chapter by chapter, and an AI-use
   notice can sit in a collapsed attribution block of an otherwise permissive page.
-- Admit affirmatively. "Not NonCommercial" is not the test: a no-derivatives licence does not
+- Admit affirmatively. "Not NonCommercial" is not the test: a no-derivatives license does not
   survive chunking, indexing or generating questions, and share-alike can conflict with the
-  consuming project's licence policy.
+  consuming project's license policy.
 - Keep NonCommercial or otherwise restricted inputs outside the repository and distributed
-  resources. Their importer verifies the exact source and licence hashes, retains originals and
+  resources. Their importer verifies the exact source and license hashes, retains originals and
   attribution, and refuses DOCTYPE and entity declarations.
 - An agent may give a tentative rights or age verdict with a written basis; only the owner's
   confirmation makes it final. Ask the owner before adding a collection. Permission to use a
@@ -493,9 +493,9 @@ Licences:
 
 Commit derived text, and keep its derivation mechanical and re-runnable, so a re-derivation from
 the same bytes reproduces the corpus. Keyed questions are a separate artifact and need their own
-licence clearance.
+license clearance.
 
-Bundled corpora live only in test resources, with their licences, notices and per-case
+Bundled corpora live only in test resources, with their licenses, notices and per-case
 provenance. Their checks are robustness invariants (input hash, finite and bounded dimensions,
 determinism, ink containment), not visual or specification expectations. Record human or model
 review dispositions separately from standards expectations; a corpus "pass" means only that a
@@ -503,6 +503,6 @@ limited review found no obvious defect.
 
 Sample deterministically: deduplicate normalized inputs while retaining every source occurrence,
 stratify, then select round-robin across strata in seeded SHA-256 order. Record IDs, source-file
-hashes, item indices, licence, dataset release and transformations, and report input-limit
+hashes, item indices, license, dataset release and transformations, and report input-limit
 exclusions and shortfalls explicitly. Start with a bounded subset when the importer holds
 candidates in memory.

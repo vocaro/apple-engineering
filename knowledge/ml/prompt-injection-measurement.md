@@ -131,7 +131,7 @@ number, the on-device arm costs no metered allowance.
   every citation they carried was a real source number.
 - **Transport confounds are per axis.** The `fm serve` preamble measured near zero for injection
   compliance, so a PCC result through that gateway reads against the native baseline for this
-  axis only; the licence does not carry to grounding ([FoundationModels and Private Cloud
+  axis only; the license does not carry to grounding ([FoundationModels and Private Cloud
   Compute](foundation-models.md)).
 
 ## Budget an injection run by literal calls

@@ -175,7 +175,7 @@ delivered no entitlement.
 Authentication belongs to a person. The iPad's sandbox password sheet was not exposed as an
 XCTest alert. On the Mac, Computer Use keyboard entry did not reach the storeuid sign-in
 field, LocalAuthentication returned "Not available" for PassKit's payment policy although
-Touch ID was configured, and a sign-in helper stalled after a cancelled verification prompt
+Touch ID was configured, and a sign-in helper stalled after a canceled verification prompt
 and survived quitting Xcode. Keep sandbox credentials out of tests, logs, results and
 documents; the owner enters them.
 
@@ -198,7 +198,7 @@ does not. On iPhone and iPad, deleting the app removes its data and offloading k
 ([Apple](https://support.apple.com/en-ie/108429)). On the Mac, deleting or replacing the app
 bundle normally leaves its container, so reinstalling alone does not reset the state; removing
 the data does. Local state excluded from backup and kept out of the Keychain is a trial policy,
-not an uninstall-resistant licence. Keep such state separate from the entitlement and decide
+not an uninstall-resistant license. Keep such state separate from the entitlement and decide
 its persistence as product policy.
 
 ## On-device verification keeps purchase data on the device

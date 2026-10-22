@@ -134,11 +134,11 @@ At a cell VoiceOver says what the cell holds and nothing of what the cell says i
 - It reads a text area by its characters, and a picture's character is U+FFFC. A label on the
   cell is said after what the cell holds, so a cell's words come twice. A subrole, a role
   description or a value on the cell changed nothing on arrival.
-- A cell that shows only pictures should hold an `AXImage` for each, labelled by the picture's
+- A cell that shows only pictures should hold an `AXImage` for each, labeled by the picture's
   words, in place of a text area, as a web view's cell holds an image. VoiceOver then says the
   picture's words and "image", or "image cell" for a picture nobody described. A picture among
   words needs the text area and then the image, which costs the listener a step further in.
-- A cell whose words are one link should hold a link element around its text areas, labelled by
+- A cell whose words are one link should hold a link element around its text areas, labeled by
   the cell's words, and offer a press. Only that shape said "hyperlink" once and kept the words
   reachable: a link in place of the text areas hid the words, and a link beside them said
   "hyperlink" twice. A header cell that is a link needs the cell's words as the link's title

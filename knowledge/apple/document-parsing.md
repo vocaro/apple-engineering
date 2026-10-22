@@ -249,8 +249,8 @@ recorded with an OS build:
 - Vision exposes no heading level. `isTitle` fired once per page, on the first line in reading
   order whatever it was (on one page a figure caption), and paragraph grouping is
   undifferentiated.
-- A request cancelled at a deadline may keep its suspended task alive until the process exits.
-  Give each page a deadline that does not await the cancelled request.
+- A request canceled at a deadline may keep its suspended task alive until the process exits.
+  Give each page a deadline that does not await the canceled request.
 - The first recognition in a process cost about 55 s and later pages about 0.35 s each.
   Resolution had no measurable effect on clean text between 100 and 300 DPI. Budget warm-up
   apart from throughput in any timing. How Vision caches its compiled models, and why the

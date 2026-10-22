@@ -33,11 +33,11 @@ silently ignored. Local enrollment does not grant repository access or spending 
 Raw transcripts, private integration records, personal device identities and private payloads
 stay in their private owning project or apple-engineering-evidence. Public subject articles
 explain reusable methods and their measured limits. Links to private source records are
-supplemental provenance and are labelled by the owning repository; readers do not need those
+supplemental provenance and are labeled by the owning repository; readers do not need those
 repositories to run the public tools. Preserve source and input identities when reproducing a
 finding, and do not substitute a local regression for platform acceptance.
 
 The original cross-project implementation record and display-state investigation retain their
 complete bodies and comments in the private evidence repository. They are not redistributed
-under this toolkit's MIT licence. The original projects and the three production Swift
-libraries retain their own visibility and licences.
+under this toolkit's MIT license. The original projects and the three production Swift
+libraries retain their own visibility and licenses.

@@ -14,8 +14,8 @@ An API that takes commands acknowledges that it accepted one, not that its effec
 Report navigation, paint and failure as later events, and keep the two apart in the contract and
 in tests.
 
-- Cancelling a caller before submission throws `CancellationError`. A command already submitted
-  cannot be undone by cancelling its caller: a page turn that was sent turns.
+- Canceling a caller before submission throws `CancellationError`. A command already submitted
+  cannot be undone by canceling its caller: a page turn that was sent turns.
 - Commands whose order matters go through one serial queue in FIFO order. Direct `async` calls
   interleave at their suspension points, so a host that mixes its own commands with a toolbar's
   sends both through the same queue.

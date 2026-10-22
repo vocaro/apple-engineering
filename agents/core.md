@@ -103,9 +103,17 @@ capabilities it uses and documents justified exceptions. Product policies remain
   project held which rule.
 - Keep agent entry points short. Read shared guidance through scripts/eng, then local rules.
   Shared guidance is not automatically loaded merely because a file links to it.
-- Preserve corpus provenance, licences, input identities and download restrictions. Permission
+- Preserve corpus provenance, licenses, input identities and download restrictions. Permission
   to use a collection in one project does not admit it to another project automatically. Fetch
   corpus sources only through the repository's pinned path; never bypass a bot challenge, and
   where a site disallows automated agents, the owner fetches.
 - Avoid unrelated formatting churn, formatter changes, new dependencies or universal schemas
   when extracting a small mechanism. Keep one canonical provider per runtime module.
+
+## Writing
+
+- Spell in American English everywhere: documents, comments, commit messages, issues and pull
+  requests (color, license, behavior, center, gray, canceled, labeled, recognize). Sessions
+  copy the spelling they read, so a British form left in place spreads. Keep API names,
+  quotations, a standard's own terms and retained upstream text as written: `isCancelled`,
+  PNG's "colour type".

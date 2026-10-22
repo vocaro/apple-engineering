@@ -138,13 +138,13 @@ XCTest tests in many processes at once.
 - Labels, values, headings and selected or available states that VoiceOver reads are
   presentation data. Test them headlessly, and bind the views' accessibility modifiers to those
   same values.
-- A source scanner can pin required accessibility bindings and names, adaptive colours,
+- A source scanner can pin required accessibility bindings and names, adaptive colors,
   reduced-motion handling and keyboard-command declarations, each sheet's Escape (cancel) and
   Return (confirm) placements, and exactly one cancel role in an alert that offers more than one
   action.
 - Assert a keyboard-command table against the system's reserved Command shortcut families (Q,
   H, M, Tab and Space). Shift-Command-Q is Log Out.
-- Test an app-owned colour's contrast headlessly against the platforms' resolved system colours.
+- Test an app-owned color's contrast headlessly against the platforms' resolved system colors.
 - These tests cannot prove the system's focus order, rotor membership, announcements, a
   framework's accessibility exposure or Voice Control addressability. Never claim full VoiceOver
   coverage or accessibility support from unit tests or snapshots. See [VoiceOver](voiceover.md)

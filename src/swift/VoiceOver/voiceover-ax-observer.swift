@@ -142,7 +142,7 @@ func embeddedRuns(_ text: AXUIElement) -> [(range: NSRange, words: String, link:
             if let one, let other { return CFEqual(one, other) }
             return one == nil && other == nil
         }
-        // A run of one link or attachment can be split by its font or colour.
+        // A run of one link or attachment can be split by its font or color.
         if let last = result.last, NSMaxRange(last.0) == range.location, same(last.2, link), same(last.3, attachment) {
             result[result.count - 1].0.length += range.length
             result[result.count - 1].1 += (attributed.string as NSString).substring(with: range)

@@ -43,15 +43,15 @@ Observed with an ExtensionKit host on macOS 27.0 (26A428) and an iOS 27.0 Simula
 | Asked for a second `AppExtensionProcess` while the first lived | The system returned the same process; unguarded, it accepted both sessions |
 | Called `invalidate()` on an idle process | RunningBoard suspended it, and the next launch got it back |
 | Called `invalidate()` after work that held a file lock | RunningBoard suspended it and killed it about 127 ms later with `0xDEAD10CC`, "suspended while holding a shared file lock", in 6 of 6 runs |
-| Cancelled the session of a running extension | Its cancellation handler exited within about 22 ms; later launches got new processes |
-| Cancelled the session of a suspended extension | The next launch got the suspended process back; it ran the old cancellation and exited, the new session never heard from it, and the launch after that failed too, with no error reported |
+| Canceled the session of a running extension | Its cancellation handler exited within about 22 ms; later launches got new processes |
+| Canceled the session of a suspended extension | The next launch got the suspended process back; it ran the old cancellation and exited, the new session never heard from it, and the launch after that failed too, with no error reported |
 
 The lock behind the kill was Metal's `archiveUsage.db` lock in the process's temporary folder,
 which Vision work took even under CPU-only compute, so the kill is not a compute setting. Apple
 documents that `invalidate()` does not terminate a process.
 
 - End each job by sending an explicit finish message on which the extension calls `exit`, or by
-  cancelling the session of a running extension. Then wait until the process is gone before
+  canceling the session of a running extension. Then wait until the process is gone before
   launching the next. Never `invalidate()` a process that must end.
 - Keep a one-session guard in the extension so a reused process shows itself.
 - Keep a watchdog for a session that never answers. `onInterruption` fired for 15 of 17 observed

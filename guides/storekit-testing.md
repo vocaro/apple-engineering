@@ -61,7 +61,7 @@ race. Check at least:
 
 - Only a verified, unrevoked transaction of the expected product and type unlocks; an
   ordinary entitlement check never calls sync.
-- A verified purchase unlocks before `finish()` runs. Cancelled, pending and unverified results
+- A verified purchase unlocks before `finish()` runs. Canceled, pending and unverified results
   grant nothing and are not finished; pending shows awaiting approval.
 - A thrown `StoreKitError.userCancelled` shows no message; another error shows one; both allow
   a retry that succeeds.

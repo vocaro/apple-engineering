@@ -36,7 +36,7 @@ Link the package only into test and tool targets.
 
 - Never make the window key or activate the app. Find a window by an accessibility identifier of
   its own, never by its title, which the host app's own windows can share.
-- A background app's windows draw as inactive ones do: grey window buttons, switches and default
+- A background app's windows draw as inactive ones do: gray window buttons, switches and default
   buttons. For renders that must look active, answer AppKit's key, main and active-appearance
   questions with yes for the test's own windows and their sheets only, keeping each window's
   class, because AppKit observes windows with KVO. Those questions include private selectors:
@@ -277,7 +277,7 @@ ends.
 ## Rendering until stable
 
 - Render until consecutive frames agree: two identical renders in a row, or three frames 150 ms
-  apart that match to within a few colour levels where a material's blur keeps shifting by one.
+  apart that match to within a few color levels where a material's blur keeps shifting by one.
 - Remove motion: spinners at rest, scroll indicators hidden, animations off. Text fields show no
   focus ring or caret, whose animations can stop partway off screen.
 - Add a readiness predicate beyond pixels for content that loads asynchronously (laid out, no
@@ -326,7 +326,7 @@ python3 scripts/eng run LANE
   day and evening.
 
 Record a render identity with every baseline: the Mac model, the macOS build, the SDK the app
-was built with, and the settings that change how windows draw (accent and selection colours,
+was built with, and the settings that change how windows draw (accent and selection colors,
 Increase Contrast, Reduce Transparency, Differentiate Without Color). A simulator baseline adds
 the device, runtime, display, scale, safe area, orientation, fold and hardware keyboard state
 ([simulator testing](simulator-testing.md)).
@@ -337,7 +337,7 @@ the device, runtime, display, scale, safe area, orientation, fold and hardware k
   without the flag. Never accept an image automatically because an OS, font or Xcode change
   moved it.
 - A comparison fails when an image's size differs, when a selected scene has no baseline, or
-  past a stated tolerance: for example a colour sample more than 8 of 255 from its baseline, or
+  past a stated tolerance: for example a color sample more than 8 of 255 from its baseline, or
   more than 0.03% of points differing by more than 24 in a channel. Write the failed image, its
   reference and a diff outside the checkout, and name them in the failure.
 - Compare only against a baseline recorded under the same render identity. A run that names a
@@ -380,9 +380,9 @@ A window render and a system screenshot establish different things.
 - A window render is the app's own pixels, drawn in process. It is deterministic, so regression
   comparisons use it. It omits what the system draws: the menu bar, status bar, camera cutout,
   home indicator, the window's shadow, and on the Mac the window server's Liquid Glass and blur.
-  A sidebar's glass draws flat in the window's background colour, so text scrolled under a
+  A sidebar's glass draws flat in the window's background color, so text scrolled under a
   title shows through it, and vibrancy appears only as far as the renderer reproduces it from
-  each layer's colour matrix. A render of a hosting view alone also omits what the window adds
+  each layer's color matrix. A render of a hosting view alone also omits what the window adds
   or presents: the toolbar, sheets and popovers. A sheet rendered alone has no window behind it,
   and PDFKit's highlight layer is left out. Exclude scenes whose render would say nothing for
   these reasons, or whose content follows the clock or the OS version, recording the reason.

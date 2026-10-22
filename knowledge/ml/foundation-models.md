@@ -35,7 +35,7 @@ name, so neither the types nor their errors leak into callers:
 26A5425a, against an announced 8,192; Apple's own sources disagreed. PCC read 32,768. Read the
 window with `contextSize` and prompt sizes with `tokenCount(for:)` at runtime and never hardcode
 them. The window and the tokenizer both belong to the OS, so re-read the prompt budget on every
-OS seed. PCC has no token counter; an on-device `tokenCount(for:)` of a PCC prompt is a labelled
+OS seed. PCC has no token counter; an on-device `tokenCount(for:)` of a PCC prompt is a labeled
 proxy, not its cost.
 
 ## Private Cloud Compute needs an entitled app bundle
@@ -342,7 +342,7 @@ tokens of the on-device window at 32 to 128 px and about 143 at 512 px, and a fl
 PCC from 32 to 1,024 px. `tokenCount(for:)` throws on any prompt carrying an attachment, so
 measure image cost by displacement: fill the window with text until it overflows, with and
 without the attachment. Legibility depends on label height, not image size: reading failed when
-the smallest label fell below about 5 px. These costs were measured on solid two-colour bitmaps;
+the smallest label fell below about 5 px. These costs were measured on solid two-color bitmaps;
 detailed figures are untested. On 26A428 PCC accepted an image `Attachment` in a
 FoundationModels `Prompt` through an entitled bundle and read a nonce from a 128 px image; that
 proves carriage, not cost.

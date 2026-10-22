@@ -28,7 +28,7 @@ transition without content, and keep these states distinct.
   it. The system can also launch the task before the submission returns.
 - Choose the strategy deliberately. With `.fail`, iOS starts the task at once or refuses the
   request, so a long wait means no grant is coming. A `.queue` request waits, and a queued
-  request is cancelled when the person removes the app from the app switcher.
+  request is canceled when the person removes the app from the app switcher.
 - Bound the wait for the grant. Past the limit, refuse the attempt as an iOS refusal is handled
   and withdraw its request (`BGTaskScheduler.cancel(taskRequestWithIdentifier:)`). A task iOS
   launches after that is a late grant: complete it at once as failed, start no work under it,
@@ -39,7 +39,7 @@ transition without content, and keep these states distinct.
   expiring flag inside the handler, before hopping to the main actor, so no progress is reported
   in between.
 - Complete a granted task exactly once with the work's real outcome, even after expiration:
-  output published as the system stopped the work is still output. Cancelling before the grant
+  output published as the system stopped the work is still output. Canceling before the grant
   withdraws the request.
 - The Mac has no continued processing; refuse each attempt at once there.
 

@@ -141,7 +141,7 @@ Device Hub also changes simulator keyboards (observed on iOS 27.2 simulators, Oc
   runs, it removes them, once per boot, from every simulator it is not showing. Without Device
   Hub running, as after it quits for an Xcode install, every simulator keeps them.
 - With a hardware keyboard, an iPad window has a focus system and draws selection differently: a
-  sidebar's selected row drew focused, in the accent color, instead of grey. A test that needs
+  sidebar's selected row drew focused, in the accent color, instead of gray. A test that needs
   the software keyboard fails while a hardware keyboard is connected.
 - For the usual keyboardless state, have Device Hub running, not showing the device under test,
   before the run. Open it without bringing it forward, and confirm the removal in its log:
