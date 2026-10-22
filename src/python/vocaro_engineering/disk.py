@@ -724,7 +724,9 @@ def report(items, others, volume, measured, unreadable, min_size, out=print):
         for status, (count, size) in hidden.items():
             out(f"  {status:9} {human(size):>10}  and {count} smaller items")
         out("")
-    if volume:
+    if volume and measured is None:
+        out("Run with --map to list the largest other directories and account for the rest of the volume.")
+    elif volume:
         missing = volume[1] - measured
         out(f"Measured {human(measured)} of the {human(volume[1])} used. The other {human(max(missing, 0))} is in "
             "places this account cannot read or that were not scanned: folders macOS privacy protection "
@@ -794,25 +796,43 @@ def add_arguments(parser):
                         help="how long a candidate must have been unchanged (default 24)")
     parser.add_argument("--min-size-mb", type=float, default=100.0, help="list smaller items only as totals")
     parser.add_argument("--development", type=Path, help="directory holding the projects (default ~/Development)")
+    parser.add_argument("--map", action="store_true",
+                        help="also scan the whole home directory, /private/tmp and /Applications for the largest "
+                             "other directories and an account of the volume (several minutes)")
+
+
+def prime_items(host, sizes):
+    """One du pass over each folder that holds many small items; everything else is measured alone."""
+    for root, depth in ((host.home / "Library/Developer/Xcode/DerivedData", 1), (host.device_directory, 1),
+                        (host.home / "Library/Caches/org.swift.swiftpm", 2)):
+        if root: sizes.prime(root, depth)
+
+
+def prime_map(host, sizes):
+    """One du pass over the home directory and the other large roots, for the map of the volume."""
+    for root, depth in ((host.home, 5), (Path("/private/tmp"), 5), (Path("/Applications"), 1)):
+        sizes.prime(root, depth)
+    for root, kind in host.map_roots:
+        if kind == "leaf": sizes.prime(root, 1)
+    if Path("/Users").is_dir():
+        for other in Path("/Users").iterdir():
+            if other.is_dir() and not within(other, host.home): sizes.prime(other, 0)
 
 
 def execute(args, run=subprocess.run, out=print):
     def collect(categories=None, measure=True):
         host = Host.current(args.min_idle_hours * 3600, args.development, run)
         sizes = Sizes(run, measure)
-        if measure:
-            print("Measuring sizes; this reads the whole home directory and can take several minutes.", file=sys.stderr)
-            for root, depth in ((host.home, 5), (Path("/private/tmp"), 5), (Path("/Applications"), 1)):
-                sizes.prime(root, depth)
-            for root, kind in host.map_roots:
-                if kind == "leaf": sizes.prime(root, 1)
-            if Path("/Users").is_dir():
-                for other in Path("/Users").iterdir():
-                    if other.is_dir() and not within(other, host.home): sizes.prime(other, 0)
+        if measure and args.map:
+            print("Measuring sizes; --map reads the whole home directory and can take several minutes.", file=sys.stderr)
+            prime_map(host, sizes)
+        elif measure:
+            print("Measuring the items listed; --map also maps the rest of the volume.", file=sys.stderr)
+            prime_items(host, sizes)
         return host, sizes, inventory(host, sizes, categories)
     host, sizes, items = collect()
-    others, measured = large_directories(host, sizes, items)
-    measured += sum(item.size for item in items if item.category == "runtime")
+    others, measured = large_directories(host, sizes, items) if args.map else ([], None)
+    if measured is not None: measured += sum(item.size for item in items if item.category == "runtime")
     try:
         usage = shutil.disk_usage(DATA_VOLUME)
         volume = (usage.total, usage.used, usage.free)

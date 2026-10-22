@@ -352,6 +352,25 @@ class CommandTests(Fixture):
         self.assertIn(f"$ git -C {self.main} worktree remove {landed}", text)
         self.assertTrue(landed.exists())
 
+    def run_disk(self, *arguments):
+        host = self.host(temp_roots=[])
+        output = StringIO()
+        with patch.object(disk.Host, "current", return_value=host), \
+                patch.object(disk.Sizes, "prime", autospec=True) as prime, \
+                contextlib.redirect_stdout(output), contextlib.redirect_stderr(StringIO()):
+            self.assertEqual(cli.main(["--project", str(self.root), "disk", *arguments]), 0)
+        return {(str(call.args[1]), call.args[2]) for call in prime.call_args_list}, output.getvalue()
+
+    def test_only_map_scans_the_whole_home_directory(self):
+        scanned, text = self.run_disk()
+        self.assertNotIn((str(self.home), 5), scanned)
+        self.assertIn((str(self.home / "Library/Developer/Xcode/DerivedData"), 1), scanned)
+        self.assertIn("Run with --map", text)
+        self.assertNotIn("Measured", text)
+        scanned, text = self.run_disk("--map")
+        self.assertIn((str(self.home), 5), scanned)
+        self.assertIn("Measured", text)
+
 
 if __name__ == "__main__":
     unittest.main()

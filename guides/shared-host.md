@@ -142,14 +142,16 @@ nothing:
 python3 scripts/eng disk
 ```
 
-It reads the whole home directory with `du`, so it takes several minutes, and prints each
-item's size, the reason for its status and the exact command that would remove it. A
-**candidate** is proven unowned by the rules below. An **owner** item shows no sign of a session
-using it, but only the owner can say whether it is still wanted: Xcode's default simulators, a
-runtime no device uses, archives, test results, a directory no repository has registered and a
-worktree outside the session directories. Everything else is **kept**: in use, owned, of unclear
-ownership, or holding work or evidence. Other large directories are listed for the owner and are
-never candidates.
+It covers the whole host, whichever project runs it, and measures only the items it lists. It
+prints each item's size, the reason for its status and the exact command that would remove it.
+A **candidate** is proven unowned by the rules below. An **owner** item shows no sign of a
+session using it, but only the owner can say whether it is still wanted: Xcode's default
+simulators, a runtime no device uses, archives, test results, a directory no repository has
+registered and a worktree outside the session directories. Everything else is **kept**: in use,
+owned, of unclear ownership, or holding work or evidence. `--map` also reads the whole home
+directory, `/private/tmp` and `/Applications` with `du`, which takes several minutes, to list
+the largest other directories, never candidates, and to say how much of the used space it could
+not measure.
 
 - **In use.** One `lsof` and `ps` census of the account's processes is taken first. A path is in
   use when a process's working directory, an open file or a path in its arguments lies inside
@@ -205,7 +207,7 @@ archive held 314 GiB, linked worktrees 150 GiB (nearly all in use or unlanded), 
 simulators 79 GiB (one default iPhone 23 GiB), simulator runtimes 38 GiB, and applications,
 another account and a virtual machine about 300 GiB together. About 600 GiB lay in folders the
 shell cannot read, which macOS privacy protection hides (`~/.Trash`, Mail, Messages, app
-containers), and in system data; the inventory reports that remainder rather than guessing at
+containers), and in system data; `--map` reports that remainder rather than guessing at
 it. The inventory found 37 GiB of candidates, almost all derived data in finished sessions'
 scratchpads, and 76 GiB of owner items, 48 GiB of them Xcode's default simulators.
 
