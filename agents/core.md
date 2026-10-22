@@ -112,8 +112,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
 
 ## Writing
 
-- Spell in American English everywhere: documents, comments, commit messages, issues and pull
-  requests (color, license, behavior, center, gray, canceled, labeled, recognize). Sessions
-  copy the spelling they read, so a British form left in place spreads. Keep API names,
-  quotations, a standard's own terms and retained upstream text as written: `isCancelled`,
-  PNG's "colour type".
+- Spell in American English everywhere: code, identifiers and public APIs, strings and UI text,
+  file names, documents, comments, commit messages, issues and pull requests (color, license,
+  behavior, center, gray, canceled, labeled, recognize). Sessions copy the spelling they read, so
+  a British form left in place spreads; an existing British name is no precedent. Keep only what
+  others named or wrote: another project's API (`isCancelled`, `MonoBehaviour`), a standard's
+  terms (PNG's "colour type"), proper names, URLs, quotations and cited titles, retained upstream
+  text and recorded observations. Keep reading data stored under an old name until it migrates.
