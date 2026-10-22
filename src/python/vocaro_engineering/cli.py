@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 
-from . import __version__, disk, docs, evidence, processes, resources
+from . import __version__, disk, docs, evidence, processes, resources, spelling
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
 
 
@@ -112,6 +112,9 @@ def main(argv=None):
     documentation = commands.add_parser("docs")
     documentation.add_argument("operation", choices=["check"])
     documentation.add_argument("paths", nargs="*")
+    spell = commands.add_parser("spelling", help="find British spellings in the project's text, identifiers "
+        "included; exit 1 on any, 2 when nothing was checked")
+    spell.add_argument("paths", nargs="*", help="files or directories; untracked files under them are read too")
     knowledge = commands.add_parser("knowledge")
     knowledge.add_argument("query", nargs="?", default="")
     source = commands.add_parser("source")
@@ -146,6 +149,7 @@ def main(argv=None):
             failures = docs.check(root, args.paths or None)
             print("\n".join(failures) if failures else "Documentation checks passed")
             return int(bool(failures))
+        elif args.action == "spelling": return spelling.check(root, config, args.paths)
         elif args.action == "evidence": print(f"Verified {evidence.verify(args.directory)} evidence files")
         elif args.action == "knowledge":
             entries = json.loads((TOOLKIT_ROOT / "knowledge/index.json").read_text())["entries"]

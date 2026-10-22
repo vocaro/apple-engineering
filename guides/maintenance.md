@@ -220,6 +220,30 @@ has no exemption list. Project checks add what a repository needs:
 - **Exemptions.** Documents frozen by committed receipts and append-only logs whose dated
   entries name moved files get explicit, documented exemptions rather than rewrites.
 
+## Spelling check
+
+`python3 scripts/eng spelling [PATHS]` finds British spellings anywhere in a project's text,
+identifiers included, and exits 1 on any. With no paths it reads every tracked text file, which
+is what a push carries; named paths also read untracked files Git does not ignore, so a page is
+checked before it is published from disk. Gate pushes on it: the words arrive one at a time and
+are invisible in review.
+
+It splits each run of letters at camelCase, snake_case and SCREAMING_CASE boundaries and judges
+each subword whole, by pattern (-ise, -yse, -our, -tre, -bre and doubled-l inflections) and by
+an irregular list, with a list of American words that only look British. Its positive controls
+run before any file is read, so a detector that stopped detecting fails instead of passing as a
+clean tree. Exit 2 means nothing was checked. The rules and what each exemption was learned from
+are in `src/python/vocaro_engineering/spelling.py`.
+
+It already exempts other projects' British-spelled API names, such as Apple's `isCancelled` and
+Unity's `MonoBehaviour`, URLs, a list item's first `<em>` (a cited title) and a line marked
+`spelling: keep` with a reason, such as a decoder reading a name stored before a rename. A
+project lists the rest in engineering.json's `spelling`, each mapped to its reason: `skip` for
+paths of recorded observations or retained upstream text (a key ending in `/` is a directory),
+`exemptPhrases` for a standard's terms, `exemptRuns` for whole identifiers another project
+named, and `exemptTokens` for proper names. Fix a hit by spelling the word the American way;
+never widen a pattern to make one go away.
+
 ## Portable negative controls
 
 An isolated checkout may itself live under a temporary directory. A test of a destination

@@ -119,3 +119,5 @@ capabilities it uses and documents justified exceptions. Product policies remain
   others named or wrote: another project's API (`isCancelled`, `MonoBehaviour`), a standard's
   terms (PNG's "colour type"), proper names, URLs, quotations and cited titles, retained upstream
   text and recorded observations. Keep reading data stored under an old name until it migrates.
+  `python3 scripts/eng spelling` finds British forms; list a kept name, with its reason, in
+  engineering.json's `spelling`.

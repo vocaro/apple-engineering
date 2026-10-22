@@ -18,7 +18,7 @@ def load(root):
     if not isinstance(value, dict) or value.get("schemaVersion") != 1:
         raise ValueError("engineering.json requires schemaVersion 1")
     allowed = {"schemaVersion", "name", "toolkit", "capabilities", "lanes", "exceptions",
-               "integration", "hostedRepositories", "voiceover", "repository"}
+               "integration", "hostedRepositories", "voiceover", "repository", "spelling"}
     if set(value) - allowed:
         raise ValueError(f"Unknown configuration keys: {sorted(set(value) - allowed)}")
     if not isinstance(value.get("name"), str) or not value["name"]:
@@ -59,6 +59,13 @@ def load(root):
         for key in ["minimumTests", "timeout"]:
             if key in lane and (type(lane[key]) is not int or lane[key] <= 0):
                 raise ValueError(f"{name}.{key} must be a positive integer")
+    spelling = value.get("spelling", {})
+    if not isinstance(spelling, dict) or set(spelling) - {"skip", "exemptPhrases", "exemptRuns", "exemptTokens"}:
+        raise ValueError("spelling supports only skip, exemptPhrases, exemptRuns and exemptTokens")
+    for key, entries in spelling.items():
+        if not isinstance(entries, dict) or any(not isinstance(k, str) or not k.strip() or not isinstance(r, str)
+                                                or not r.strip() for k, r in entries.items()):
+            raise ValueError(f"spelling.{key} maps each entry to the reason it is kept")
     exceptions = value.get("exceptions", [])
     if not isinstance(exceptions, list) or any(not isinstance(x, dict) or not all(isinstance(x.get(k), str) and x[k] for k in ["rule", "reason"]) for x in exceptions):
         raise ValueError("Exceptions require a rule and a reason")

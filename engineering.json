@@ -20,5 +20,14 @@
       "minimumTests": 43
     }
   },
+  "spelling": {
+    "skip": {
+      "licenses/": "upstream license texts, retained verbatim",
+      "tests/test_spelling.py": "plants British spellings as the check's negative controls"
+    },
+    "exemptPhrases": {
+      "colour type": "the PNG specification's name for the IHDR field"
+    }
+  },
   "exceptions": []
 }

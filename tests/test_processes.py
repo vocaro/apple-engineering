@@ -67,7 +67,7 @@ class ProcessTests(unittest.TestCase):
                 self.assertIn(f"{pid} with parent {root}, group {pid}", error)
             self.assertIn("PPID", error)
 
-    def test_a_descendant_that_ends_within_the_grace_is_awaited_and_never_signalled(self):
+    def test_a_descendant_that_ends_within_the_grace_is_awaited_and_never_signaled(self):
         with tempfile.TemporaryDirectory() as directory:
             result, error, _births = self.outlive_the_root(directory, FINISHES, LINGER=30)
             self.assertEqual(result, 3)

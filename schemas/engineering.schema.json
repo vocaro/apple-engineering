@@ -129,6 +129,57 @@
           }
         }
       }
+    },
+    "spelling": {
+      "description": "Exemptions from eng spelling, each mapped to the reason it is kept",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "skip": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "description": "Tracked paths not read; a key ending in / is a directory"
+        },
+        "exemptPhrases": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "description": "Case-sensitive text removed before a line is read, such as a standard's term"
+        },
+        "exemptRuns": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "description": "Whole identifiers another project named, such as MonoBehaviour"
+        },
+        "exemptTokens": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "description": "Case-sensitive subwords, such as a proper name"
+        }
+      }
     }
   }
 }
