@@ -87,6 +87,11 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Capture reusable findings in this repository's subject articles, with source revision,
   applicability, counterexamples and limits. Link private implementations without copying app
   policy into a universal default. Keep evidence identities and original outcomes intact.
+- General engineering content is written out here, not linked from a project. When projects, or
+  a project and this repository, disagree on a point that is not product-specific, tell the
+  owner, choose the better rule (ask when unsure; this repository's current text may lose),
+  state it here as the rule and change the projects to follow it. Keep no record of which
+  project held which rule.
 - Keep agent entry points short. Read shared guidance through scripts/eng, then local rules.
   Shared guidance is not automatically loaded merely because a file links to it.
 - Preserve corpus provenance, licences, input identities and download restrictions. Permission
