@@ -382,6 +382,13 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
   interrupted or otherwise uncertain run raises and admission keeps its guard for inspection; a
   confirmed terminal exit keeps its status and releases normally. A push keeper is stricter: any
   failure leaves its guards in place even after the observed children drain.
+- Once the root exits, its observed descendants have 60 s to end. The supervisor lists any still
+  running on stderr, as `ps -o pid,ppid,pgid,lstart,args` rows with the parent and group each
+  had when first seen, and stops them: SIGTERM, then SIGKILL 10 s later. The root's status counts
+  once they are gone; a process that survives SIGKILL is still awaited. Agents reported Xcode's
+  `DTServiceHub` outliving an ad hoc `xcodebuild … test` on a fresh iOS simulator by 10 to 15
+  minutes, ignoring SIGTERM, until they killed it by hand (EPUBLib, macOS 27.0, Xcode 27.1,
+  October 2026).
 - A command that cannot start, such as a mistyped name or a script without its executable bit,
   raises `NotStarted` and releases admission. `Popen` reaps the child whose exec failed before
   it raises, so nothing is left to inspect; keeping the guard would stop every session's
@@ -397,10 +404,11 @@ recovery. Never remove a live keeper's locks.
 
 An `xcodebuild` UI-test root and the shared supervisor finish at different times. Follow the
 root to a terminal test result and copy the evidence. Then shut down only the owned simulator,
-so the supervisor can follow the remaining simulator descendants, and follow the supervised
-command until it exits and admission is released. Root exit, an observation timeout, a passed
-deadline or the shutdown alone does not release a reservation; when the supervisor's outcome is
-uncertain, keep the reservation for recovery and launch no replacement run against it.
+which ends the remaining simulator descendants sooner than the supervisor's grace, and follow
+the supervised command until it exits and admission is released. Root exit, an observation
+timeout, a passed deadline or the shutdown alone does not release a reservation; when the
+supervisor's outcome is uncertain, keep the reservation for recovery and launch no replacement
+run against it.
 
 Tests of supervision code bound stalls rather than durations and start a timeout under test
 only once the real descendant has published its identity ([app testing](app-testing.md)).

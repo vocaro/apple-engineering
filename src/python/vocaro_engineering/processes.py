@@ -4,7 +4,12 @@ import json
 from pathlib import Path
 import signal
 import subprocess
+import sys
 import time
+
+# Seconds an observed descendant may outlive the root before it is stopped, and then before
+# SIGTERM becomes SIGKILL. Xcode's DTServiceHub can outlive xcodebuild by minutes, ignoring SIGTERM.
+LINGER, KILL_AFTER = 60, 10
 
 
 def snapshot():
@@ -17,6 +22,16 @@ def snapshot():
     return result
 
 
+def describe(pids, known, root):
+    """The processes still running after the root, with the parent and group each was first seen with."""
+    pids = sorted(pids)
+    listing = subprocess.run(["ps", "-o", "pid,ppid,pgid,lstart,args", "-p", ",".join(map(str, pids))],
+                             capture_output=True, text=True).stdout.rstrip()
+    seen = "; ".join(f"{pid} with parent {known[pid][0]}, group {known[pid][1]}" for pid in pids)
+    return (f"supervise: stopping {len(pids)} process(es) still running {LINGER:g}s after the command "
+            f"(PID {root}) exited, with SIGTERM, then SIGKILL after {KILL_AFTER:g}s; first seen: {seen}\n{listing}")
+
+
 class NotStarted(OSError):
     """The command could not be started, so it left no process to wait for."""
 
@@ -26,7 +41,9 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
 
     PID start identities prevent signalling a reused PID. An uncertain or interrupted run
     raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
-    A command that cannot start raises NotStarted, which admission releases.
+    Descendants still running LINGER seconds after the root exits are reported on stderr and
+    stopped; the root's status stands once they are gone, and one that survives SIGKILL is
+    still awaited. A command that cannot start raises NotStarted, which admission releases.
     """
     environment = dict(os.environ) if env is None else env
     token = json.loads(environment.get("VOCARO_RESOURCE_TOKEN", "{}"))
@@ -38,7 +55,8 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
     except (OSError, ValueError) as error:
         # Popen reaps a child whose exec failed before it raises; nothing else ran.
         raise NotStarted(f"Command did not start: {error}") from error
-    known, born = {}, None
+    # Each observed descendant's (parent, group, start) when first seen, for its identity and report.
+    known, born, exited, stopping = {}, None, None, set()
     started = time.monotonic()
     expired = False
     try:
@@ -49,19 +67,19 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
                 born = row[2]
             root_active = child.returncode is None and row == (os.getpid(), child.pid, born)
             parents = ({child.pid} if root_active else set()) | {
-                pid for pid, birth in known.items() if pid in current and current[pid][2] == birth}
+                pid for pid, seen in known.items() if pid in current and current[pid][2] == seen[2]}
             if root_active:
-                for pid, (_parent, group, birth) in current.items():
-                    if pid != child.pid and group == child.pid:
-                        known[pid] = birth
+                for pid, (_parent, group, _birth) in current.items():
+                    if pid not in parents and group == child.pid:
+                        known[pid] = current[pid]
                         parents.add(pid)
             while True:
                 added = {pid for pid, (parent, _group, _birth) in current.items()
                          if parent in parents and pid not in parents}
                 if not added: break
                 parents.update(added)
-                known.update({pid: current[pid][2] for pid in added})
-            live = {pid for pid, birth in known.items() if pid in current and current[pid][2] == birth}
+                known.update({pid: current[pid] for pid in added})
+            live = {pid for pid, seen in known.items() if pid in current and current[pid][2] == seen[2]}
             if timeout is not None and time.monotonic() - started >= timeout:
                 expired = True
                 if root_active:
@@ -74,6 +92,17 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
             if result is not None and not live:
                 if expired: raise TimeoutError(f"Owned command timed out after {timeout}s: {command[0]}")
                 return result
+            if result is not None and not expired:
+                if exited is None: exited = time.monotonic()
+                overdue = time.monotonic() - exited - LINGER
+                if overdue >= 0:
+                    # SIGTERM once for each process, then SIGKILL, which cannot be caught, until it is gone.
+                    fresh = {pid for pid in live if (pid, known[pid][2]) not in stopping}
+                    if fresh: print(describe(fresh, known, child.pid), file=sys.stderr, flush=True)
+                    stopping.update((pid, known[pid][2]) for pid in fresh)
+                    for pid in live if overdue >= KILL_AFTER else fresh:
+                        try: os.kill(pid, signal.SIGKILL if overdue >= KILL_AFTER else signal.SIGTERM)
+                        except (ProcessLookupError, PermissionError): pass
             if expired and time.monotonic() - started > timeout + 15:
                 raise RuntimeError("Owned descendants have no confirmed terminal result; reservation retained")
             time.sleep(0.05)
