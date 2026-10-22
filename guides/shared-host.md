@@ -422,6 +422,9 @@ Background a long run with its output redirected to a log.
   piping through `tail` or `grep`: a missing pipe binary kills the whole pipeline.
 - An empty log is buffering until shown otherwise: redirected output is block-buffered (about 4
   to 8 KB). Check the processes, twice, since a run alternates working and reporting.
+- In zsh, the shell agents' commands run in, `status` is a read-only parameter. `status=$?`
+  after a run fails, stops the wrapper and loses the run's exit code: a 48-minute gate's result
+  had to be read back from its log (October 2026). Capture it as `rc=$?`.
 - Wait for a run by its own completion signal, a line its wrapper appends or a file it
   publishes, never by `pgrep -f PATTERN` from a shell, whose own command line matches the
   pattern.
