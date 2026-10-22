@@ -346,6 +346,8 @@ def worktree(host, usage, sizes, main, entry, base, name):
     if "locked" in entry: return item(KEPT, "locked" + (f": {entry['locked']}" if entry["locked"] else ""))
     use = usage.of(path)
     if use: return item(KEPT, "in use: " + described(use))
+    # "matching" names each ignored path; "traditional" folds a directory holding only ignored
+    # files into one line, which hides whether evidence is inside it.
     status = git(host.run, path, "status", "--porcelain", "--ignored=matching", "--untracked-files=normal")
     if status.returncode: return item(KEPT, "git status failed: " + status.stderr.strip()[:200])
     lines = status.stdout.splitlines()
