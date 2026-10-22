@@ -14,10 +14,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
   A prefix match can include another session's branch; never use it as an ownership test.
 - A landed leftover needs no owner. Any session may delete a local branch that no worktree has
   checked out, once a landing check proves its work is in origin/main (by ancestry, equal
-  patches, or a merged pull request at its tip) and it has been untouched for an hour. An
-  agent's worktree may go the same way when it is also unlocked, clean and unused, with nothing
-  ignored but build caches. That is proof, not judgment. Leave session worktrees to the app,
-  which reuses them.
+  patches, or a merged pull request that holds its tip) and it has been untouched for an hour.
+  An agent's worktree may go the same way when it is also unlocked, clean and unused, with
+  nothing ignored but build caches. That is proof, not judgment. Leave session worktrees to the
+  app, which reuses them.
 - Read a comparison's merge-base once and use that commit, not a moving origin/main ref.
   Fetch before final verification. Check whether a referenced PR already merged before
   building on it, and record the commit each verification actually exercised.
