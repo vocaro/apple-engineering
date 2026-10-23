@@ -1,19 +1,32 @@
 """Bounded supervision of the process group this invocation creates."""
+import contextlib
 import os
 import json
 from pathlib import Path
 import signal
 import subprocess
 import sys
+import threading
 import time
 
 # Seconds an observed descendant may outlive the root before it is stopped, and then before
 # SIGTERM becomes SIGKILL. Xcode's DTServiceHub can outlive xcodebuild by minutes, ignoring SIGTERM.
 LINGER, KILL_AFTER = 60, 10
+# Seconds a stopped command's processes have after SIGKILL before the run is uncertain.
+KILL_WAIT = 5
+# The signals forwarding_signals carries out as a supervised stop. SIGKILL cannot be caught.
+STOP_SIGNALS = (signal.SIGTERM, signal.SIGINT, signal.SIGHUP)
+_stops = []
 
 
 def snapshot():
-    output = subprocess.check_output(["ps", "-axo", "pid=,ppid=,pgid=,lstart="], text=True)
+    # A stop sent to this whole process tree, as an agent's task stop sends it, can end ps too.
+    for _attempt in range(3):
+        listed = subprocess.run(["ps", "-axo", "pid=,ppid=,pgid=,lstart="], capture_output=True, text=True)
+        if listed.returncode >= 0: break
+    if listed.returncode:
+        raise subprocess.CalledProcessError(listed.returncode, listed.args, listed.stdout, listed.stderr)
+    output = listed.stdout
     result = {}
     for line in output.splitlines():
         parts = line.split(maxsplit=3)
@@ -36,16 +49,71 @@ class NotStarted(OSError):
     """The command could not be started, so it left no process to wait for."""
 
 
-def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
+class Interrupted(Exception):
+    """A stop signal ended the run, leaving none of its observed processes running."""
+
+    def __init__(self, signum, detail):
+        super().__init__(f"Stopped by {signal.Signals(signum).name} {detail}")
+        self.signum = signum
+
+
+def request_stop(signum, _frame=None):
+    """Record a stop for supervision to carry out. It never raises: an exception raised between
+    publishing an admission and entering its context would strand the admission's entry."""
+    _stops.append(signum)
+
+
+def requested():
+    """The first stop signal received while forwarding_signals is in effect, or None."""
+    return _stops[0] if _stops else None
+
+
+@contextlib.contextmanager
+def forwarding_signals():
+    """Carry out SIGTERM, SIGINT and SIGHUP as a supervised stop, then end by the first one.
+
+    Supervision forwards the signal to the command, and admission is left, before this process
+    ends by the same signal. A signal the caller ignores, as nohup ignores SIGHUP, stays ignored.
+    """
+    if threading.current_thread() is not threading.main_thread():
+        yield
+        return
+    previous = {}
+    for number in STOP_SIGNALS:
+        if signal.getsignal(number) not in (signal.SIG_IGN, None):
+            previous[number] = signal.signal(number, request_stop)
+    try:
+        yield
+    finally:
+        for number, handler in previous.items(): signal.signal(number, handler)
+        if _stops:
+            number = _stops[0]
+            _stops.clear()
+            with contextlib.suppress(OSError, ValueError):
+                sys.stdout.flush()
+                sys.stderr.flush()
+            signal.signal(number, signal.SIG_DFL)
+            os.kill(os.getpid(), number)
+            raise SystemExit(128 + number)
+
+
+def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None):
     """Wait for the owned root and observed descendants, including separate process groups.
 
-    PID start identities prevent signaling a reused PID. An uncertain or interrupted run
+    PID start identities prevent signaling a reused PID. A timed-out or otherwise uncertain run
     raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
     Descendants still running LINGER seconds after the root exits are reported on stderr and
     stopped; the root's status stands once they are gone, and one that survives SIGKILL is
     still awaited. A timeout bounds only the root: one that exits in time keeps its status
     through that grace. A command that cannot start raises NotStarted, which admission releases.
+
+    A stop that forwarding_signals records calls on_stop, then goes to the root's group and to
+    each observed descendant, becoming SIGKILL after KILL_AFTER seconds. Once
+    the root and every observed descendant have ended, the run raises Interrupted, which
+    admission releases; any still running KILL_WAIT seconds after SIGKILL leave it uncertain.
     """
+    if requested() is not None:
+        raise Interrupted(requested(), "before its command started")
     environment = dict(os.environ) if env is None else env
     token = json.loads(environment.get("VOCARO_RESOURCE_TOKEN", "{}"))
     descriptors = tuple(item["fd"] for item in token.get("locks", []))
@@ -60,6 +128,8 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
     known, born, exited, stopping = {}, None, None, set()
     started = time.monotonic()
     expired = False
+    # When a stop was first seen, whether its signal reached the root's group, and who else had it.
+    stopped, group_forwarded, forwarded = None, False, set()
     try:
         while True:
             current = snapshot()
@@ -89,11 +159,36 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
                 for pid in live:
                     try: os.kill(pid, signal.SIGTERM)
                     except (ProcessLookupError, PermissionError): pass
+            signum = requested()
+            if signum is not None:
+                if stopped is None:
+                    stopped = time.monotonic()
+                    # First, in case SIGKILL follows before the processes are gone.
+                    if on_stop is not None: on_stop()
+                    print(f"supervise: {signal.Signals(signum).name} received; forwarding it to the command "
+                          f"(PID {child.pid}) and its observed descendants, then SIGKILL after {KILL_AFTER:g}s",
+                          file=sys.stderr, flush=True)
+                # A later signal does not hasten SIGKILL: a task stop can deliver its SIGTERM twice.
+                kill = time.monotonic() - stopped >= KILL_AFTER
+                number = signal.SIGKILL if kill else signum
+                # The stop's own signal once for each process, then SIGKILL until it is gone.
+                if root_active and (kill or not group_forwarded):
+                    try: os.killpg(child.pid, number)
+                    except (ProcessLookupError, PermissionError): pass
+                    group_forwarded = True
+                for pid in live if kill else {pid for pid in live if (pid, known[pid][2]) not in forwarded}:
+                    try: os.kill(pid, number)
+                    except (ProcessLookupError, PermissionError): pass
+                forwarded.update((pid, known[pid][2]) for pid in live)
             result = child.poll()
             if result is not None and not live:
                 if expired: raise TimeoutError(f"Owned command timed out after {timeout}s: {command[0]}")
+                if signum is not None: raise Interrupted(signum, "after its command and observed descendants ended")
                 return result
-            if result is not None and not expired:
+            if stopped is not None and time.monotonic() - stopped > KILL_AFTER + KILL_WAIT:
+                raise RuntimeError(f"Stopped by {signal.Signals(signum).name}, but owned descendants have no "
+                                   "confirmed terminal result; reservation retained")
+            if result is not None and not expired and stopped is None:
                 if exited is None: exited = time.monotonic()
                 overdue = time.monotonic() - exited - LINGER
                 if overdue >= 0:
@@ -127,8 +222,8 @@ def stop(process):
     raise RuntimeError(f"Owned process {process.pid} has no confirmed terminal result")
 
 
-def run(command, *, cwd, log_path, timeout=None, env=None):
+def run(command, *, cwd, log_path, timeout=None, env=None, on_stop=None):
     path = Path(log_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as log:
-        return supervise(command, cwd=cwd, stdout=log, timeout=timeout, env=env)
+        return supervise(command, cwd=cwd, stdout=log, timeout=timeout, env=env, on_stop=on_stop)

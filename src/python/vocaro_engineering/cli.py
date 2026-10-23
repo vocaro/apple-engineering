@@ -96,9 +96,9 @@ def admit(root, args):
     receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
                "policy": refresh_policy(root, sys.stderr), "command": command,
                "directory": str(Path.cwd()), "exclusive": args.exclusive}
-    with resources.Admission(" ".join(command), args.exclusive, args.timeout):
+    with processes.forwarding_signals(), resources.Admission(" ".join(command), args.exclusive, args.timeout) as admission:
         return record(root / ".build/engineering/admit", receipt,
-                      lambda: processes.supervise(command, cwd=Path.cwd()))
+                      lambda: processes.supervise(command, cwd=Path.cwd(), on_stop=admission.interrupted))
 
 
 def main(argv=None):
@@ -200,13 +200,14 @@ def main(argv=None):
             directory = root / ".build/engineering" / args.lane
             receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
                        "policy": policy_commit, "command": command, "arguments": extra}
-            def execute():
+            def execute(on_stop=None):
                 return record(directory, receipt, lambda: processes.run(command, cwd=root,
-                              log_path=directory / "run.log", timeout=lane.get("timeout")))
-            if resource == "light": result = execute()
-            else:
-                with resources.Admission(args.lane, exclusive=resource == "exclusive"):
-                    result = execute()
+                              log_path=directory / "run.log", timeout=lane.get("timeout"), on_stop=on_stop))
+            with processes.forwarding_signals():
+                if resource == "light": result = execute()
+                else:
+                    with resources.Admission(args.lane, exclusive=resource == "exclusive") as admission:
+                        result = execute(admission.interrupted)
             # The command has a confirmed terminal result. Coverage validation cannot turn
             # that completed process into an orphan reservation.
             if result == 0 and (lane.get("minimumTests") or args.expect):

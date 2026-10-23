@@ -258,9 +258,13 @@ class Admission:
         if inherited(self.exclusive):
             self.reused = True
             return self
+        from vocaro_engineering.processes import Interrupted, requested
         started = time.monotonic()
         reported = None
         while not self._attempt():
+            # Nothing is published yet, so a stop leaves nothing to release.
+            if requested() is not None:
+                raise Interrupted(requested(), "while waiting for admission")
             waited = int(time.monotonic() - started)
             if reported is None or waited - reported >= 300:
                 print(f"heavy: waiting ({waited}s): {self.waiting}", file=sys.stderr, flush=True)
@@ -271,6 +275,32 @@ class Admission:
         print(f"heavy: slot {','.join(str(slot) for slot, _fd in self.descriptors)} after {int(time.monotonic() - started)}s: {self.label[:160]}", file=sys.stderr, flush=True)
         return self
 
+    def _settle(self, release):
+        """Remove this job's entry, or mark it uncertain. The caller holds the coordination lock.
+
+        Only this job's entry changes, whatever the other owners' state: a release that waited
+        for a dead owner's recovery would leave this entry dead once this process ends.
+        """
+        state = self._recorded()
+        owners = state.get("owners") if state is not None else None
+        if not isinstance(owners, dict) or self.identity not in owners:
+            return
+        if release:
+            del owners[self.identity]
+            if owners: publish_guard(self.guard, state)
+            else: self.guard.unlink(missing_ok=True)
+        else:
+            owners[self.identity]["uncertain"] = True
+            publish_guard(self.guard, state)
+
+    def interrupted(self):
+        """Mark this job's entry uncertain while a stop drains its command, in case SIGKILL follows."""
+        if self.reused:
+            return
+        with (self.directory / "coordination.lock").open("a+") as bridge:
+            fcntl.flock(bridge, fcntl.LOCK_EX)
+            self._settle(release=False)
+
     def __exit__(self, kind, _value, _traceback):
         if self.reused:
             return False
@@ -280,21 +310,11 @@ class Admission:
             fcntl.flock(bridge, fcntl.LOCK_EX)
             for _slot, fd in self.descriptors:
                 os.close(fd)
-            # An exception may leave unobserved children. Retain the guard for inspection,
-            # unless the command could not start: a mistyped name must not stop the host.
-            # Change only this job's entry, whatever the other owners' state: a release that
-            # waited for a dead owner's recovery would leave this entry dead once this process ends.
-            state = self._recorded()
-            owners = state.get("owners") if state is not None else None
-            if isinstance(owners, dict) and self.identity in owners:
-                from vocaro_engineering.processes import NotStarted
-                if kind is None or issubclass(kind, NotStarted):
-                    del owners[self.identity]
-                    if owners: publish_guard(self.guard, state)
-                    else: self.guard.unlink(missing_ok=True)
-                else:
-                    owners[self.identity]["uncertain"] = True
-                    publish_guard(self.guard, state)
+            # An exception may leave unobserved children. Retain the guard for inspection, unless
+            # nothing is left to inspect: the command could not start (a mistyped name must not
+            # stop the host), or a stop saw the command and every observed descendant end.
+            from vocaro_engineering.processes import Interrupted, NotStarted
+            self._settle(release=kind is None or issubclass(kind, (NotStarted, Interrupted)))
         return False
 
 
@@ -312,10 +332,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     if not command: parser.error("a command is required")
-    with Admission(" ".join(command), args.exclusive, args.timeout):
+    from vocaro_engineering.processes import forwarding_signals, supervise
+    with forwarding_signals(), Admission(" ".join(command), args.exclusive, args.timeout) as admission:
         environment = dict(os.environ)
-        from vocaro_engineering.processes import supervise
-        return supervise(command, cwd=Path.cwd(), env=environment)
+        return supervise(command, cwd=Path.cwd(), env=environment, on_stop=admission.interrupted)
 
 
 def json_descriptors():

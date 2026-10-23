@@ -108,3 +108,46 @@ class ProcessTests(unittest.TestCase):
             with self.assertRaises(TimeoutError):
                 processes.run([sys.executable, "-c", "import time; time.sleep(30)"],
                               cwd=directory, log_path=Path(directory)/"run.log", timeout=0.1)
+
+    def test_a_stop_reaches_descendants_in_other_sessions_then_raises_interrupted(self):
+        # A task stop can deliver its SIGTERM twice, to the process group and to the process; the
+        # second must not cut the command's own SIGTERM handling short with SIGKILL.
+        self.addCleanup(processes._stops.clear)
+        for stops in [[signal.SIGTERM], [signal.SIGTERM, signal.SIGTERM]]:
+            with self.subTest(stops=len(stops)), tempfile.TemporaryDirectory() as directory:
+                processes._stops.clear()
+                here, real, births, begun, marks = Path(directory), processes.snapshot, {}, time.monotonic(), []
+                def observed():
+                    if time.monotonic() - begun > 30: self.fail("supervision was still waiting after 30 s")
+                    current = real()
+                    try: root, *children = map(int, (here / "children").read_text().split())
+                    except FileNotFoundError: return current
+                    # ROOT waits for an adoption that never comes, so only the stop ends it.
+                    if not births and all(current.get(pid, (None,))[0] == root for pid in children) \
+                            and all((here / f"ready-{pid}").exists() for pid in children):
+                        births.update({pid: current[pid][2] for pid in children})
+                        for number in stops: processes.request_stop(number)
+                    return current
+                def cleanup():
+                    for pid, birth in births.items():
+                        if real().get(pid, (0, 0, None))[2] == birth: os.kill(pid, signal.SIGKILL)
+                self.addCleanup(cleanup)
+                with patch.object(processes, "snapshot", observed), patch.object(processes, "KILL_AFTER", 0.3), \
+                     contextlib.redirect_stderr(StringIO()) as error, self.assertRaises(processes.Interrupted) as raised:
+                    processes.supervise([sys.executable, "-c", ROOT, directory, IGNORES_TERM, HANDLES_TERM], cwd=directory,
+                                        on_stop=lambda: marks.append((here / "terminated").exists()))
+                self.assertEqual(raised.exception.signum, signal.SIGTERM)
+                # on_stop ran once, before any process had the signal, and SIGTERM came first.
+                self.assertEqual(marks, [False])
+                self.assertTrue((here / "terminated").exists())
+                current = real()
+                self.assertEqual({pid for pid, birth in births.items() if current.get(pid, (0, 0, None))[2] == birth}, set())
+                self.assertIn("SIGTERM received; forwarding it to the command", error.getvalue())
+
+    def test_a_stop_before_the_command_starts_runs_nothing(self):
+        self.addCleanup(processes._stops.clear)
+        processes.request_stop(signal.SIGHUP)
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(processes.Interrupted, "SIGHUP before"):
+                processes.supervise([sys.executable, "-c", f"open({str(Path(directory) / 'ran')!r}, 'w')"], cwd=directory)
+            self.assertFalse((Path(directory) / "ran").exists())

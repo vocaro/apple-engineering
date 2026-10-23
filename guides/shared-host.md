@@ -379,10 +379,12 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
   only member is the exited root that has not been reaped yet, and an unsignalable descendant is
   still awaited.
 - A command waits for its observed descendants before its status counts. The periodic census
-  cannot prove that a fast child did not orphan itself between samples, so a timed-out,
-  interrupted or otherwise uncertain run raises and admission keeps its guard for inspection; a
-  confirmed terminal exit keeps its status and releases normally. A push keeper is stricter: any
-  failure leaves its guards in place even after the observed children drain.
+  cannot prove that a fast child did not orphan itself between samples, so a timed-out or
+  otherwise uncertain run raises and admission keeps its guard for inspection; a confirmed
+  terminal exit keeps its status and releases normally. A stop whose command and observed
+  descendants all end releases too, since its proof is the same as a confirmed exit's (decided
+  2026-10-22). A push keeper is stricter: any failure leaves its guards in place even after the
+  observed children drain.
 - Once the root exits, its observed descendants have 60 s to end. The supervisor lists any still
   running on stderr, as `ps -o pid,ppid,pgid,lstart,args` rows with the parent and group each
   had when first seen, and stops them: SIGTERM, then SIGKILL 10 s later. The root's status counts
@@ -395,6 +397,13 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
   raises `NotStarted` and releases admission. `Popen` reaps the child whose exec failed before
   it raises, so nothing is left to inspect; keeping the guard would stop every session's
   admission over a typo.
+- `eng admit`, `eng run` and the resource CLI carry out SIGTERM, SIGINT and SIGHUP as a stop
+  ([lock reclamation](#lock-reclamation)). The supervisor forwards the signal to the root's group
+  and to each observed descendant, sends SIGKILL to what remains 10 s later, and raises
+  `Interrupted` once the root and every observed descendant have ended. A later signal does not
+  hasten SIGKILL, because a task stop can deliver its SIGTERM twice, to the process group and to
+  the process. A stop sent to the whole process tree can end the census's own `ps`, which is then
+  asked again. A signal the caller ignores, as `nohup` ignores SIGHUP, stays ignored.
 
 Terminate only an observed launch PID whose current executable still matches; an unknown or
 reused PID never authorizes termination, and a cleanup error keeps the first failure.
@@ -602,21 +611,32 @@ Three kinds of marker coexist, and they are reclaimed differently:
   attended recovery ([device reservations](#device-reservations)).
 
 A job leaving admission changes only its own guard entry, whatever state the other owners are
-in: a clean exit removes the entry, and the guard with its last one, and an exception marks it
-uncertain. It never changes or drops another owner's entry. Until 2026-10-22 a job that left
-while another owner was dead changed nothing, so its own entry died with its process: one lane
-killed by its agent stranded a run that finished normally beside it, and the host admitted no
-heavy work for 80 minutes, until the guard was recovered by hand.
+in: a clean exit, or a stop that saw all of its processes end, removes the entry, and the guard
+with its last one; an exception marks it uncertain. It never changes or drops another owner's
+entry. Until 2026-10-22 a job that left while another owner was dead changed nothing, so its own
+entry died with its process: one lane killed by its agent stranded a run that finished normally
+beside it, and the host admitted no heavy work for 80 minutes, until the guard was recovered by
+hand.
 
-A signal that ends the admitting process before it leaves its context leaves its entry dead.
-`eng admit` and `eng run` install no signal handlers, so SIGTERM and SIGHUP end them as SIGKILL
-does, while the command, in its own session, keeps running unsupervised. SIGINT raises inside
-supervision, which stops the command's process group and marks the entry uncertain. An agent's
-task stop is such a signal: Claude Code's TaskStop sends SIGTERM to every process descended from
-the task's shell, the command in its own session included, and SIGKILL 1.5 s later (observed
-2026-10-22, macOS 27.0, Python 3.14). To end an admitted command early, stop the command's own
-processes, which supervision then follows to a terminal result, never the task or the admitting
-process.
+`eng admit`, `eng run` and the resource CLI carry out SIGTERM, SIGINT and SIGHUP as a stop. A
+stop while queued leaves nothing to release. Once admitted, the job first marks its entry
+uncertain, in case SIGKILL follows, then stops its command
+([process supervision](#process-supervision)). When the command and every observed descendant
+have ended, admission removes the entry and the process ends by the signal it received; if any is
+still running 5 s after SIGKILL, the entry stays uncertain for attended recovery. SIGKILL itself
+cannot be caught: a killed job's entry stays, dead, for attended recovery. Until 2026-10-22 none
+of these signals was handled. SIGTERM and SIGHUP ended the admitting process at once, leaving its
+entry dead and its command, in its own session, running unsupervised; SIGINT stopped only the
+command's process group and left the entry uncertain.
+
+An agent's task stop is such a signal: Claude Code's TaskStop sends SIGTERM to every process
+descended from the task's shell, the command in its own session included, and SIGKILL 1.5 s
+later. A command that ends promptly on SIGTERM is released well within that: a probe whose
+command had a child in its own session had its entry removed 69 ms after the SIGTERM (2026-10-22,
+macOS 27.0, Python 3.14). A command that takes longer, as an `xcodebuild` tree can, is killed
+with its admitting process and leaves its entry uncertain. To end an admitted command early, stop
+the command's own processes, which supervision then follows to a terminal result, rather than
+the task.
 
 Recovery of a guard is attended. Inspect its recorded owner, that owner's command processes and
 any reserved tree; stop or wait for all of the transaction's children; then remove the abandoned
@@ -636,6 +656,9 @@ Use the supplied `eng run` or resource CLI for commands. They return the child's
 leaving admission normally. If using Admission directly, leave the context before raising
 SystemExit for a nonzero result. An exception inside the context retains its uncertain guard,
 by design, because the coordinator cannot infer whether that exception left children running.
+Admission used directly handles no signals. To stop as the supplied commands do, enter
+`processes.forwarding_signals()` around it and pass `on_stop=admission.interrupted` to
+`supervise`.
 
 Legacy shell gates authenticate inherited exclusive admission for their exact lock namespace.
 The coordinator does not export a lock opt-out into the suite: regression fixtures retain
