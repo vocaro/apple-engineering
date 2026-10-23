@@ -17,7 +17,7 @@ def initialize(root, args):
     if config_path.exists(): load(root)
     if not config_path.exists():
         config_path.write_text(json.dumps({"schemaVersion": 1, "name": args.name or root.name,
-            "toolkit": {"path": os.path.relpath(TOOLKIT_ROOT, root)},
+            "toolkit": {"path": os.path.relpath(TOOLKIT_ROOT, root)}, "integration": "direct-main",
             "capabilities": args.capability, "lanes": {}, "exceptions": []}, indent=2) + "\n")
     ignored = root / ".gitignore"
     if not ignored.exists():
@@ -169,6 +169,9 @@ def main(argv=None):
             if heavy and not any(lane.get("resource") in {"heavy", "exclusive"} for lane in config.get("lanes", {}).values()):
                 warnings.append(f"{', '.join(heavy)} work is heavy, but no lane is heavy or exclusive: add heavy lanes "
                                 "for the tests and an exclusive lane for the gate (guides/adoption.md)")
+            if "integration" not in config:
+                warnings.append("engineering.json declares no integration: add \"integration\": \"direct-main\", "
+                                "or \"pull-request\" for a project that takes changes only by pull request (agents/core.md)")
             print(json.dumps({"project": config["name"], "toolkit": str(TOOLKIT_ROOT),
                 "source": source_identity(TOOLKIT_ROOT), "capabilities": config.get("capabilities", []),
                 "missingCommands": missing, "warnings": warnings}, indent=2))

@@ -24,7 +24,8 @@ python3 scripts/eng admit -- COMMAND
 python3 scripts/eng spelling
 ```
 
-`engineering.json` selects capabilities, exceptions and argv-based lanes. Set
+`engineering.json` selects capabilities, exceptions and argv-based lanes, and declares how the
+project integrates (`integration`). Set
 `VOCARO_ENGINEERING_ROOT` for another toolkit location. Local checkouts require no pin or
 release tag. Record source identities when collecting evidence. Shipping package dependencies
 are resolved by SwiftPM, independently of engineering.json.

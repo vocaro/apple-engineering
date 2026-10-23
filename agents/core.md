@@ -8,8 +8,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Preserve other sessions' files, commits, processes, devices and settings. Read co-edited
   files immediately before changing them. Stage explicit paths, never `git add .`, `-A` or
   `commit -a`. Do not reset a shared checkout to remove somebody else's work.
-- Work on an isolated branch or worktree when concurrent changes require it. Inspect the
-  project's integration policy: private projects currently integrate directly to main.
+- Work on an isolated branch or worktree when concurrent changes require it. Integrate by the
+  route the project's engineering.json `integration` names; every project declares one. The
+  owner's projects, public ones included, use `direct-main`: pull requests are for changes
+  contributed by others, not for the owner's own work.
 - When one command acts on several branches, name the exact refs from your own task records.
   A prefix match can include another session's branch; never use it as an ownership test.
 - A landed leftover needs no owner. Any session may delete a local branch that no worktree has

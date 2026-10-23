@@ -26,7 +26,7 @@ def load(root):
     toolkit = value.get("toolkit", {})
     if not isinstance(toolkit, dict) or set(toolkit) - {"path"} or not isinstance(toolkit.get("path", "../apple-engineering"), str):
         raise ValueError("toolkit must contain only an optional checkout path")
-    if value.get("integration", "pull-request") not in {"direct-main", "pull-request"}:
+    if value.get("integration", "direct-main") not in {"direct-main", "pull-request"}:
         raise ValueError("Unknown integration policy")
     repositories = value.get("hostedRepositories", [])
     if not isinstance(repositories, list) or any(not isinstance(r, str) or r.count("/") != 1 for r in repositories):

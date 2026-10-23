@@ -26,6 +26,7 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual((root / "AGENTS.md").read_text(), "Existing owner rules\n")
             self.assertTrue((root / "scripts/eng").exists())
             self.assertEqual(config.load(root)["capabilities"], ["voiceover"])
+            self.assertEqual(config.load(root)["integration"], "direct-main")
 
     def test_unknown_capabilities_and_conflicting_simulator_ownership_are_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -67,7 +68,7 @@ class ConfigurationTests(unittest.TestCase):
             for capabilities, lanes, warned in cases:
                 with self.subTest(capabilities=capabilities, lanes=sorted(lanes)):
                     (Path(directory) / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
-                        "capabilities": capabilities, "lanes": lanes}))
+                        "integration": "direct-main", "capabilities": capabilities, "lanes": lanes}))
                     with patch.object(cli.shutil, "which", return_value="/usr/bin/true"), patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stdout(StringIO()) as output:
                         # A warning is not a missing prerequisite.
                         self.assertEqual(cli.main(["--project", directory, "doctor"]), 0)
@@ -75,6 +76,20 @@ class ConfigurationTests(unittest.TestCase):
                     self.assertEqual(bool(warnings), warned, warnings)
                     for capability in capabilities if warned else []:
                         self.assertIn(capability, warnings[0])
+
+    def test_doctor_warns_when_a_project_declares_no_integration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for declared, warned in [({}, True), ({"integration": "direct-main"}, False),
+                                     ({"integration": "pull-request"}, False)]:
+                with self.subTest(declared=declared):
+                    (Path(directory) / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
+                        **declared}))
+                    with patch.object(cli.shutil, "which", return_value="/usr/bin/true"), patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stdout(StringIO()) as output:
+                        self.assertEqual(cli.main(["--project", directory, "doctor"]), 0)
+                    warnings = json.loads(output.getvalue())["warnings"]
+                    self.assertEqual(bool(warnings), warned, warnings)
+                    for warning in warnings:
+                        self.assertIn("integration", warning)
 
     def test_instructions_note_a_toolkit_checkout_behind_origin_main_without_fetching(self):
         with tempfile.TemporaryDirectory() as directory:

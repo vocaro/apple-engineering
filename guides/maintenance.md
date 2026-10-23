@@ -85,8 +85,8 @@ git merge-base --is-ancestor origin/main HEAD && git push origin HEAD:main
 ```
 
 If `origin/main` is not an ancestor, rebase onto it, run the gate again on the rebased tree, and
-push that. Never force-push `main`. A repository's `integration` setting in `engineering.json`
-(`direct-main` or `pull-request`) says which route it uses.
+push that. Never force-push `main`. Every repository declares its route in `engineering.json`'s
+`integration` (`direct-main` or `pull-request`), and `eng doctor` warns when one does not.
 
 **An issue is closed by what `main`'s tree holds.** Not by a commit somewhere that names it, not
 by a branch that would fix it, and not by a merge that records such a branch as merged.
