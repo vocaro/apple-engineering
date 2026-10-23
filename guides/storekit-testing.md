@@ -147,23 +147,29 @@ checks need `Sandbox`.
 
 1. Before either kind of run, find other sessions' copies of the app and planned StoreKit
    runs (list running copies' paths with `ps`), and agree an order with those sessions.
-2. Read the environment from storekitagent's log over the run:
+2. Read request contexts and background routing from storekitagent's log over the run:
 
    ```sh
    started="$(date '+%Y-%m-%d %H:%M:%S')"
    # Run the check here.
    /usr/bin/log show --start "$started" --info --style compact \
-     --predicate 'process == "storekitagent" AND eventMessage CONTAINS "[Client] BUNDLE_ID ("' \
+     --predicate 'process == "storekitagent" AND (eventMessage CONTAINS "BUNDLE_ID" OR eventMessage CONTAINS "TransactionQuery" OR eventMessage CONTAINS "transactionsupdated")' \
      > storekit-environment.txt
-   grep -c -F '(NAME) Sandbox)' storekit-environment.txt
-   grep -c -F '(NAME) XcodeTest' storekit-environment.txt
+   rg -n 'Sandbox|XcodeTest|No client|Initializing client' storekit-environment.txt
    ```
 
-   NAME is the app's name as storekitagent prints it after the bundle ID.
+   Replace BUNDLE_ID with the app's bundle identifier. Keep raw service logs private: they
+   can include account identifiers. TransactionQuery and update lines can concern another app,
+   so correlate them with the bundle's adjacent task context before attributing them. A filter
+   restricted to `[Client] BUNDLE_ID (` omits client initialization and dropped-update messages;
+   local request contexts alone do not establish the route used by synchronization or delivery.
+   Record verified entitlement recovery and observed updates separately from request routing.
 3. To change it, Run a scheme from Xcode once (Product > Run): StoreKit Configuration: None
    selects Sandbox, a scheme with the configuration selects the local environment. That uses
    Xcode's window, so it is the owner's step or an authorized session's. If two Xcode versions
-   run, script the selected Xcode by path.
+   run, address the selected Xcode by path. For environment setup, disable debugging and verify
+   the active scheme and destination before launching. Once the app is built under admission,
+   Product > Perform Action > Run Without Building performs the setup without another build.
 4. Record the environment you leave and tell the sessions that share the Mac.
 
 ## Apple sandbox qualification
