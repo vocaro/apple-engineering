@@ -4,9 +4,11 @@ import json
 import os
 import re
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -349,6 +351,96 @@ class ResourceTests(unittest.TestCase):
                 # The killed job's entry still awaits attended recovery.
                 with self.assertRaises(TimeoutError), contextlib.redirect_stderr(StringIO()):
                     with resources.Admission("blocked", timeout=0): pass
+
+    def test_a_stop_signal_ends_the_command_then_releases_admission(self):
+        # An agent's task stop sent eng admit SIGTERM, which ended it without leaving admission
+        # while its command ran on in its own session (2026-10-22).
+        root = Path(self.temp.name)
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        marker = root / "command.pid"
+        command = [sys.executable, "-c", f"import os, pathlib, time\npathlib.Path({str(marker)!r}).write_text(str(os.getpid()))\ntime.sleep(120)"]
+        (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Stop",
+            "lanes": {"stopped": {"command": command, "resource": "heavy"}}}))
+        launch = ("import sys\nfrom unittest.mock import patch\nfrom vocaro_engineering import cli\n"
+                  "with patch.object(cli, 'refresh_policy', return_value='policy'), patch.object(cli, 'source_identity', return_value={}):\n"
+                  "    raise SystemExit(cli.main(sys.argv[1:]))\n")
+        entries = {"resources": [sys.executable, "-m", "vocaro_engineering.resources", "--", *command],
+                   "admit": [sys.executable, "-c", launch, "--project", str(root), "admit", "--", *command],
+                   "run": [sys.executable, "-c", launch, "--project", str(root), "run", "stopped"]}
+        cases = [(entry, signal.SIGTERM) for entry in entries] + [("resources", signal.SIGHUP), ("resources", signal.SIGINT)]
+        environment = {**os.environ, "PYTHONPATH": str(config.TOOLKIT_ROOT / "src/python")}
+        for entry, number in cases:
+            with self.subTest(entry=entry, signal=number.name):
+                guard.unlink(missing_ok=True)
+                marker.unlink(missing_ok=True)
+                # SIGINT as a terminal's foreground job has it, which a background job ignores.
+                admitted = subprocess.Popen(entries[entry], cwd=root, env=environment, stderr=subprocess.DEVNULL,
+                                            preexec_fn=lambda: signal.signal(signal.SIGINT, signal.SIG_DFL))
+                pid = birth = None
+                try:
+                    deadline = time.monotonic() + 30
+                    while not (marker.exists() and marker.read_text()):
+                        self.assertIsNone(admitted.poll(), "the command was never started")
+                        self.assertLess(time.monotonic(), deadline, "the command was never started")
+                        time.sleep(0.01)
+                    pid = int(marker.read_text())
+                    birth = resources.process_start(pid)
+                    os.kill(admitted.pid, number)
+                    self.assertEqual(admitted.wait(timeout=30), -number)
+                    self.assertNotEqual(resources.process_start(pid), birth, "the command outlived its stop")
+                    self.assertFalse(guard.exists())
+                    if entry != "resources":
+                        receipts = {"admit": "admit", "run": "stopped"}
+                        receipt = json.loads((root / ".build/engineering" / receipts[entry] / "source.json").read_text())
+                        self.assertEqual(receipt["outcome"], "failed-or-interrupted")
+                        self.assertIn(f"Stopped by {number.name} after its command", receipt["error"])
+                finally:
+                    if admitted.poll() is None:
+                        admitted.kill()
+                        admitted.wait()
+                    if pid is not None and resources.process_start(pid) == birth:
+                        os.kill(pid, signal.SIGKILL)
+
+    def test_a_stop_that_cannot_confirm_every_process_ended_leaves_the_entry_uncertain(self):
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        real, roots, marked = processes.snapshot, [], []
+        # Above macOS's PID limit, so no signal reaches a real process: it never ends.
+        phantom = 99999999
+        def observed():
+            current = real()
+            if not roots:
+                roots.extend(pid for pid, (parent, group, _birth) in current.items() if parent == os.getpid() and group == pid)
+                if roots: processes.request_stop(signal.SIGTERM)
+            elif guard.exists():
+                marked.append(json.loads(guard.read_text())["owners"][admission.identity].get("uncertain"))
+            if roots: current[phantom] = (roots[0], phantom, "phantom")
+            return current
+        self.addCleanup(processes._stops.clear)
+        with patch.object(processes, "snapshot", observed), patch.object(processes, "KILL_AFTER", 0.1), \
+             patch.object(processes, "KILL_WAIT", 0.2), contextlib.redirect_stderr(StringIO()):
+            with self.assertRaisesRegex(RuntimeError, "SIGTERM, but owned descendants have no confirmed terminal result"):
+                with resources.Admission("stopped", timeout=0) as admission:
+                    processes.supervise([sys.executable, "-c", "import time; time.sleep(30)"], cwd=self.temp.name,
+                                        on_stop=admission.interrupted)
+        # Marked while the stop drained, in case SIGKILL had ended this process first.
+        self.assertTrue(marked and all(marked))
+        self.assertTrue(json.loads(guard.read_text())["owners"][admission.identity]["uncertain"])
+
+    def test_a_stop_before_the_command_starts_leaves_no_entry(self):
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        self.addCleanup(processes._stops.clear)
+        processes.request_stop(signal.SIGTERM)
+        with self.subTest("admitted"), contextlib.redirect_stderr(StringIO()):
+            with self.assertRaisesRegex(processes.Interrupted, "before its command started"):
+                with resources.Admission("admitted", timeout=0) as admission:
+                    processes.supervise([sys.executable, "-c", "pass"], cwd=self.temp.name, on_stop=admission.interrupted)
+            self.assertFalse(guard.exists())
+        with self.subTest("queued"), contextlib.redirect_stderr(StringIO()):
+            self.hold(0, 1, 2)
+            # Without the stop this waits the whole minute and then times out.
+            with self.assertRaisesRegex(processes.Interrupted, "while waiting for admission"):
+                with resources.Admission("queued", timeout=60): self.fail("admitted")
+            self.assertFalse(guard.exists())
 
     def test_zero_test_failure_releases_a_confirmed_finished_lane(self):
         root = Path(self.temp.name)
