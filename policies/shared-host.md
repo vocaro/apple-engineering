@@ -12,12 +12,14 @@ record, not a mutex. Do not reserve in the earlier `/private/tmp` handoff files.
 alone never releases a device.
 
 Do not take over the screen, keyboard, pointer or Mac VoiceOver without the required explicit
-owner authorization. A Mac VoiceOver session on this Mac is only for what a hosted runner cannot
-do: someone listening, or stepping by hand. Drive owned Mac apps in the background only by PID
-through accessibility; System Events element commands qualify, while `keystroke`, `key code`
-and `set frontmost` are foreground input. Do not launch a debugger or raise a developer-password
-dialog. Do not run disposable-runner defaults, launchctl, or display configuration on the
-workstation.
+owner authorization; with it, first reserve `mac-foreground` in the device record with the
+owner's approval window, and act only while `devices check` passes. A timing measurement also
+needs exclusive admission. A Mac VoiceOver session on this Mac is only for what a hosted runner
+cannot do: someone listening, or stepping by hand. Drive owned Mac apps in the background only
+by PID through accessibility; System Events element commands qualify, while `keystroke`,
+`key code` and `set frontmost` are foreground input. Do not launch a debugger or raise a
+developer-password dialog. Do not run disposable-runner defaults, launchctl, or display
+configuration on the workstation.
 
 Hosted macOS jobs are reserved for approved Mac VoiceOver sessions. Dispatch manually through
 the guarded dispatcher, batch sessions, keep at most two branch runs or one when any run is

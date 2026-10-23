@@ -251,9 +251,12 @@ The hosted runner is the default for them. An attended procedure on the owner's 
 only for a session the owner has explicitly authorized; an earlier approval of a mechanism does
 not establish that the Mac is available now. The
 [shared host policy](../policies/shared-host.md) and the attended-session rules in
-[shared host](shared-host.md) apply, and [VoiceOver](voiceover.md) covers Mac speech. Such a
-session also restores the previous foreground app only if it still owns the foreground when it
-ends.
+[shared host](shared-host.md) apply, and [VoiceOver](voiceover.md) covers Mac speech. Before any
+foreground work, computer use included, the session reserves `mac-foreground` with the owner's
+approval window, and its drivers check the reservation before each action
+([attended Mac sessions](shared-host.md#attended-mac-sessions)). Such a session also restores
+the previous foreground app only if it still owns the foreground when it ends, and its release
+records which it did.
 
 ## Building snapshot scenes
 

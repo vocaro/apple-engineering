@@ -46,6 +46,9 @@ class ConfigurationTests(unittest.TestCase):
             (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
                 "lanes": {"bad": {"command": "printf success"}}}))
             with self.assertRaises(ValueError): config.load(root)
+            (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
+                "lanes": {"ui": {"command": ["xcodebuild", "test"], "foreground": "yes"}}}))
+            with self.assertRaisesRegex(ValueError, "foreground must be true or false"): config.load(root)
 
     def test_missing_prerequisites_are_reported_without_starting_work(self):
         with tempfile.TemporaryDirectory() as directory:

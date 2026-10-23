@@ -126,6 +126,10 @@
           "timeout": {
             "type": "integer",
             "minimum": 1
+          },
+          "foreground": {
+            "description": "The lane takes the owner's screen, as a Mac XCUITest lane does: eng run refuses it unless VOCARO_DEVICE_OWNER holds mac-foreground in the device record",
+            "type": "boolean"
           }
         }
       }

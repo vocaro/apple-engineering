@@ -32,7 +32,10 @@ as a test filter, to the lane's command; such a run needs at least one executed 
 of `minimumTests`, or exactly N with `--expect N`. Other heavy work that no lane names goes
 through `eng admit [--exclusive] -- COMMAND`. Give a project with a simulator, measurement or
 VoiceOver capability heavy lanes for its tests and an exclusive lane for its gate, so the
-commands its agents run most are admitted by name; `doctor` warns when it has neither.
+commands its agents run most are admitted by name; `doctor` warns when it has neither. Mark a
+lane that takes the owner's screen, such as Mac XCUITest, `"foreground": true`: `eng run` then
+refuses it unless `VOCARO_DEVICE_OWNER` names the session holding `mac-foreground`
+([attended Mac sessions](shared-host.md#attended-mac-sessions)).
 Disposable simulators and the approved reserved pool are separate capabilities and cannot both
 be enabled. Conflicts or unknown fields fail validation. Existing AGENTS.md files are
 preserved: add the explicit `scripts/eng instructions` entry yourself when adopting into a

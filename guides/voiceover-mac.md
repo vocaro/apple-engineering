@@ -46,8 +46,10 @@ What Mac VoiceOver does with text, links, tables and roles is in
   exploring that route records and restores the setting and the clipboard and rejects an
   unchanged clipboard sentinel.
 - Before every key, check that the app under test (or Safari, in a Safari session) is
-  frontmost and that no dialog holds secure keyboard input (`kCGSSessionSecureInputPID` in
-  `ioreg -l -w 0 -d 1`), and stop the session otherwise.
+  frontmost, that no dialog holds secure keyboard input (`kCGSSessionSecureInputPID` in
+  `ioreg -l -w 0 -d 1`) and, on the owner's Mac, that the session still holds `mac-foreground`
+  (`devices check`, [attended Mac sessions](shared-host.md#attended-mac-sessions)), and stop the
+  session otherwise.
 - Bring VoiceOver to the app's content by a change of keyboard focus through the accessibility
   API, never a click. A focus click moves the insertion point, and VoiceOver enters text and
   reads from there; a click near an edge can also trigger the app's own controls.

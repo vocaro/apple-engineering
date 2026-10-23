@@ -268,6 +268,9 @@ file whole without rewriting any other entry. A refusal changes nothing: read th
 and decide afresh. Each change prints the entry's new revision, which the caller's next change
 names. The lock covers one change, never a reservation. One device is never held under two
 keys, and the helper takes only a canonical uppercase UDID, never a name or `booted`.
+`update KEY … --own PID` records a process the session launched, by its PID and start time;
+`release` and `recover` refuse until each has exited. The record also holds `mac-foreground`,
+the owner's screen, as [attended Mac sessions](#attended-mac-sessions) describe.
 
 Sessions used to keep ad hoc records in `/private/tmp`. In October 2026 two were live at once,
 so two sessions could reserve one device in different files; unlocked read-modify-write could
@@ -336,6 +339,40 @@ including any unresolved restoration state.
 Mac VoiceOver and foreground UI default to the [hosted runner](hosted-runner.md), not the
 owner's Mac. These rules are a method for an attended session on the owner's Mac that the owner
 has explicitly authorized; they grant nothing by themselves.
+
+Reserve the owner's foreground before taking it. The `mac-foreground` entry in the
+[device record](#device-reservations) stands for the screen, keyboard, pointer, focus and
+speech, and names no device. Reserving it records the owner's approval: who approved, when, and
+until a time or `released`, with the owner's words if given. No update changes the approval: a
+new window from the owner is a new reservation, after a release. Another session sees the holder
+in `devices status`, and its reservation is refused while the entry is held.
+
+```sh
+python3 -m vocaro_engineering.devices reserve mac-foreground --owner SESSION --revision N \
+  --purpose "Mac XCUITest of …" --release-by 2026-10-23T18:00:00Z --approved-by OWNER \
+  --approved-at 2026-10-23T15:02:00Z --approved-until 2026-10-23T18:00:00Z --approval-words "…"
+export VOCARO_DEVICE_OWNER=SESSION
+python3 -m vocaro_engineering.devices check      # at the start and before each action
+python3 -m vocaro_engineering.devices update mac-foreground --owner SESSION --revision N \
+  --own PID
+python3 -m vocaro_engineering.devices release mac-foreground --owner SESSION --revision N \
+  --outcome "…" --restoration "…" --frontmost restored
+```
+
+A foreground driver calls `devices check`, or `devices.require_foreground(owner)` from Python,
+at the start and before each key, activation or `set frontmost`. It refuses unless the session
+named by `--owner` or `VOCARO_DEVICE_OWNER` holds the entry, the entry is neither orphaned nor
+uncertain, and the approval has not ended; on a GitHub-hosted runner it passes without one.
+`eng run` checks a lane marked `"foreground": true` the same way. A passed approval or expected
+release releases nothing: `status` reports it, the check refuses further foreground work, and
+the session stops, restores and releases. Record each app and test runner the session launches
+with `update --own PID`: `release` and `recover` wait until those have exited, and the release
+says whether the previous frontmost app was restored (`--frontmost restored`) or the session no
+longer owned the foreground (`not-ours`).
+
+The screen and the CPU are separate resources. A foreground timing measurement needs both the
+reservation and exclusive admission; a functional UI test needs only the reservation, with its
+build admitted as heavy work as usual.
 
 - Approving a mechanism is distinct from the Mac being available now. Announce each start and
   when the owner can resume work, and wait for the go-ahead.

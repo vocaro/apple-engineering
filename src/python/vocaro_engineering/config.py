@@ -49,8 +49,10 @@ def load(root):
     if not isinstance(value.get("lanes", {}), dict):
         raise ValueError("lanes must be an object")
     for name, lane in value.get("lanes", {}).items():
-        if not isinstance(lane, dict) or set(lane) - {"command", "resource", "minimumTests", "timeout"}:
+        if not isinstance(lane, dict) or set(lane) - {"command", "resource", "minimumTests", "timeout", "foreground"}:
             raise ValueError(f"Invalid lane {name}")
+        if "foreground" in lane and type(lane["foreground"]) is not bool:
+            raise ValueError(f"{name}.foreground must be true or false")
         command = lane.get("command")
         if not isinstance(command, list) or not command or any(not isinstance(x, str) or not x for x in command):
             raise ValueError(f"Lane {name} needs an argv list, never shell source")

@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 
-from . import __version__, disk, docs, evidence, processes, resources, spelling
+from . import __version__, devices, disk, docs, evidence, processes, resources, spelling
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
 
 
@@ -193,6 +193,8 @@ def main(argv=None):
             lane = config.get("lanes", {}).get(args.lane)
             if lane is None: raise ValueError(f"No configured lane: {args.lane}")
             if args.expect is not None and args.expect < 1: raise ValueError("--expect needs at least 1 test")
+            # A foreground lane takes the owner's screen: only the session holding mac-foreground runs it.
+            if lane.get("foreground"): devices.require_foreground(os.environ.get(devices.OWNER))
             extra = args.passed or []
             command = [*lane["command"], *extra]
             resource = lane.get("resource", "light")

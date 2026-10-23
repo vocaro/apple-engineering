@@ -78,9 +78,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - A tool timeout is an observation timeout. Follow the owned process to a terminal result
   before retrying. Preserve an uncertain orphan's reservation for recovery.
 - Do not run Mac VoiceOver or foreground UI automation on the owner's Mac without the required
-  explicit authorization. Run Mac speech on the allowed disposable hosted runner. Never run
-  runner preparation commands on this workstation. A locked screen or sleeping display leaves
-  background Mac UI tests unmeasured; rerun them later, and never keep the Mac awake unasked.
+  explicit authorization; with it, reserve `mac-foreground` in the device record first. Run Mac
+  speech on the allowed disposable hosted runner. Never run runner preparation commands on this
+  workstation. A locked screen or sleeping display leaves background Mac UI tests unmeasured;
+  rerun them later, and never keep the Mac awake unasked.
 - Do not launch or attach a debugger, dtrace, or a sampler to another session's process. Use
   static disassembly for system-code questions and logging from code you own. If a password
   dialog appears, end your processes, leave the dialog alone, and tell the owner.
