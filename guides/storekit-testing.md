@@ -91,6 +91,11 @@ Connect product is involved.
    (`StoreKitWait.update`): no delivery is an environmental result, which on the Mac may be an
    expected failure (`XCTExpectFailure`, or `withKnownIssue` in Swift Testing) with its reason;
    a delivery without effect is always a failure. iOS has no expectation.
+5. Diagnose session state, verified-entitlement recovery and update delivery independently.
+   If a session reports a purchase but the model stays locked, inspect both unfiltered and
+   product-filtered entitlements, then the bounded verified-entitlement wait. Compare the same
+   diagnostic before and after environment setup. Do not infer a filtered-API defect from an
+   empty snapshot or add production sync or retries to hide an environment failure.
 
 Cover these cases:
 
@@ -170,7 +175,12 @@ checks need `Sandbox`.
    run, address the selected Xcode by path. For environment setup, disable debugging and verify
    the active scheme and destination before launching. Once the app is built under admission,
    Product > Perform Action > Run Without Building performs the setup without another build.
-4. Record the environment you leave and tell the sessions that share the Mac.
+4. After setup, rerun the entitlement-recovery diagnostic and the independent update probes.
+   Record each outcome separately: a configured Run can restore entitlement recovery while
+   updates still fail. Reassess the applicability of an expected failure's explanation when
+   the environment changes; a passing plan with expected failures does not qualify delivery
+   for those cases. See the [measured limits](../knowledge/apple/storekit-environments.md#local-session-state-entitlement-recovery-and-updates-are-separate-observations).
+5. Record the environment you leave and tell the sessions that share the Mac.
 
 ## Apple sandbox qualification
 

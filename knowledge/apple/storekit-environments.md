@@ -7,7 +7,7 @@ universal behavior on later operating systems or in a different application.
 StoreKit answers from one of three environments: Xcode's local test environment, driven by a
 StoreKit configuration file; Apple's sandbox, for development-signed and TestFlight builds; and
 production. The [StoreKit testing guide](../../guides/storekit-testing.md) has the procedures.
-The observations below were made with Xcode 27.0 (27A266a) and 27.1 (27A9269), macOS 27.0
+The initial observations were made with Xcode 27.0 (27A266a) and 27.1 (27A9269), macOS 27.0
 (26A428) on an Apple silicon MacBook Pro, iOS and iPadOS 27 simulators, and iPhone and iPad
 devices on 27.0 (24A435), from 2026-09-30 to 2026-10-08.
 
@@ -36,6 +36,32 @@ where the limit is known (here, the Mac). Never add retries, delays or a sync ca
 shipping entitlement model to make such a test pass, and never weaken its verification.
 
 [Pagepour measurements/storekit-lifetime/record.md](https://github.com/vocaro/Pagepour/blob/68f508d14c2a2133592027eb89806009bccf0326/measurements/storekit-lifetime/record.md#mac-transaction-updates-on-2026-10-08)
+
+## Local session state, entitlement recovery and updates are separate observations
+
+On macOS 27.0 (`26A428`) with Xcode 27.1 (`27A9275`), a local `SKTestSession` held a
+purchased transaction while both unfiltered and product-filtered `Transaction.currentEntitlements`
+were empty, and a bounded verified-entitlement wait failed. The app's test startup guards were
+active before app-owned purchase startup. This result did not implicate the filtered API or an
+early app-owned StoreKit request.
+
+An authorized Run with the local configuration, debugging disabled and an isolated app fixture
+changed the identical diagnostic from failure to pass. Immediate snapshots remained empty; the
+existing bounded wait recovered the verified entitlement. The subsequent full plan recovered
+entitlements, but independent probes still observed no Ask to Buy, external-purchase or refund
+updates. A configured Run therefore does not by itself establish update delivery. The three
+retained expected failures are not successful delivery qualifications, and their earlier
+last-Run-with-None explanation does not fully explain this post-setup result.
+
+Request routing is a separate observation too. A request-only log filter reported local
+contexts while omitting Sandbox client initialization and dropped-update messages. Capture
+background routing as the [runbook](../../guides/storekit-testing.md#the-mac-storekit-environment)
+describes; neither local request contexts nor a session's purchased transaction establishes a
+verified entitlement or a delivered update.
+
+Source and evidence: Pagepour adoption `18f3f8d`, setup candidate `9cbab3f`, and
+[follow-up results at `bd73ab0`](https://github.com/vocaro/Pagepour/blob/bd73ab0/measurements/storekit-support-adoption/followup.md).
+The setup changed no shipping entitlement code or purchase-test assertions.
 
 ## A Mac keeps one StoreKit environment per bundle ID
 
@@ -115,6 +141,21 @@ shipping model:
 - On a fresh iPadOS 27 simulator (Xcode 27.0), the app's StoreKit context lacked the local
   configuration until an app-hosted purchase suite had run; the first UI test saw an
   unavailable product. Run the app-hosted suite on a new simulator before its UI suite.
+
+## A passing toolchain comparison has limits
+
+The unchanged Pagepour purchase plan passed all 17 test identities with Xcode 27.2 beta 3
+(`27B5038j`) on both iOS 27.2 (`24B5110a`) and the original iOS 27.1 (`24A94401`)
+simulator. Its earlier Xcode 27.1/iOS 27.1 Ask to Buy timeout remains a failed observation.
+The later runs changed the build SDK and test toolchain and retained simulator state. They
+establish a working local-test lane, not that the driver alone caused the timeout or that a
+freshly erased simulator will pass. See the
+[comparison and source receipts](https://github.com/vocaro/Pagepour/blob/bd73ab0/measurements/storekit-support-adoption/followup.md#subsequent-acceptance-checks).
+
+When comparing local StoreKit results, hold source and test identities constant and name the
+Xcode build, build SDK, runtime build, configuration and retained or reset simulator state.
+Attribute a cause only when the comparison isolates it. A UI runner's successful build is
+preparation evidence; it does not qualify UI execution.
 
 ## A verified entitlement, not a price or a flag, grants access
 
