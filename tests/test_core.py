@@ -169,6 +169,29 @@ class EvidenceTests(unittest.TestCase):
 
         self.assertEqual(evidence.require_tests("Ran 43 tests in 0.5s\n\nOK",43),43)
 
+    def test_a_run_counts_each_bundle_and_swift_testing_run_once(self):
+        def xctest(top, bundles):
+            """swift test and xcodebuild run each bundle under its own top suite (Xcode 27.1, October 2026)."""
+            executed = "\t Executed {} tests, with 0 failures (0 unexpected) in 0.1 (0.1) seconds"
+            return "".join(f"Test Suite '{top}' started at 2026-10-22 23:11:16.585.\n"
+                           f"Test Suite '{name}.xctest' started at 2026-10-22 23:11:16.587.\n"
+                           f"Test Suite '{name}Case' passed at 2026-10-22 23:11:16.700.\n{executed.format(count)}\n"
+                           f"Test Suite '{name}.xctest' passed at 2026-10-22 23:11:16.744.\n{executed.format(count)}\n"
+                           f"Test Suite '{top}' passed at 2026-10-22 23:11:16.744.\n{executed.format(count)}\n"
+                           for name, count in bundles)
+        swift_testing = "✔ Test run with 65 tests in 5 suites passed after 6.436 seconds.\n"
+        whole = xctest("All tests", [("Writing", 42), ("Viewing", 2516), ("Reading", 732)]) + swift_testing + \
+            "✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.\n"
+        self.assertEqual(evidence.require_tests(whole, 3355, expected=3355), 3355)
+        filtered = xctest("Selected tests", [("Writing", 0), ("Viewing", 0), ("Reading", 8)])
+        self.assertEqual(evidence.require_tests(filtered, expected=8), 8)
+        # A wrapper's total for each simulator counts, but not beside the totals it sums.
+        summaries = "Passed: iPhone (iOS 27.0): Executed 3252 tests\nPassed: iPad (iOS 27.0): Executed 3252 tests\n"
+        self.assertEqual(evidence.require_tests(summaries, expected=6504), 6504)
+        device = xctest("All tests", [("Writing", 16), ("Viewing", 2439), ("Reading", 732)]) + swift_testing
+        self.assertEqual(evidence.require_tests(device + summaries.splitlines()[0], expected=3252), 3252)
+        self.assertEqual(evidence.require_tests("Ran 40 tests in 1.0s\n\nOK\nRan 3 tests in 0.1s\n\nOK\n", expected=43), 43)
+
     def test_an_expected_count_must_match_exactly(self):
         self.assertEqual(evidence.require_tests("Executed 0 tests\nTest run with 3 tests in 1 suite passed", expected=3), 3)
         for text in ["Ran 2 tests", "Ran 4 tests", "** TEST SUCCEEDED **"]:

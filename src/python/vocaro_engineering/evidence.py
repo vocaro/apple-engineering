@@ -14,15 +14,35 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def require_tests(text, minimum=1, expected=None):
-    counts = [int(n) for n in re.findall(r"Executed (\d+) tests?\b", text)]
+# XCTest prints each suite's total on the line after its result. swift test and xcodebuild run
+# each bundle under its own top suite, All tests, or Selected tests when filtered.
+SUITE_TOTAL = re.compile(r"^Test Suite '([^'\n]*)' (?:passed|failed) at [^\n]*\n\s*Executed (\d+) tests?\b", re.M)
+
+
+def executed_tests(text):
+    """The tests a log reports executed, or None when it reports no count.
+
+    The sum of each XCTest bundle's top-level total, each Swift Testing run and each unittest
+    run. A wrapper's own "Executed N tests" line, one per simulator for example, counts only
+    when the log holds no XCTest totals, which it would repeat."""
+    suites = list(SUITE_TOTAL.finditer(text))
+    top = [int(match.group(2)) for match in suites if match.group(1) in ("All tests", "Selected tests")]
+    within = {match.start(2) for match in suites}
+    wrapper = [int(match.group(1)) for match in re.finditer(r"Executed (\d+) tests?\b", text)
+               if match.start(1) not in within]
+    counts = top or wrapper
     counts += [int(n) for n in re.findall(r"Test run with (\d+) tests?(?: in \d+ suites?)? (?:passed|failed)", text)]
     counts += [int(n) for n in re.findall(r"^Ran (\d+) tests?\b", text, flags=re.M)]
-    if expected is not None and max(counts, default=0) != expected:
-        raise ValueError(f"Expected exactly {expected} executed tests; observed {max(counts, default=0)}")
-    if not counts or max(counts) < minimum:
-        raise ValueError(f"Expected at least {minimum} executed tests; observed {max(counts, default=0)}")
-    return max(counts)
+    return sum(counts) if counts else None
+
+
+def require_tests(text, minimum=1, expected=None):
+    observed = executed_tests(text)
+    if expected is not None and observed != expected:
+        raise ValueError(f"Expected exactly {expected} executed tests; observed {observed or 0}")
+    if observed is None or observed < minimum:
+        raise ValueError(f"Expected at least {minimum} executed tests; observed {observed or 0}")
+    return observed
 
 
 def contained(root, relative):

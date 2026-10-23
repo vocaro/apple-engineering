@@ -146,9 +146,13 @@ recreate, and restore them create-only after verifying their pins.
 with any arguments given after `--` appended, those `arguments` on their own, and the exit
 status or `failed-or-interrupted`. After a zero exit, a lane with `minimumTests` fails unless
 the log reports at least that many executed XCTest, Swift Testing or unittest tests; a run with
-arguments needs at least one. `--expect N` requires exactly N, compared with the largest count
-the log reports, since XCTest and Swift Testing report theirs separately. A run with arguments
-replaces the lane's last log and receipt like any other run.
+arguments needs at least one. `--expect N` requires exactly N. The count is the sum of each
+XCTest bundle's top-level total (`All tests`, or `Selected tests` when filtered), each Swift
+Testing run and each unittest run: `swift test` and `xcodebuild` run each bundle under its own
+top suite, so the largest total counted one bundle (2,516 of a 3,355-test EPUBLib run, Xcode
+27.1, October 2026). A wrapper's own `Executed N tests` line, one per simulator for example,
+counts only when the log holds no XCTest totals that it would repeat, so a two-device run counts
+both devices. A run with arguments replaces the lane's last log and receipt like any other run.
 
 `python3 scripts/eng admit -- COMMAND` records the same fields, with the directory the command
 ran in and whether it was exclusive, in `.build/engineering/admit/source.json`. Its output stays
