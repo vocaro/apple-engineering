@@ -312,9 +312,9 @@ class Admission:
                 os.close(fd)
             # An exception may leave unobserved children. Retain the guard for inspection, unless
             # nothing is left to inspect: the command could not start (a mistyped name must not
-            # stop the host), or a stop saw the command and every observed descendant end.
-            from vocaro_engineering.processes import Interrupted, NotStarted
-            self._settle(release=kind is None or issubclass(kind, (NotStarted, Interrupted)))
+            # stop the host), or a stop or a timeout saw the command and every observed descendant end.
+            from vocaro_engineering.processes import Interrupted, NotStarted, TimedOut
+            self._settle(release=kind is None or issubclass(kind, (NotStarted, Interrupted, TimedOut)))
         return False
 
 

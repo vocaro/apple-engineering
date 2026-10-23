@@ -380,12 +380,12 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
   only member is the exited root that has not been reaped yet, and an unsignalable descendant is
   still awaited.
 - A command waits for its observed descendants before its status counts. The periodic census
-  cannot prove that a fast child did not orphan itself between samples, so a timed-out or
-  otherwise uncertain run raises and admission keeps its guard for inspection; a confirmed
-  terminal exit keeps its status and releases normally. A stop whose command and observed
-  descendants all end releases too, since its proof is the same as a confirmed exit's (decided
-  2026-10-22). A push keeper is stricter: any failure leaves its guards in place even after the
-  observed children drain.
+  cannot prove that a fast child did not orphan itself between samples, so an uncertain run
+  raises and admission keeps its guard for inspection; a confirmed terminal exit keeps its
+  status and releases normally. A stop or a timeout whose command and observed descendants all
+  end releases too, since its proof is the same as a confirmed exit's (decided 2026-10-22 for a
+  stop, 2026-10-23 for a timeout). A push keeper is stricter: any failure leaves its guards in
+  place even after the observed children drain.
 - Once the root exits, its observed descendants have 60 s to end. The supervisor lists any still
   running on stderr, as `ps -o pid,ppid,pgid,lstart,args` rows with the parent and group each
   had when first seen, and stops them: SIGTERM, then SIGKILL 10 s later. The root's status counts
@@ -405,6 +405,12 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
   hasten SIGKILL, because a task stop can deliver its SIGTERM twice, to the process group and to
   the process. A stop sent to the whole process tree can end the census's own `ps`, which is then
   asked again. A signal the caller ignores, as `nohup` ignores SIGHUP, stays ignored.
+- A lane's `timeout` that expires while the root runs is carried out the same way with SIGTERM:
+  once to the root's group and to each observed descendant, SIGKILL to what remains 10 s later,
+  and `TimedOut` once all have ended. The run still fails, but admission is released; a process
+  still running 5 s after SIGKILL leaves the guard uncertain. Until 2026-10-23 the timeout sent
+  SIGTERM again every 50 ms, never sent descendants SIGKILL, and left the guard uncertain even
+  when everything had ended.
 
 Terminate only an observed launch PID whose current executable still matches; an unknown or
 reused PID never authorizes termination, and a cleanup error keeps the first failure.
@@ -612,12 +618,12 @@ Three kinds of marker coexist, and they are reclaimed differently:
   attended recovery ([device reservations](#device-reservations)).
 
 A job leaving admission changes only its own guard entry, whatever state the other owners are
-in: a clean exit, or a stop that saw all of its processes end, removes the entry, and the guard
-with its last one; an exception marks it uncertain. It never changes or drops another owner's
-entry. Until 2026-10-22 a job that left while another owner was dead changed nothing, so its own
-entry died with its process: one lane killed by its agent stranded a run that finished normally
-beside it, and the host admitted no heavy work for 80 minutes, until the guard was recovered by
-hand.
+in: a clean exit, or a stop or timeout that saw all of its processes end, removes the entry,
+and the guard with its last one; any other exception marks it uncertain. It never changes or
+drops another owner's entry. Until 2026-10-22 a job that left while another owner was dead
+changed nothing, so its own entry died with its process: one lane killed by its agent stranded
+a run that finished normally beside it, and the host admitted no heavy work for 80 minutes,
+until the guard was recovered by hand.
 
 `eng admit`, `eng run` and the resource CLI carry out SIGTERM, SIGINT and SIGHUP as a stop. A
 stop while queued leaves nothing to release. Once admitted, the job first marks its entry

@@ -57,6 +57,10 @@ class Interrupted(Exception):
         self.signum = signum
 
 
+class TimedOut(TimeoutError):
+    """The run's timeout expired, and then the command and every observed descendant ended."""
+
+
 def request_stop(signum, _frame=None):
     """Record a stop for supervision to carry out. It never raises: an exception raised between
     publishing an admission and entering its context would strand the admission's entry."""
@@ -100,8 +104,8 @@ def forwarding_signals():
 def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None):
     """Wait for the owned root and observed descendants, including separate process groups.
 
-    PID start identities prevent signaling a reused PID. A timed-out or otherwise uncertain run
-    raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
+    PID start identities prevent signaling a reused PID. An uncertain run raises so admission
+    retains its orphan guard. A confirmed terminal exit keeps its status.
     Descendants still running LINGER seconds after the root exits are reported on stderr and
     stopped; the root's status stands once they are gone, and one that survives SIGKILL is
     still awaited. A timeout bounds only the root: one that exits in time keeps its status
@@ -111,6 +115,8 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None
     each observed descendant, becoming SIGKILL after KILL_AFTER seconds. Once
     the root and every observed descendant have ended, the run raises Interrupted, which
     admission releases; any still running KILL_WAIT seconds after SIGKILL leave it uncertain.
+    A timeout that expires while the root runs is carried out the same way with SIGTERM, without
+    on_stop, and the run raises TimedOut, which admission also releases.
     """
     if requested() is not None:
         raise Interrupted(requested(), "before its command started")
@@ -127,9 +133,9 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None
     # Each observed descendant's (parent, group, start) when first seen, for its identity and report.
     known, born, exited, stopping = {}, None, None, set()
     started = time.monotonic()
-    expired = False
-    # When a stop was first seen, whether its signal reached the root's group, and who else had it.
-    stopped, group_forwarded, forwarded = None, False, set()
+    # When the timeout expired and when a stop was first seen, whether the signal reached the
+    # root's group, and who else had it.
+    expired, stopped, group_forwarded, forwarded = None, None, False, set()
     try:
         while True:
             current = snapshot()
@@ -151,27 +157,25 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None
                 parents.update(added)
                 known.update({pid: current[pid] for pid in added})
             live = {pid for pid, seen in known.items() if pid in current and current[pid][2] == seen[2]}
-            if timeout is not None and exited is None and time.monotonic() - started >= timeout:
-                expired = True
-                if root_active:
-                    try: os.killpg(child.pid, signal.SIGTERM)
-                    except (ProcessLookupError, PermissionError): pass
-                for pid in live:
-                    try: os.kill(pid, signal.SIGTERM)
-                    except (ProcessLookupError, PermissionError): pass
+            if timeout is not None and exited is None and expired is None and time.monotonic() - started >= timeout:
+                expired = time.monotonic()
+                print(f"supervise: timed out after {timeout:g}s; sending SIGTERM to the command (PID {child.pid}) "
+                      f"and its observed descendants, then SIGKILL after {KILL_AFTER:g}s", file=sys.stderr, flush=True)
             signum = requested()
-            if signum is not None:
-                if stopped is None:
-                    stopped = time.monotonic()
-                    # First, in case SIGKILL follows before the processes are gone.
-                    if on_stop is not None: on_stop()
-                    print(f"supervise: {signal.Signals(signum).name} received; forwarding it to the command "
-                          f"(PID {child.pid}) and its observed descendants, then SIGKILL after {KILL_AFTER:g}s",
-                          file=sys.stderr, flush=True)
+            if signum is not None and stopped is None:
+                stopped = time.monotonic()
+                # First, in case SIGKILL follows before the processes are gone.
+                if on_stop is not None: on_stop()
+                print(f"supervise: {signal.Signals(signum).name} received; forwarding it to the command "
+                      f"(PID {child.pid}) and its observed descendants, then SIGKILL after {KILL_AFTER:g}s",
+                      file=sys.stderr, flush=True)
+            ending = min(moment for moment in (expired, stopped) if moment is not None) \
+                if expired is not None or stopped is not None else None
+            if ending is not None:
                 # A later signal does not hasten SIGKILL: a task stop can deliver its SIGTERM twice.
-                kill = time.monotonic() - stopped >= KILL_AFTER
-                number = signal.SIGKILL if kill else signum
-                # The stop's own signal once for each process, then SIGKILL until it is gone.
+                kill = time.monotonic() - ending >= KILL_AFTER
+                number = signal.SIGKILL if kill else signum if signum is not None else signal.SIGTERM
+                # The stop's or timeout's signal once for each process, then SIGKILL until it is gone.
                 if root_active and (kill or not group_forwarded):
                     try: os.killpg(child.pid, number)
                     except (ProcessLookupError, PermissionError): pass
@@ -182,13 +186,17 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None
                 forwarded.update((pid, known[pid][2]) for pid in live)
             result = child.poll()
             if result is not None and not live:
-                if expired: raise TimeoutError(f"Owned command timed out after {timeout}s: {command[0]}")
                 if signum is not None: raise Interrupted(signum, "after its command and observed descendants ended")
+                if expired is not None:
+                    raise TimedOut(f"Owned command timed out after {timeout:g}s: {command[0]}; it and its observed "
+                                   "descendants ended")
                 return result
-            if stopped is not None and time.monotonic() - stopped > KILL_AFTER + KILL_WAIT:
-                raise RuntimeError(f"Stopped by {signal.Signals(signum).name}, but owned descendants have no "
-                                   "confirmed terminal result; reservation retained")
-            if result is not None and not expired and stopped is None:
+            if ending is not None and time.monotonic() - ending > KILL_AFTER + KILL_WAIT:
+                cause = (f"Stopped by {signal.Signals(signum).name}" if signum is not None
+                         else f"Timed out after {timeout:g}s")
+                raise RuntimeError(f"{cause}, but owned descendants have no confirmed terminal result; "
+                                   "reservation retained")
+            if result is not None and expired is None and stopped is None:
                 if exited is None: exited = time.monotonic()
                 overdue = time.monotonic() - exited - LINGER
                 if overdue >= 0:
@@ -199,8 +207,6 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None, on_stop=None
                     for pid in live if overdue >= KILL_AFTER else fresh:
                         try: os.kill(pid, signal.SIGKILL if overdue >= KILL_AFTER else signal.SIGTERM)
                         except (ProcessLookupError, PermissionError): pass
-            if expired and time.monotonic() - started > timeout + 15:
-                raise RuntimeError("Owned descendants have no confirmed terminal result; reservation retained")
             time.sleep(0.05)
     finally:
         stop(child)

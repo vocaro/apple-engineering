@@ -29,11 +29,18 @@ HANDLES_TERM = READY + ("def stop(*_): (here / 'terminated').touch(); os._exit(0
                         "signal.signal(signal.SIGTERM, stop)\n(here / f'ready-{os.getpid()}').touch()\ntime.sleep(120)")
 FINISHES = READY + ("parent = os.getppid()\n(here / f'ready-{os.getpid()}').touch()\n"
                     "while os.getppid() == parent: time.sleep(0.01)\n(here / 'finished').touch()")
+# ROOT that stays once its descendants are adopted, until a signal ends it.
+STAYS = ROOT.replace("raise SystemExit(3)", "time.sleep(120)")
+# Logs each SIGTERM and takes half a second to shut down after the first, as a test runner can.
+COUNTS_TERM = READY + ("stopping = []\n"
+                       "def stop(*_):\n    (here / 'terms').open('a').write('TERM\\n')\n    stopping.append(time.monotonic())\n"
+                       "signal.signal(signal.SIGTERM, stop)\n"
+                       "while not stopping or time.monotonic() - stopping[0] < 0.5: time.sleep(0.01)")
 
 
 class ProcessTests(unittest.TestCase):
-    def outlive_the_root(self, directory, *descendants, timeout=None, **limits):
-        """Supervise ROOT with these descendants; return its result, stderr and their start identities."""
+    def outlive_the_root(self, directory, *descendants, root=ROOT, timeout=None, **limits):
+        """Supervise ROOT with these descendants; return its result or timeout, stderr and their start identities."""
         real, births, begun = processes.snapshot, {}, time.monotonic()
         def observed():
             # Bound a stall here: a timeout bounds only the root, so a lingering descendant must
@@ -52,7 +59,8 @@ class ProcessTests(unittest.TestCase):
         self.addCleanup(cleanup)
         with patch.object(processes, "snapshot", observed), contextlib.redirect_stderr(StringIO()) as error, \
              patch.multiple(processes, create=True, **limits):
-            result = processes.supervise([sys.executable, "-c", ROOT, directory, *descendants], cwd=directory, timeout=timeout)
+            try: result = processes.supervise([sys.executable, "-c", root, directory, *descendants], cwd=directory, timeout=timeout)
+            except TimeoutError as expired: result = expired
         current = real()
         self.assertEqual({pid for pid, birth in births.items() if current.get(pid, (0, 0, None))[2] == birth}, set())
         return result, error.getvalue(), births
@@ -108,6 +116,21 @@ class ProcessTests(unittest.TestCase):
             with self.assertRaises(TimeoutError):
                 processes.run([sys.executable, "-c", "import time; time.sleep(30)"],
                               cwd=directory, log_path=Path(directory)/"run.log", timeout=0.1)
+
+    def test_a_timeout_stops_descendants_with_sigterm_then_sigkill_and_raises_timed_out_once_they_end(self):
+        with tempfile.TemporaryDirectory() as directory:
+            # The root stays until the timeout ends it; one descendant handles SIGTERM, one ignores it.
+            result, error, _births = self.outlive_the_root(directory, IGNORES_TERM, HANDLES_TERM, root=STAYS,
+                                                           timeout=2, KILL_AFTER=0.5)
+            self.assertIsInstance(result, processes.TimedOut)
+            self.assertTrue((Path(directory) / "terminated").exists())
+            self.assertIn("timed out after 2s; sending SIGTERM", error)
+
+    def test_a_timeout_gives_a_command_that_handles_sigterm_one_signal(self):
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stderr(StringIO()):
+            with patch.object(processes, "KILL_AFTER", 30), self.assertRaises(processes.TimedOut):
+                processes.supervise([sys.executable, "-c", COUNTS_TERM, directory], cwd=directory, timeout=1.5)
+            self.assertEqual((Path(directory) / "terms").read_text(), "TERM\n")
 
     def test_a_stop_reaches_descendants_in_other_sessions_then_raises_interrupted(self):
         # A task stop can deliver its SIGTERM twice, to the process group and to the process; the

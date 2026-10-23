@@ -426,6 +426,32 @@ class ResourceTests(unittest.TestCase):
         self.assertTrue(marked and all(marked))
         self.assertTrue(json.loads(guard.read_text())["owners"][admission.identity]["uncertain"])
 
+    def test_a_timed_out_run_releases_admission_once_its_command_ended(self):
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        with contextlib.redirect_stderr(StringIO()), self.assertRaises(processes.TimedOut):
+            with resources.Admission("timed out", timeout=0):
+                processes.supervise([sys.executable, "-c", "import time; time.sleep(30)"], cwd=self.temp.name, timeout=0.2)
+        self.assertFalse(guard.exists())
+        with contextlib.redirect_stderr(StringIO()), resources.Admission("next", timeout=0): pass
+
+    def test_a_timeout_that_cannot_confirm_every_process_ended_leaves_the_entry_uncertain(self):
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        real, roots = processes.snapshot, []
+        # Above macOS's PID limit, so no signal reaches a real process: it never ends.
+        phantom = 99999999
+        def observed():
+            current = real()
+            if not roots:
+                roots.extend(pid for pid, (parent, group, _birth) in current.items() if parent == os.getpid() and group == pid)
+            if roots: current[phantom] = (roots[0], phantom, "phantom")
+            return current
+        with patch.object(processes, "snapshot", observed), patch.object(processes, "KILL_AFTER", 0.1), \
+             patch.object(processes, "KILL_WAIT", 0.2), contextlib.redirect_stderr(StringIO()):
+            with self.assertRaisesRegex(RuntimeError, "Timed out after 0.2s, but owned descendants have no confirmed terminal result"):
+                with resources.Admission("timed out", timeout=0) as admission:
+                    processes.supervise([sys.executable, "-c", "import time; time.sleep(30)"], cwd=self.temp.name, timeout=0.2)
+        self.assertTrue(json.loads(guard.read_text())["owners"][admission.identity]["uncertain"])
+
     def test_a_stop_before_the_command_starts_leaves_no_entry(self):
         guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
         self.addCleanup(processes._stops.clear)
