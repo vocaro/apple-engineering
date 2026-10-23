@@ -27,14 +27,16 @@ add explicit argv-based lanes to engineering.json. Give each lane a `resource` o
 `heavy` or `exclusive`: `eng run` refreshes the operating policy and admits heavy and exclusive
 lanes through [heavy-work admission](shared-host.md#heavy-work-admission), writes the lane's log
 and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, fails a
-successful run that executed fewer tests. Heavy work that no lane names, such as a filtered
-test run, goes through `eng admit [--exclusive] -- COMMAND`. Give a project with a simulator,
-measurement or VoiceOver capability heavy lanes for its tests and an exclusive lane for its
-gate, so the commands its agents run most are admitted by name. Disposable simulators and the
-approved reserved pool are separate capabilities and cannot both be enabled. Conflicts or
-unknown fields fail validation. Existing AGENTS.md files are preserved: add the explicit
-`scripts/eng instructions` entry yourself when adopting into a repository that already has
-instructions.
+successful run that executed fewer tests. `eng run LANE -- ARGUMENTS` appends arguments, such
+as a test filter, to the lane's command; such a run needs at least one executed test in place
+of `minimumTests`, or exactly N with `--expect N`. Other heavy work that no lane names goes
+through `eng admit [--exclusive] -- COMMAND`. Give a project with a simulator, measurement or
+VoiceOver capability heavy lanes for its tests and an exclusive lane for its gate, so the
+commands its agents run most are admitted by name; `doctor` warns when it has neither.
+Disposable simulators and the approved reserved pool are separate capabilities and cannot both
+be enabled. Conflicts or unknown fields fail validation. Existing AGENTS.md files are
+preserved: add the explicit `scripts/eng instructions` entry yourself when adopting into a
+repository that already has instructions.
 
 Use `eng knowledge QUERY` to find subject documents. Capture future findings with their source
 commit, the original evidence link, applicability and limits; add an index entry. Runtime
@@ -66,7 +68,9 @@ an older toolkit independently, create a separate checkout at its known commit a
 the affected project at it with VOCARO_ENGINEERING_ROOT. Record that commit in test evidence.
 Do not reset a checkout another session is using. The toolkit offers no mutable revision cache
 or `eng upgrade` command; Git owns local checkout versions. Current operating policy is still
-read from origin/main by `eng policy refresh`, even when tools use an older checkout.
+read from origin/main by `eng policy refresh`, even when tools use an older checkout, and
+`eng instructions` notes when its checkout lacks commits of origin/main as last fetched. It
+fetches nothing itself; `eng policy refresh`, heavy lanes and `eng admit` update that ref.
 
 Runtime package updates are independent. Git consumers use SwiftPM's resolved dependency file;
 local path consumers use their checkout's current files. Both are supported; tags and pins are

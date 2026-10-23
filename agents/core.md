@@ -60,10 +60,11 @@ capabilities it uses and documents justified exceptions. Product policies remain
   policy and read the project's current main rules. An old branch or another session's brief
   does not override the owner's current restrictions or authorize an attended session.
 - Coordinate heavy builds and measurements through the shared resource queue: a configured
-  lane with `python3 scripts/eng run LANE`, and any other build, `swift test`, `xcodebuild` or
-  simulator run with `python3 scripts/eng admit -- COMMAND`. Add `--exclusive` for a gate suite
-  or a whole-machine measurement, which conflicts with heavy work. Never build a private slot
-  pool: the queue cannot see it. Nested work reuses its inherited admission.
+  lane with `python3 scripts/eng run LANE`, adding `-- ARGUMENTS` such as a test filter, and any
+  other build, `swift test`, `xcodebuild` or simulator run with
+  `python3 scripts/eng admit -- COMMAND`. Add `--exclusive` for a gate suite or a whole-machine
+  measurement, which conflicts with heavy work. Never build a private slot pool: the queue
+  cannot see it. Nested work reuses its inherited admission.
 - Before a full gate, inspect active test and gate processes across the host, including
   checkouts outside the usual worktree directories. A checkout path alone is not a complete
   inventory of other sessions' running work; never stop a process merely because it is busy.

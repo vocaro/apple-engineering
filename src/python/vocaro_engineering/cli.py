@@ -41,7 +41,22 @@ def initialize(root, args):
     print(f"Initialized {root}; existing instructions and commands were preserved")
 
 
+def behind_main(root):
+    """How many commits of origin/main, as last fetched, the checkout at root lacks. It never fetches."""
+    try:
+        count = subprocess.run(["git", "-C", str(root), "rev-list", "--count", "HEAD..refs/remotes/origin/main"],
+                               capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    return int(count.stdout) if count.returncode == 0 else 0
+
+
 def instructions(config):
+    behind = behind_main(TOOLKIT_ROOT)
+    if behind:
+        print(f"Note: the toolkit checkout {TOOLKIT_ROOT} lacks {behind} commit(s) of origin/main as last fetched, "
+              f"so these rules may be out of date. Print the current ones with `git -C {TOOLKIT_ROOT} show "
+              "origin/main:agents/core.md`, or update the checkout (guides/adoption.md, Updating and rolling back).\n")
     print((TOOLKIT_ROOT / "agents/core.md").read_text())
     for capability in config.get("capabilities", []):
         print((TOOLKIT_ROOT / "agents/capabilities" / f"{capability}.md").read_text())
@@ -74,7 +89,8 @@ def record(directory, receipt, work):
 
 
 def admit(root, args):
-    command = args.command[1:] if args.command[:1] == ["--"] else args.command
+    # Without a leading --, argparse collected the command, and a later -- belongs to it.
+    command = args.command + ([] if args.passed is None else ["--", *args.passed]) if args.command else args.passed
     if not command: raise ValueError("Name the command: eng admit [--exclusive] -- COMMAND")
     # The policy goes to stderr so that stdout carries only the command's own output.
     receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
@@ -97,7 +113,11 @@ def main(argv=None):
     commands.add_parser("instructions")
     policy = commands.add_parser("policy")
     policy.add_argument("operation", choices=["refresh"])
-    run = commands.add_parser("run", help="run a configured lane, admitting a heavy or exclusive one")
+    run = commands.add_parser("run", usage="%(prog)s [-h] [--expect N] lane [-- ARGUMENTS ...]",
+        help="run a configured lane, admitting a heavy or exclusive one: eng run "
+        "LANE [-- ARGUMENTS], which appends the arguments, such as a test filter, to the lane's command")
+    run.add_argument("--expect", type=int, metavar="N", help="require exactly N executed tests; without it, a "
+        "run with arguments needs at least one in place of the lane's minimumTests")
     run.add_argument("lane")
     admission = commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
         "test, a simulator run) through the host's heavy-work admission: eng admit -- COMMAND; add --exclusive "
@@ -121,7 +141,14 @@ def main(argv=None):
     source.add_argument("name", choices=["voiceover-ax-observer.swift", "voiceover-link-verbosity.swift",
                                         "probe-simulator-voiceover-activation.m"])
     disk.add_arguments(commands.add_parser("disk", help="inventory reclaimable disk space; changes nothing without --delete"))
-    args = parser.parse_args(argv)
+    # Everything after the first -- belongs to the command. Python 3.9's argparse rejects options
+    # before it and drops a later --, so argparse never sees it.
+    argv = sys.argv[1:] if argv is None else list(argv)
+    split = argv.index("--") if "--" in argv else len(argv)
+    args = parser.parse_args(argv[:split])
+    args.passed = argv[split + 1:] if split < len(argv) else None
+    if args.passed is not None and args.action not in {"run", "admit"}:
+        parser.error("only run and admit take arguments after --")
     root = args.project.resolve()
     try:
         if args.action == "init":
@@ -136,9 +163,15 @@ def main(argv=None):
             if any(c.startswith("simulator") or c == "packaging" for c in config.get("capabilities", [])):
                 required |= {"xcrun", "xcodebuild"}
             missing = sorted(name for name in required if not shutil.which(name))
+            warnings = []
+            heavy = sorted({"simulator-disposable", "simulator-pool", "measurement", "voiceover"}
+                           & set(config.get("capabilities", [])))
+            if heavy and not any(lane.get("resource") in {"heavy", "exclusive"} for lane in config.get("lanes", {}).values()):
+                warnings.append(f"{', '.join(heavy)} work is heavy, but no lane is heavy or exclusive: add heavy lanes "
+                                "for the tests and an exclusive lane for the gate (guides/adoption.md)")
             print(json.dumps({"project": config["name"], "toolkit": str(TOOLKIT_ROOT),
                 "source": source_identity(TOOLKIT_ROOT), "capabilities": config.get("capabilities", []),
-                "missingCommands": missing}, indent=2))
+                "missingCommands": missing, "warnings": warnings}, indent=2))
             return int(bool(missing))
         elif args.action == "policy": refresh_policy(root)
         elif args.action == "admit": return admit(root, args)
@@ -159,13 +192,16 @@ def main(argv=None):
         elif args.action == "run":
             lane = config.get("lanes", {}).get(args.lane)
             if lane is None: raise ValueError(f"No configured lane: {args.lane}")
+            if args.expect is not None and args.expect < 1: raise ValueError("--expect needs at least 1 test")
+            extra = args.passed or []
+            command = [*lane["command"], *extra]
             resource = lane.get("resource", "light")
             policy_commit = refresh_policy(root) if resource != "light" else None
             directory = root / ".build/engineering" / args.lane
             receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
-                       "policy": policy_commit, "command": lane["command"]}
+                       "policy": policy_commit, "command": command, "arguments": extra}
             def execute():
-                return record(directory, receipt, lambda: processes.run(lane["command"], cwd=root,
+                return record(directory, receipt, lambda: processes.run(command, cwd=root,
                               log_path=directory / "run.log", timeout=lane.get("timeout")))
             if resource == "light": result = execute()
             else:
@@ -173,8 +209,10 @@ def main(argv=None):
                     result = execute()
             # The command has a confirmed terminal result. Coverage validation cannot turn
             # that completed process into an orphan reservation.
-            if result == 0 and lane.get("minimumTests"):
-                evidence.require_tests((directory / "run.log").read_text(), lane["minimumTests"])
+            if result == 0 and (lane.get("minimumTests") or args.expect):
+                # Arguments such as a filter select part of the lane, which must still run a test.
+                minimum = 1 if extra or args.expect else lane["minimumTests"]
+                evidence.require_tests((directory / "run.log").read_text(), minimum, expected=args.expect)
             return result
         return 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:

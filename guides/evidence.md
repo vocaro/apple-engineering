@@ -142,10 +142,13 @@ recreate, and restore them create-only after verifying their pins.
 
 `python3 scripts/eng run LANE` writes `.build/engineering/LANE/source.json` beside the lane's
 `run.log`. It records the project's and toolkit's commit with a SHA-256 of their working changes
-(tracked diff and untracked files), the policy commit for a heavy or exclusive lane, the argv,
-and the exit status or `failed-or-interrupted`. After a zero exit, a lane with `minimumTests`
-fails unless the log reports at least that many executed XCTest, Swift Testing or unittest
-tests.
+(tracked diff and untracked files), the policy commit for a heavy or exclusive lane, the argv
+with any arguments given after `--` appended, those `arguments` on their own, and the exit
+status or `failed-or-interrupted`. After a zero exit, a lane with `minimumTests` fails unless
+the log reports at least that many executed XCTest, Swift Testing or unittest tests; a run with
+arguments needs at least one. `--expect N` requires exactly N, compared with the largest count
+the log reports, since XCTest and Swift Testing report theirs separately. A run with arguments
+replaces the lane's last log and receipt like any other run.
 
 `python3 scripts/eng admit -- COMMAND` records the same fields, with the directory the command
 ran in and whether it was exclusive, in `.build/engineering/admit/source.json`. Its output stays

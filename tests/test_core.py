@@ -52,6 +52,48 @@ class ConfigurationTests(unittest.TestCase):
             with patch.object(cli.shutil, "which", return_value=None), patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stdout(StringIO()):
                 self.assertEqual(cli.main(["--project", directory, "doctor"]), 1)
 
+    def test_doctor_warns_when_heavy_capabilities_have_no_heavy_or_exclusive_lane(self):
+        with tempfile.TemporaryDirectory() as directory:
+            light = {"check": {"command": ["true"]}}
+            cases = [(["voiceover"], light, True), (["simulator-pool", "measurement"], {}, True),
+                     (["voiceover"], {**light, "test": {"command": ["true"], "resource": "heavy"}}, False),
+                     (["measurement"], {"gate": {"command": ["true"], "resource": "exclusive"}}, False),
+                     (["packaging"], light, False)]
+            for capabilities, lanes, warned in cases:
+                with self.subTest(capabilities=capabilities, lanes=sorted(lanes)):
+                    (Path(directory) / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
+                        "capabilities": capabilities, "lanes": lanes}))
+                    with patch.object(cli.shutil, "which", return_value="/usr/bin/true"), patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stdout(StringIO()) as output:
+                        # A warning is not a missing prerequisite.
+                        self.assertEqual(cli.main(["--project", directory, "doctor"]), 0)
+                    warnings = json.loads(output.getvalue())["warnings"]
+                    self.assertEqual(bool(warnings), warned, warnings)
+                    for capability in capabilities if warned else []:
+                        self.assertIn(capability, warnings[0])
+
+    def test_instructions_note_a_toolkit_checkout_behind_origin_main_without_fetching(self):
+        with tempfile.TemporaryDirectory() as directory:
+            clone, plain = Path(directory) / "clone", Path(directory) / "plain"
+            plain.mkdir()
+            git = ["git", "-C", str(clone), "-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false"]
+            subprocess.run(["git", "init", "-q", str(clone)], check=True)
+            for message in ["first", "second"]:
+                subprocess.run([*git, "commit", "-q", "--allow-empty", "-m", message], check=True)
+            with patch.object(cli.subprocess, "run", wraps=subprocess.run) as run:
+                self.assertEqual(cli.behind_main(clone), 0)
+                subprocess.run([*git, "update-ref", "refs/remotes/origin/main", "HEAD"], check=True)
+                self.assertEqual(cli.behind_main(clone), 0)
+                subprocess.run([*git, "checkout", "-q", "--detach", "HEAD~1"], check=True)
+                self.assertEqual(cli.behind_main(clone), 1)
+                self.assertEqual(cli.behind_main(plain), 0)
+            self.assertEqual([call for call in run.call_args_list if "fetch" in call.args[0]], [])
+            (Path(directory) / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example"}))
+            for behind in [2, 0]:
+                with self.subTest(behind=behind), patch.object(cli, "behind_main", return_value=behind), contextlib.redirect_stdout(StringIO()) as output:
+                    self.assertEqual(cli.main(["--project", directory, "instructions"]), 0)
+                    self.assertEqual("lacks 2 commit(s) of origin/main as last fetched" in output.getvalue(), bool(behind))
+                    self.assertIn("Common engineering rules", output.getvalue())
+
     def test_local_launcher_works_offline_in_a_new_repository(self):
         with tempfile.TemporaryDirectory() as directory:
             with contextlib.redirect_stdout(StringIO()): cli.main(["--project", directory, "init"])
@@ -74,6 +116,44 @@ class ConfigurationTests(unittest.TestCase):
             self.assertEqual(cli.main(["--project", directory, "run", "check"]), 0)
             self.assertEqual(config.source_identity(root), before)
 
+    def test_lane_arguments_reach_its_command_and_a_filtered_run_needs_a_test_or_its_expected_count(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            # Reports one executed test for each argument it receives.
+            count = [sys.executable, "-c", "import sys; print('Ran', len(sys.argv) - 1, 'tests')"]
+            (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Lanes", "lanes": {
+                "test": {"command": count, "minimumTests": 5}, "check": {"command": [sys.executable, "-c", "pass"]}}}))
+            cases = [(["test"], 2, None),  # the whole lane still needs its minimumTests
+                     (["test", "--", "a", "b"], 0, ["a", "b"]),
+                     (["test", "--expect", "2", "--", "a", "b"], 0, ["a", "b"]),
+                     (["--expect", "2", "test", "--", "a", "b"], 0, ["a", "b"]),
+                     (["test", "--expect", "3", "--", "a", "b"], 2, ["a", "b"]),
+                     (["test", "--expect", "1", "--", "a", "b"], 2, ["a", "b"]),
+                     (["test", "--", "a", "--", "b"], 0, ["a", "--", "b"]),
+                     (["test", "--expect", "0", "--", "a"], 2, "not run"),
+                     (["check", "--", "x"], 0, ["x"])]  # a lane without minimumTests counts no tests
+            for arguments, status, passed in cases:
+                with self.subTest(arguments):
+                    receipt = root / ".build/engineering" / arguments[arguments[0] == "--expect" and 2] / "source.json"
+                    receipt.unlink(missing_ok=True)
+                    with patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stderr(StringIO()) as error:
+                        self.assertEqual(cli.main(["--project", directory, "run", *arguments]), status, error.getvalue())
+                    if passed == "not run":
+                        self.assertFalse(receipt.exists())
+                        continue
+                    recorded = json.loads(receipt.read_text())
+                    self.assertEqual(recorded["arguments"], passed or [])
+                    self.assertEqual(recorded["command"][3:], passed or [])
+            self.assertIn("Expected exactly 3 executed tests; observed 2", self.run_lane(directory, "test", "--expect", "3", "--", "a", "b"))
+            for arguments in [["run", "test", "-k", "x"], ["doctor", "--", "x"]]:
+                with self.subTest(arguments), self.assertRaises(SystemExit), contextlib.redirect_stderr(StringIO()):
+                    cli.main(["--project", directory, *arguments])
+
+    def run_lane(self, directory, *arguments):
+        with patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stderr(StringIO()) as error:
+            cli.main(["--project", directory, "run", *arguments])
+        return error.getvalue()
+
 
 
 class EvidenceTests(unittest.TestCase):
@@ -83,6 +163,12 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(evidence.require_tests("Executed 0 tests, with 0 failures\nTest run with 30 tests in 2 suites passed after 1s"), 30)
 
         self.assertEqual(evidence.require_tests("Ran 43 tests in 0.5s\n\nOK",43),43)
+
+    def test_an_expected_count_must_match_exactly(self):
+        self.assertEqual(evidence.require_tests("Executed 0 tests\nTest run with 3 tests in 1 suite passed", expected=3), 3)
+        for text in ["Ran 2 tests", "Ran 4 tests", "** TEST SUCCEEDED **"]:
+            with self.subTest(text), self.assertRaisesRegex(ValueError, "exactly 3"):
+                evidence.require_tests(text, expected=3)
 
     def test_changed_missing_and_escaping_evidence_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -291,6 +377,13 @@ class ResourceTests(unittest.TestCase):
                 self.assertEqual(Path(receipt["directory"]).resolve(), work.resolve())
                 self.assertFalse(guard.exists())
                 self.assertIsNone(os.environ.get(resources.TOKEN))
+
+    def test_admit_passes_a_later_separator_to_its_command(self):
+        for arguments in [["--", sys.executable, "-c", "pass", "--", "x"], [sys.executable, "-c", "pass", "--", "x"]]:
+            with self.subTest(arguments):
+                result, _policy, receipt = self.admit(*arguments)
+                self.assertEqual(result, 0)
+                self.assertEqual(receipt["command"], [sys.executable, "-c", "pass", "--", "x"])
 
     def test_admit_without_a_command_refreshes_and_admits_nothing(self):
         result, policy, receipt = self.admit("--exclusive")

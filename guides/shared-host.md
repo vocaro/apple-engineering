@@ -9,8 +9,9 @@ universal behavior on later operating systems or in a different application.
 On the shared host, builds, `swift test`, `xcodebuild test`, gate suites, corpus lanes and
 conversions run through heavy-work admission: one host-wide resource namespace with bounded
 concurrency. Run a configured lane with `python3 scripts/eng run LANE`; a lane whose `resource`
-is `heavy` or `exclusive` is admitted, and a `light` lane runs directly. Run any other heavy
-command, such as a filtered test run, with `eng admit`:
+is `heavy` or `exclusive` is admitted, and a `light` lane runs directly. Arguments after `--`,
+as in `eng run test -- --filter SUITE`, are appended to the lane's command. Run any other heavy
+command with `eng admit`:
 
 ```sh
 python3 scripts/eng admit -- \
