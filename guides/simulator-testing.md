@@ -456,15 +456,23 @@ Copy a generated `.xctestrun` to narrow, freeze or edit it:
   stops short of the hang, or is empty (macOS 27.0, October 2026). Set `NSUnbufferedIO=YES`, or
   run under `script -q LOG`. The last `Test Case … started.` line with nothing after it names
   the hung test.
-- A stack sample of the `xctest` process your run started has every thread's frames, including
-  the test's own file and line, and needs no `sudo`. Sample only your own processes:
+- A stack sample of the test process your run started has every thread's frames, including the
+  test's own file and line, and needs no `sudo`. `swift test` runs XCTest tests in `xctest` and
+  Swift Testing tests in `swiftpm-testing-helper`, each a child of `swift-test` (Swift 6.4, Xcode
+  27.1, macOS 27.0, October 2026). Find it by name among all of the run's descendants: the
+  supervisor polls with `ps`, so following the newest child reached a `ps` in 4 of 40 tries.
+  Sample only your own processes:
 
 ```sh
 NSUnbufferedIO=YES python3 scripts/eng admit -- swift test --filter SUITE > run.log 2>&1 &
-pid=$!
-# Once run.log stops growing, follow this run's newest descendants to its xctest.
-while child=$(pgrep -n -P "$pid"); do pid=$child; done
-sample "$pid" 2 -file hang.txt
+run=$!
+# Once run.log stops growing, sample this run's test process.
+descendants() { for child in $(pgrep -P "$1"); do echo "$child"; descendants "$child"; done; }
+for pid in $(descendants "$run"); do
+  case $(ps -o comm= -p "$pid") in
+    */xctest|*/swiftpm-testing-helper) sample "$pid" 2 -file "hang-$pid.txt" ;;
+  esac
+done
 ```
 
 - Do not stop a process because it printed `Test Suite 'Selected tests' passed`; wait for its
