@@ -245,6 +245,39 @@ class DocumentationTests(unittest.TestCase):
             failures = docs.check(root)
             self.assertEqual(len(failures), 3, failures)
 
+    def test_a_fragment_must_name_a_heading_or_anchor_of_its_markdown_target(self):
+        target = ("# Target\n\n## Repeated\n\n## Repeated\n\n## The `eng docs` check — 0.3.1\n\n"
+                  "## [Linked](elsewhere.md) __init__ and C#\n\n"
+                  '<a id="stacks"></a>\n\nSetext title\n------------\n\n- a list item\n---\n\n'
+                  "```sh\n# not a heading\n```\n")
+        links = ("[a](target.md#repeated) [b](target.md#repeated-1) [c](target.md#the-eng-docs-check--031)\n"
+                 "[d](target.md#linked-init-and-c) [e](target.md#stacks) [f](target.md#setext-title)\n"
+                 "[g](#local) [h](notes.txt#L3) [i](target.md)\n\n## Local\n")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            (root / "target.md").write_text(target)
+            (root / "notes.txt").write_text("a\nb\nc\n")
+            (root / "README.md").write_text(links)
+            self.assertEqual(docs.check(root, ["README.md"]), [])
+            # Renaming a heading strands the links to its old anchor.
+            (root / "target.md").write_text(target.replace("Setext title", "Setext heading"))
+            (root / "README.md").write_text(links + "[j](target.md#repeated-2) [k](target.md#not-a-heading)\n"
+                                            "[l](target.md#a-list-item) [m](#nowhere)\n")
+            self.assertEqual(docs.check(root, ["README.md"]), [
+                f"{root / 'README.md'}: missing anchor: target.md#setext-title",
+                f"{root / 'README.md'}: missing anchor: target.md#repeated-2",
+                f"{root / 'README.md'}: missing anchor: target.md#not-a-heading",
+                f"{root / 'README.md'}: missing anchor: target.md#a-list-item",
+                f"{root / 'README.md'}: missing anchor: #nowhere"])
+
+    def test_heading_slugs_follow_github(self):
+        for heading, expected in [("Concurrent Git integration", "concurrent-git-integration"),
+                                  ("0.3.1 release verification", "031-release-verification"),
+                                  ("A — B", "a--b"), ("foo_bar & `x.y`", "foo_bar--xy"),
+                                  ("Ünïcode café", "ünïcode-café"), ("**Bold** *it*", "bold-it")]:
+            with self.subTest(heading):
+                self.assertEqual(docs.slug(docs.heading_text(heading)), expected)
+
     def test_all_inventory_items_have_subjects_and_source_links(self):
         value = json.loads((config.TOOLKIT_ROOT / "knowledge/index.json").read_text())
         self.assertEqual([e["id"] for e in value["entries"]], list(range(1, len(value["entries"]) + 1)))

@@ -187,12 +187,19 @@ those under `doc`, `guides`, `knowledge`, `agents` and `policies`. It checks tha
 - the link's spelling matches the tracked name exactly, compared against Git's names because a
   case-insensitive APFS volume resolves a wrong-case path, and for untracked files component by
   component;
+- a link's `#fragment` names an anchor of its Markdown target, or of the same document for a
+  link that is only a fragment, so renaming or removing a section fails every link to it
+  (`missing anchor`);
 - every `AGENTS.md` is under 32 KiB (it fails at 32,768 bytes).
 
-It skips code blocks fenced with three backticks, web URLs and same-document links. It does not
-check `#fragment` anchors, in the same file or another, so a renamed heading passes; review
-anchors or add a project check for them. It does not mask inline code or `~~~` fences, and it
-has no exemption list. Project checks add what a repository needs:
+Anchors are GitHub's: each heading outside fenced code, ATX or setext, slugged by lowercasing
+its rendered text, dropping everything but letters, marks, digits, `_`, `-` and spaces and
+turning each space into a hyphen, with `-1`, `-2` added to a repeated heading; and every HTML
+`id` or `name` attribute, such as `<a id="stacks"></a>`. A fragment on a target that is not
+Markdown, such as a source line (`#L10`) or a link with a query, is not checked. It reads links
+outside code blocks fenced with three backticks and skips web URLs. It does not mask inline
+code or `~~~` fences when finding links, and it has no exemption list. Project checks add what
+a repository needs:
 
 - **Snippets from compiled examples.** A document's code sample lives between
   `<!-- snippet:NAME -->` and `<!-- /snippet -->` and is regenerated from a
