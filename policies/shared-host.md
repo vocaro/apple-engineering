@@ -13,6 +13,12 @@ device record, changed only through `vocaro_engineering.devices`, which is a coo
 record, not a mutex. Do not reserve in the earlier `/private/tmp` handoff files. A deadline
 alone never releases a device.
 
+The owner's build host, a second Mac reached as the SSH alias `build-host`, may take gate suites
+and other heavy builds and tests of a commit: `python3 scripts/eng remote run LANE`, or
+`python3 scripts/eng remote admit -- COMMAND`, runs the committed HEAD there under that host's
+own admission and takes no slot here. Its results qualify the build host's platform. Foreground
+work, simulators, devices and timing measurements stay on this Mac.
+
 Do not take over the screen, keyboard, pointer or Mac VoiceOver without the required explicit
 owner authorization; with it, first reserve `mac-foreground` in the device record with the
 owner's approval window, and act only while `devices check` passes. A timing measurement also

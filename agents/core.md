@@ -64,7 +64,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Coordinate heavy builds and measurements through the shared resource queue: a configured
   lane with `python3 scripts/eng run LANE`, adding `-- ARGUMENTS` such as a test filter, and any
   other build, `swift test`, `xcodebuild` or simulator run with
-  `python3 scripts/eng admit -- COMMAND`. A gate suite is heavy work too. Add `--exclusive` only
+  `python3 scripts/eng admit -- COMMAND`. A gate suite is heavy work too; the owner's build host
+  can run it instead, at HEAD, with `python3 scripts/eng remote run LANE`
+  (guides/shared-host.md, Build host). Add `--exclusive` only
   for work that needs the host to itself: a whole-machine or timing measurement, or a
   generative-model run. A test that fails only on a busy host is a defect to fix, not a reason for
   exclusive admission. Never build a private slot pool: the queue cannot see it. Nested work
@@ -93,8 +95,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Do not launch or attach a debugger, dtrace, or a sampler to another session's process. Use
   static disassembly for system-code questions and logging from code you own. If a password
   dialog appears, end your processes, leave the dialog alone, and tell the owner.
-- Normal tests run locally. Do not add hosted workflows, triggers, or jobs merely to move
-  tests off this machine. Honor each repository's permitted workflow and spending policy.
+- Normal tests run locally, on this Mac or the owner's build host. Do not add hosted workflows,
+  triggers, or jobs merely to move tests off this machine. Honor each repository's permitted
+  workflow and spending policy.
 
 ## Maintained knowledge
 

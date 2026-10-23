@@ -110,6 +110,73 @@ Admission reads the load before it admits and cannot account for work that never
 - A long background measurement holds its checkout's SwiftPM build lock, so a `swift test` from
   a pre-push hook in that checkout waits silently behind it for up to the measurement's length.
 
+## Build host
+
+The owner's second Mac, the build host, takes gate suites and other heavy work off this one. It
+runs them under its own heavy-work admission: each host's queue sees that host's load, so the
+build host is no private slot pool. `eng remote` reaches it by the SSH alias `build-host`;
+`--host` or `VOCARO_BUILD_HOST` names another destination.
+
+```sh
+python3 scripts/eng remote run LANE [-- ARGUMENTS]
+python3 scripts/eng remote admit [--exclusive] -- COMMAND
+python3 scripts/eng remote passed LANE [--commit REV]
+```
+
+`eng remote` runs HEAD, never a working tree: it refuses a checkout with uncommitted changes or
+nonignored untracked files. It takes no slot here. It pushes the commit, and the toolkit commit
+that runs it, by git over SSH and without hooks to bare repositories under
+`~/Development/build-host` on the build host, so nothing reaches GitHub. There `build_host.py`,
+sent along and run by the host's own Python, takes one of two persistent checkouts of the
+project, checks the commit out detached with the toolkit beside it, and runs `eng run` or
+`eng admit` in the checkout's root. A checkout keeps its ignored inputs and build products, so
+its next build is warm; a third concurrent run waits for one. A project's `provision` lane, when
+it has one, runs first to provision the checkout's ignored inputs, and the work runs only if it
+passes. A checkout that a run left with changes stays as it is for inspection and is passed
+over. Once it is read, remove it with
+`git --git-dir ~/Development/build-host/repositories/NAME.git worktree remove --force PATH`.
+
+Output comes back as it is written. The lane's log, the command's output and a receipt land in
+`.build/engineering/remote/LANE/` (`remote/admit/` for a command), and the exit status is the
+build host's. The receipt names the build host's model, macOS and Xcode beside this Mac's. The
+build host must have the same Xcode build at this Mac's developer directory, or the run is
+refused. A different macOS is reported, and the result qualifies the build host's platform,
+not this one's. A whole lane's receipt is also kept by commit in the repository's Git directory,
+so `eng remote passed LANE` answers from any worktree whether the lane, without arguments,
+passed at exactly that commit. A later run of the lane at that commit replaces it.
+
+A stop carries over. The build host's standard input is the dispatcher's lifeline: its end, from
+a stop signal, the dispatcher's death or a dropped connection, stops the run there as a stop
+signal stops a local one, and the run leaves the build host's admission. A run that returns no
+result, such as one the network cut off, is unmeasured, never passed or failed. Foreground lanes
+run only on this Mac, and the policy says what else stays here.
+
+### Setting up a build host
+
+The owner prepares the build host once:
+
+1. Turn on Remote Login (System Settings, General, Sharing) and add this Mac's public key to the
+   build host's `~/.ssh/authorized_keys`.
+2. Name it in this Mac's `~/.ssh/config`, so that `ssh build-host true` succeeds without a
+   prompt:
+
+   ```
+   Host build-host
+       HostName NAME.local
+   ```
+
+3. Install the Xcode this Mac uses at the same path. Accept its license and run its first launch
+   (`sudo xcodebuild -license accept`, then `xcodebuild -runFirstLaunch`).
+4. Install the tools the projects' gates use, as on this Mac (Homebrew, its Python, `uv`,
+   `shellcheck`, `xcodegen`), and put Homebrew on the login shell's PATH in `~/.zprofile`, as its
+   installer offers: `eng remote` runs in the build host's login shell. Without Homebrew, the
+   system's Python 3.9 runs the toolkit, and lanes that need a newer Python fail.
+5. Keep it on power and awake. A sleeping build host leaves its run unmeasured.
+
+The build host needs no GitHub credentials: commits arrive over SSH, and a heavy lane's policy
+refresh fetches the public toolkit over HTTPS. Check it with a light lane first, such as this
+toolkit's `python3 scripts/eng remote run python-tests`.
+
 ## Scratch and result directories
 
 A worktree that builds a package and its apps holds 8 to 14 GB of SwiftPM and Xcode output, and

@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 
-from . import __version__, devices, disk, docs, evidence, processes, resources, spelling
+from . import __version__, devices, disk, docs, evidence, processes, remote, resources, spelling
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
 
 
@@ -139,6 +139,25 @@ def main(argv=None):
     admission.add_argument("--timeout", type=float, default=5400, help="seconds to wait for admission (default 5400)")
     admission.add_argument("command", nargs=argparse.REMAINDER, help="the command and its arguments, after --; "
         "it runs in the current directory")
+    distant = commands.add_parser("remote", help="run a lane or other heavy command on the build host, the owner's "
+        "second Mac, over SSH: eng remote run LANE [-- ARGUMENTS] or eng remote admit -- COMMAND; eng remote passed "
+        "LANE says whether the whole lane passed there at a commit")
+    operations = distant.add_subparsers(dest="operation", required=True)
+    remote_run = operations.add_parser("run", usage="%(prog)s [-h] [--host HOST] [--expect N] lane [-- ARGUMENTS ...]",
+        help="run a configured lane at HEAD on the build host")
+    remote_admit = operations.add_parser("admit", help="run a heavy command at HEAD on the build host, in its "
+        "checkout's root")
+    for choice in (remote_run, remote_admit):
+        choice.add_argument("--host", help="the build host's SSH destination (default: VOCARO_BUILD_HOST, else "
+                             f"the ~/.ssh/config alias {remote.DEFAULT_HOST})")
+    remote_run.add_argument("--expect", type=int, metavar="N", help="require exactly N executed tests")
+    remote_run.add_argument("lane")
+    remote_admit.add_argument("--exclusive", action="store_true", help="hold every slot of the build host")
+    remote_admit.add_argument("command", nargs=argparse.REMAINDER, help="the command and its arguments, after --")
+    remote_passed = operations.add_parser("passed", help="exit 0 when the whole lane passed on the build host at "
+        "exactly this commit")
+    remote_passed.add_argument("lane")
+    remote_passed.add_argument("--commit", default="HEAD")
     evid = commands.add_parser("evidence")
     evid.add_argument("operation", choices=["verify"])
     evid.add_argument("directory", type=Path)
@@ -160,7 +179,8 @@ def main(argv=None):
     split = argv.index("--") if "--" in argv else len(argv)
     args = parser.parse_args(argv[:split])
     args.passed = argv[split + 1:] if split < len(argv) else None
-    if args.passed is not None and args.action not in {"run", "admit"}:
+    if args.passed is not None and (args.action, getattr(args, "operation", None)) not in {
+            ("run", None), ("admit", None), ("remote", "run"), ("remote", "admit")}:
         parser.error("only run and admit take arguments after --")
     root = args.project.resolve()
     try:
@@ -191,6 +211,7 @@ def main(argv=None):
             return int(bool(missing))
         elif args.action == "policy": refresh_policy(root)
         elif args.action == "admit": return admit(root, args)
+        elif args.action == "remote": return remote.main(root, config, args)
         elif args.action == "source":
             from .support import source_path
             print(source_path(args.name))

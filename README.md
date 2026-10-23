@@ -21,6 +21,7 @@ python3 scripts/eng instructions
 python3 scripts/eng knowledge background
 python3 scripts/eng run LANE
 python3 scripts/eng admit -- COMMAND
+python3 scripts/eng remote run LANE
 python3 scripts/eng spelling
 ```
 
