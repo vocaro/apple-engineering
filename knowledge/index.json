@@ -3412,17 +3412,6 @@
         "https://github.com/vocaro/EPUBLib/releases/tag/0.2.5",
         "https://github.com/vocaro/MathMLLayout/releases/tag/0.3.1"
       ]
-    },
-    {
-      "id": 375,
-      "title": "Where release verification lives",
-      "path": "guides/releasing.md",
-      "sources": [
-        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/AGENTS.md#where-a-write-up-goes",
-        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/doc/releasing.md",
-        "https://github.com/vocaro/EPUBLib/releases/tag/0.2.5",
-        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#031-release-verification"
-      ]
     }
   ]
 }

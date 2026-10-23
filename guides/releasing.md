@@ -1,8 +1,7 @@
 # Releasing
 
-A release gives one verified revision of a library a version number, says what changed since the
-previous release and records how that revision was verified. This guide covers Swift package
-libraries. An app's version and build numbers, archive, export and upload are in
+A release gives one verified revision of a library a version number and says what changed since
+the previous release. This guide covers Swift package libraries. An app's version and build numbers, archive, export and upload are in
 [packaging](packaging.md#mac-app-store-export-and-testflight-upload).
 
 ## Versions
@@ -31,8 +30,6 @@ top, then one section per release headed `## X.Y.Z — YYYY-MM-DD`.
   and a link to its issue, or to its pull request where there is no issue. The detail stays on
   the issue.
 - Write what a consumer sees change, not how the code changed.
-- The changelog holds no verification; the release notes do
-  ([below](#where-release-verification-lives)).
 
 ## Preparing a release
 
@@ -51,8 +48,7 @@ top, then one section per release headed `## X.Y.Z — YYYY-MM-DD`.
    for a release, on every supported platform, in debug and optimized builds, with the
    documentation and spelling checks. Every required test passes, with none skipped and none
    unmeasured; check the executed counts ([honest outcome states](evidence.md#honest-outcome-states)).
-   Record the commit, the counts and the identities: the Swift, Xcode and OS builds, the
-   simulator runtimes and devices, and the versions of pinned tools.
+   Only a commit whose gate passed is tagged, so nothing else records the run.
 4. An edit during or after the run invalidates it. If the gate fails, land the fix in its own
    commit, make the release commit again on top of it and run the gate again.
 5. Integrate the release commit by the project's route. On a `direct-main` project, push it only
@@ -86,37 +82,8 @@ The notes hold, in order:
 - its changes: the entries of the changelog's section for it;
 - requirements and compatibility: the deployment floor, and whether public API, dependencies
   and persisted formats changed, with what a consumer must do where they did;
-- `## Verification` ([below](#where-release-verification-lives));
 - links to the changelog at the tag and to the comparison with the previous release
   (`https://github.com/OWNER/REPO/compare/PREVIOUS...X.Y.Z`).
 
-## Where release verification lives
-
-A release's verification is in its GitHub release notes, in full, under `## Verification`. The
-tree cannot hold it: the record describes the tagged commit, and committing it would make a
-commit the gate never ran on.
-
-The section states:
-
-- the tested commit, which is the tagged commit;
-- the environment: the Swift, Xcode and OS builds, the architecture, the simulator runtimes and
-  devices, and the versions of pinned tools;
-- each suite and check with its executed count and outcome, per platform and configuration;
-- what was not run or not measured, and why, such as an optional sweep;
-- the limits of what passing establishes, such as a corpus that shows robustness but not visual
-  conformance.
-
-Everything else has its own home
-([documentation and evidence ownership](maintenance.md#documentation-and-evidence-ownership)):
-
-- What changed: the changelog, which holds no verification.
-- What the library does and its limits: the subject documents, which may link to a release's
-  notes for evidence. No document is named for a release, such as `doc/verification-X.Y.Z.md`,
-  and none keeps a section per release.
-- What was run for one change: a comment on its issue. The notes link the issue rather than
-  repeat the run.
-- Raw private evidence, such as device identities, private payloads and transcripts: the private
-  owning project or evidence archive. Public notes hold reviewed results.
-
-Published verification is a record. Never rewrite it to match later behavior; add a dated
-correction beneath it.
+The notes do not describe how the release was verified: a release is tagged only on a
+commit its gate passed. What was run for one change stays on its issue.

@@ -97,9 +97,8 @@ capabilities it uses and documents justified exceptions. Product policies remain
 ## Maintained knowledge
 
 - Keep behavior and limits in a subject document; procedures in its runbook; what was run for an
-  issue on that issue; a release's verification in its GitHub release notes, never in the tree.
-  Prepare and publish a release as guides/releasing.md describes. Link evidence rather than
-  copying it.
+  issue on that issue. Tag a release only on a commit its gate passed; its notes say what
+  changed, not how it was verified (guides/releasing.md). Link evidence rather than copying it.
 - Match evidence to its destination's audience. Keep private payloads, device identities and
   raw private transcripts in a private owning project or evidence archive. Public summaries
   contain reviewed results and reproducible methods; they do not require private access.

@@ -127,8 +127,8 @@ Each kind of information has one home:
 - What was run: a comment on the issue with the commit, the machine, the counts, the
   measurements and what was left unverified. A document links to that comment and does not
   repeat it.
-- A release's verification: its GitHub release notes, never the tree
-  ([releasing](releasing.md#where-release-verification-lives)).
+- A release: its changelog section and GitHub release notes, which say what changed. They assume
+  the gate passed and do not describe the run ([releasing](releasing.md#tagging-and-publishing)).
 - Open work: an issue, never a document.
 
 Documents describe the system as it is, in the present tense. The narrative of a change lives in

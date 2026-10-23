@@ -49,7 +49,7 @@ and [releasing](guides/releasing.md) for preparing and publishing a library's ve
 - `agents/core.md` and `agents/capabilities/`: common operating rules and enabled methods.
 - `policies/shared-host.md`: current operating policy; `eng policy refresh` fetches main and
   reads that exact document without executing newly fetched code.
-- [Knowledge index](knowledge/README.md): 375 practices and technical lessons with their
+- [Knowledge index](knowledge/README.md): 374 practices and technical lessons with their
   applicability and limits, in 44 subject documents. Guides in `guides/` hold methods and
   procedures; articles in `knowledge/` hold observed Apple platform and model behavior. They are
   self-contained: a project keeps only its own fixtures, decisions and results, and links here.
