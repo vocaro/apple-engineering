@@ -64,7 +64,12 @@ finished change onto the branch that will be pushed and run the gate there, not 
 worktrees. When several branches are ready at once, one gate can serve them: merge them onto
 `main` in a local branch that is not pushed, keep each branch's changelog line, run the gate
 there, and say on each pull request which commit ran and which heads it held. A filtered run on
-one platform does not stand in for another platform's suites.
+one platform does not stand in for another platform's suites. On a direct-main repository,
+cherry-pick one commit per finished branch onto `main` in that local branch instead, and give
+each commit one closing line per issue it closes, adding any its branch left out. A conflict that
+is a design merge rather than text, such as one branch moving a file another changed, goes back
+to the branch's author, who rebases onto the integration branch's head and knows why each change
+was made.
 
 **Commit handed-over patches before integrating them.** An agent told to leave its work
 uncommitted hands over one patch per issue, made against the base commit, with the order it
@@ -84,8 +89,16 @@ git fetch origin
 git merge-base --is-ancestor origin/main HEAD && git push origin HEAD:main
 ```
 
-If `origin/main` is not an ancestor, rebase onto it, run the gate again on the rebased tree, and
-push that. Never force-push `main`. Every repository declares its route in `engineering.json`'s
+If `origin/main` is not an ancestor, rebase onto it. When `main`'s new commits change only
+documents the branch does not touch, the gated result carries over: check that the rebased tree
+differs from the gated one by exactly those commits, run the documentation check, and push.
+Otherwise run the gate again on the rebased tree, and push that.
+
+```sh
+cmp <(git diff GATED HEAD) <(git diff OLD_BASE origin/main)  # silent: the same change
+```
+
+Never force-push `main`. Every repository declares its route in `engineering.json`'s
 `integration` (`direct-main` or `pull-request`), and `eng doctor` warns when one does not.
 
 **An issue is closed by what `main`'s tree holds.** Not by a commit somewhere that names it, not
@@ -99,6 +112,10 @@ by a branch that would fix it, and not by a merge that records such a branch as 
   every `Closes` sits in that set is closed by nothing.
 - An abandoned branch's issues are reopened, or left closed only with a comment naming the
   commit that holds the unported fix, so the next person learns it before starting.
+- GitHub ties a closing keyword to the one issue number straight after it, and reads a closing
+  verb before a number as a keyword whatever comes before the verb. "Fixes #A and #B" closes
+  only #A, and "does not close #N" closes #N. Give each issue its own `Closes #N.` line, and
+  write "leaves #N open" for one that stays open.
 
 A closing-commit check holds this mechanically from Git alone, offline: it finds each empty
 merge, fails one that strands a closure claim unless a recorded reconciliation names it, notes
@@ -115,6 +132,34 @@ redo:
 comm -12 <(git log --format=%B main | grep -oE 'Closes #[0-9]+' | grep -oE '[0-9]+' | sort -u) \
   <(gh issue list --state open --limit 200 --json number --jq '.[].number' | sort)
 ```
+
+## Working through a backlog
+
+Asked to close as many issues as possible, triage before fixing.
+
+- Read-only agents, one for each area, put every open issue in one class:
+  - done on `main` already, with the commit and a file and line or test that shows it;
+  - fixable and verifiable on this host;
+  - needing a hosted run;
+  - needing the owner's decision, with a recommended answer;
+  - blocked.
+
+  Each also names issues one change would close together, and issues that touch the same file.
+  An agent's "already done" is a claim: check the commit and the code before closing on it.
+- Close what `main` already does with a comment giving that evidence. File what is left of such
+  an issue as an issue of its own first.
+- Put decisions to the owner in batches, each option a recommendation with its reason and what
+  closing then takes. A decision that changes nothing closes its issue with a comment.
+- Give each fix agent the issues one change closes. Group them by the code they change, so that
+  no two agents edit the same function, and hold an issue whose code an unlanded branch is
+  rewriting until that branch lands.
+- Budget disk as [scratch and result directories](shared-host.md#scratch-and-result-directories)
+  says. Give each agent a scratch folder of its own, and have it delete its build folder once its
+  commit is pushed.
+- Gate the finished branches in batches ([verify the integrated tree](#concurrent-git-integration)).
+
+On 2026-10-23 this closed 67 of a library's 205 open issues in one day: 20 by evidence comments
+and the owner's decisions, and 47 by changes landed in four batches.
 
 ## Documentation and evidence ownership
 

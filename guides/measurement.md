@@ -119,6 +119,15 @@ does. Report one of three outcomes:
   clock separates that wait from work; exit 3. Rerun it on a quiet host.
 - **passed**: the run ended on its own.
 
+A wait that is meant to run out, such as a contract verifier's check that a broken engine never
+sends an event, reaches its limit on every run. Under memory pressure it is therefore unmeasured
+every time, and it measures only while pressure is normal. A test process in an iOS simulator
+runs on the host's kernel and reads the host's level. On 2026-10-23, five such tests were
+unmeasured on an iPhone simulator, in a gate and again when run alone, while the same classes
+passed on an iPad simulator. They passed in a rerun during which
+`kern.memorystatus_vm_pressure_level` read 1 at every 2-second sample. Log the level beside such
+a rerun to show it ran at normal pressure.
+
 A higher limit only moves the false failure to a higher load, and a CPU-seconds limit never
 stops a blocked run while CPU seconds also grow under load. The clocks sum a process's threads,
 so concurrent waits are each counted and the seconds held against the limit can fall below the
