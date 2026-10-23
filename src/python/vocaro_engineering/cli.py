@@ -133,7 +133,7 @@ def main(argv=None):
     documentation.add_argument("operation", choices=["check"])
     documentation.add_argument("paths", nargs="*")
     spell = commands.add_parser("spelling", help="find British spellings in the project's text, identifiers "
-        "included; exit 1 on any, 2 when nothing was checked")
+        "included, and file names; exit 1 on any, 2 when nothing was checked")
     spell.add_argument("paths", nargs="*", help="files or directories; untracked files under them are read too")
     knowledge = commands.add_parser("knowledge")
     knowledge.add_argument("query", nargs="?", default="")

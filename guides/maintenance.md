@@ -223,17 +223,21 @@ has no exemption list. Project checks add what a repository needs:
 ## Spelling check
 
 `python3 scripts/eng spelling [PATHS]` finds British spellings anywhere in a project's text,
-identifiers included, and exits 1 on any. With no paths it reads every tracked text file, which
-is what a push carries; named paths also read untracked files Git does not ignore, so a page is
-checked before it is published from disk. Gate pushes on it: the words arrive one at a time and
-are invisible in review.
+identifiers included, and in its file and directory names, and exits 1 on any. With no paths it
+reads every tracked file, which is what a push carries; named paths also read untracked files
+Git does not ignore, so a page is checked before it is published from disk. Gate pushes on it:
+the words arrive one at a time and are invisible in review.
 
 It splits each run of letters at camelCase, snake_case and SCREAMING_CASE boundaries and judges
 each subword whole, by pattern (-ise, -yse, -our, -tre, -bre and doubled-l inflections) and by
-an irregular list, with a list of American words that only look British. Its positive controls
-run before any file is read, so a detector that stopped detecting fails instead of passing as a
-clean tree. Exit 2 means nothing was checked. The rules and what each exemption was learned from
-are in `src/python/vocaro_engineering/spelling.py`.
+an irregular list, with a list of American words that only look British. Every file name is
+judged the same way, binary files included, split also at `/`, `.`, `-` and `_`, because tests,
+docs and scripts refer to a file by name and each reference must move when it is renamed. A hit
+reads `PATH: British spelling in file name 'WORD' -> AMERICAN`, and a directory is judged once,
+as `DIR/`. Its positive controls, for words and for file names, run before any file is read, so
+a detector that stopped detecting fails instead of passing as a clean tree. Exit 2 means nothing
+was checked. The rules and what each exemption was learned from are in
+`src/python/vocaro_engineering/spelling.py`.
 
 It already exempts other projects' British-spelled API names, such as Apple's `isCancelled` and
 Unity's `MonoBehaviour`, URLs, a list item's first `<em>` (a cited title) and a line marked
@@ -241,7 +245,11 @@ Unity's `MonoBehaviour`, URLs, a list item's first `<em>` (a cited title) and a 
 project lists the rest in engineering.json's `spelling`, each mapped to its reason: `skip` for
 paths of recorded observations or retained upstream text (a key ending in `/` is a directory),
 `exemptPhrases` for a standard's terms, `exemptRuns` for whole identifiers another project
-named, and `exemptTokens` for proper names. A bare case of another project's type cannot be
+named, and `exemptTokens` for proper names; names are held to the same exemptions as text. A
+skipped path keeps its own name as well as its contents, since a recording or upstream text
+keeps the name it was given, and the skip key's text is exempt wherever it appears, so its entry
+and links to it spell the kept name; the directories above it are still judged. A bare case of
+another project's type cannot be
 told from a project's own name, so mark it: `case .cancelled:  // spelling: keep, URLError.Code`.
 Fix a hit by spelling the word the American way; never widen a pattern to make one go away.
 

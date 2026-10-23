@@ -148,7 +148,7 @@
           "propertyNames": {
             "minLength": 1
           },
-          "description": "Tracked paths not read; a key ending in / is a directory"
+          "description": "Tracked paths neither read nor judged by name; a key ending in / is a directory"
         },
         "exemptPhrases": {
           "type": "object",

@@ -13,6 +13,12 @@ boundaries, and each subword is judged whole, never as a substring, because
 Detection is by pattern rather than by word list, so a British form nobody anticipated is still
 caught; the irregular list covers only what no pattern describes.
 
+File names are judged the same way, binary files and directories included, because tests, docs
+and scripts link to a file by its name and every reference must move when it is renamed. A name
+is read like a line, so it splits at `/`, `.`, `-`, `_` and its camelCase boundaries; each
+directory is judged once, reported as `dir/`. A content check alone passed `colour-chart.png`,
+which has no text, and caught `NeighbourAlignmentTests.swift` only because its class repeated it.
+
 What is exempt, each learned by breaking it:
   * Someone else's name, verbatim: another project's API (Unity's `MonoBehaviour`, Apple's
     `isCancelled`), a file name searched for literally (`LICENCE`). A project adds its own in
@@ -25,6 +31,9 @@ What is exempt, each learned by breaking it:
   * The directional adverbs towards/backwards/forwards/afterwards: good American English, and a
     sweep that "corrected" one rewrote a cited title into one its authors never published.
   * Words only context can judge: "disc" and the temporal "any more". Review owns those.
+  * A skipped path's own name, with its contents: recorded observations and retained upstream
+    text keep the names they were given. The directories above it are still judged, and the
+    skip entry's text is exempt wherever it appears, as a link to the kept name must spell it.
 A hit is fixed by spelling the word the American way. A name that trips the rule goes into the
 project's exemptions with its reason; a pattern is never widened to make a hit go away.
 
@@ -173,7 +182,9 @@ class Rules:
     def __init__(self, project=None):
         project = project or {}
         self.skip = tuple(project.get("skip", {}))
-        self.phrases = tuple(sorted(project.get("exemptPhrases", {}), key=len, reverse=True))
+        # A skipped path keeps its name, so its skip entry and a link to it spell it as kept.
+        self.phrases = tuple(sorted({*project.get("exemptPhrases", {}), *self.skip}, key=len,
+                                    reverse=True))
         self.runs = EXEMPT_RUNS | set(project.get("exemptRuns", {}))
         self.tokens = EXEMPT_TOKENS | set(project.get("exemptTokens", {}))
 
@@ -211,6 +222,27 @@ AMERICAN_SAMPLES = r"""QuiescentRegionCount MonoBehaviour aria-labelledby toward
     timbre controlled installer cancellation distilled fulfilled nodewise pairwise otherwise
     LICENCE disc redisable analyses center color behavior normalize harbor isCancelled
     userCancelled LibreSSL Pagepour \nraise sunrise https://example.com/colour-grading""".split()
+# Tracked paths: a binary file's name, a directory's, and a file name split at camelCase.
+BRITISH_PATHS = ("Docs/colour-chart.png", "centre/README.md", "Tests/NeighbourAlignmentTests.swift",
+                 "Fonts/grey_sans.ttf")
+AMERICAN_PATHS = ("LICENCE", "Sources/QuiescentRegionCount.swift", "Unity/MonoBehaviour.cs",
+                  "center/color-chart.png")
+
+
+def names_of(paths, rules):
+    """Every file and directory name the paths hold, each once and a directory as `dir/`, with
+    skipped paths' own names left out."""
+    held = set(paths)
+    for path in paths:
+        parts = path.split("/")
+        held.update("/".join(parts[:i]) + "/" for i in range(1, len(parts)))
+    return sorted(name for name in held if not rules.skips(name))
+
+
+def british_names(names, rules):
+    """[(name, subword, american)] for every British subword in each name's last component."""
+    return [(name, sub, american) for name in names
+            for sub, american in rules.british_in(name.rstrip("/").rsplit("/", 1)[-1])]
 
 
 def controls():
@@ -219,6 +251,9 @@ def controls():
     failures = [f"'{s}' was not flagged" for s in BRITISH_SAMPLES if not rules.british_in(s)]
     failures += [f"'{s}' was flagged as {rules.british_in(s)}" for s in AMERICAN_SAMPLES
                  if rules.british_in(s)]
+    flagged = {s: british_names(names_of([s], rules), rules) for s in BRITISH_PATHS + AMERICAN_PATHS}
+    failures += [f"file name '{s}' was not flagged" for s in BRITISH_PATHS if not flagged[s]]
+    failures += [f"file name '{s}' was flagged as {flagged[s]}" for s in AMERICAN_PATHS if flagged[s]]
     return failures
 
 
@@ -240,7 +275,7 @@ def problems_in(text, rules):
 
 
 def check(root, config, paths=(), out=print):
-    """Report every British spelling in the project's text files; return the exit status.
+    """Report every British spelling in the project's file names and text; return the exit status.
 
     With no paths it reads what a push carries: tracked files. Named paths, relative to the
     current directory, also read untracked files Git does not ignore, so a page about to be
@@ -269,13 +304,17 @@ def check(root, config, paths=(), out=print):
         out(f"eng spelling: cannot list tracked files ({error}); nothing was checked.")
         return 2
     this = Path(__file__).resolve()
-    files = sorted({f for f in os.fsdecode(listed.stdout).split("\0")
-                    if f and not rules.skips(f) and os.path.splitext(f)[1].lower() not in BINARY
-                    and (root / f).is_file() and (root / f).resolve() != this})
-    if named and not files:
-        out(f"eng spelling: no text files under {' '.join(paths)}; nothing was checked.")
+    tracked = sorted({f for f in os.fsdecode(listed.stdout).split("\0") if f})
+    names = names_of(tracked, rules)
+    files = [f for f in tracked if not rules.skips(f) and os.path.splitext(f)[1].lower() not in BINARY
+             and (root / f).is_file() and (root / f).resolve() != this]
+    if named and not names:
+        out(f"eng spelling: no files under {' '.join(paths)}; nothing was checked.")
         return 2
     found = 0
+    for name, sub, american in british_names(names, rules):
+        out(f"{name}: British spelling in file name '{sub}' -> {american}")
+        found += 1
     for f in files:
         raw = (root / f).read_bytes()
         if b"\0" in raw[:8192]:
@@ -284,9 +323,10 @@ def check(root, config, paths=(), out=print):
             out(f"{f}:{line}: British spelling '{sub}' -> {american}")
             found += 1
     if found:
-        out(f"eng spelling: FAIL — {found} British spelling(s) in {len(files)} text file(s). "
-            "Spell them the American way (agents/core.md, Writing).")
+        out(f"eng spelling: FAIL — {found} British spelling(s) in {len(files)} text file(s) and "
+            f"{len(names)} file name(s). Spell them the American way (agents/core.md, Writing).")
         return 1
-    out(f"eng spelling: PASS — {len(files)} text file(s), identifiers split at their word "
-        f"boundaries, {len(BRITISH_SAMPLES)}/{len(AMERICAN_SAMPLES)} British/American controls held")
+    out(f"eng spelling: PASS — {len(files)} text file(s) and {len(names)} file name(s), identifiers "
+        f"split at their word boundaries, {len(BRITISH_SAMPLES)}/{len(AMERICAN_SAMPLES)} British/"
+        f"American word and {len(BRITISH_PATHS)}/{len(AMERICAN_PATHS)} file name controls held")
     return 0
