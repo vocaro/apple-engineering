@@ -140,10 +140,12 @@ Output comes back as it is written. The lane's log, the command's output and a r
 `.build/engineering/remote/LANE/` (`remote/admit/` for a command), and the exit status is the
 build host's. The receipt names the build host's model, macOS and Xcode beside this Mac's. The
 build host must have the same Xcode build at this Mac's developer directory, or the run is
-refused. A different macOS is reported, and the result qualifies the build host's platform,
-not this one's. A whole lane's receipt is also kept by commit in the repository's Git directory,
-so `eng remote passed LANE` answers from any worktree whether the lane, without arguments,
-passed at exactly that commit. A later run of the lane at that commit replaces it.
+refused. A different macOS is reported but refuses nothing: a whole lane's pass there counts
+for a push from this Mac, while as a qualification claim it names the build host's platform. A
+whole lane's receipt is also kept by commit in the repository's Git directory, so
+`eng remote passed LANE` answers from any worktree whether the lane, without arguments, passed
+at exactly that commit. A later run of the lane at that commit replaces it. A push path that
+accepts it in place of running the gate again prints both Macs' macOS versions from the receipt.
 
 A stop carries over. The build host's standard input is the dispatcher's lifeline: its end, from
 a stop signal, the dispatcher's death or a dropped connection, stops the run there as a stop

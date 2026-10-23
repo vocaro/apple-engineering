@@ -16,8 +16,10 @@ alone never releases a device.
 The owner's build host, a second Mac reached as the SSH alias `build-host`, may take gate suites
 and other heavy builds and tests of a commit: `python3 scripts/eng remote run LANE`, or
 `python3 scripts/eng remote admit -- COMMAND`, runs the committed HEAD there under that host's
-own admission and takes no slot here. Its results qualify the build host's platform. Foreground
-work, simulators, devices and timing measurements stay on this Mac.
+own admission and takes no slot here. A whole gate's pass there counts for a push from this Mac
+even when the two Macs run different macOS versions; its receipt records both, and as a
+qualification claim it names the build host's platform. Foreground work, simulators, devices
+and timing measurements stay on this Mac.
 
 Do not take over the screen, keyboard, pointer or Mac VoiceOver without the required explicit
 owner authorization; with it, first reserve `mac-foreground` in the device record with the
