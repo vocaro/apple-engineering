@@ -79,8 +79,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
   launching, not operating the device.
 - A tool timeout is an observation timeout. Follow the owned process to a terminal result
   before retrying. Preserve an uncertain orphan's reservation for recovery. Start an admitted
-  command that can outlast the tool's wait in the background. To end it early, stop the
-  command's own processes, not its task: a task stop's SIGKILL can strand its guard entry.
+  command that can outlast the tool's wait in the background, where an interrupted turn does
+  not reach it. To end it early, stop the command's own processes, not its task: a task stop's
+  SIGKILL can strand its guard entry. In Codex, follow an admitted command to its terminal
+  result before ending the turn: when the session ends, Codex kills it with SIGKILL alone.
 - Do not run Mac VoiceOver or foreground UI automation on the owner's Mac without the required
   explicit authorization; with it, reserve `mac-foreground` in the device record first. Run Mac
   speech on the allowed disposable hosted runner. Never run runner preparation commands on this

@@ -691,6 +691,39 @@ is therefore still the run: follow it to its terminal result rather than stoppin
 another. Start an admitted command that can outlast the foreground wait in the background, and
 never stop its task to retry.
 
+Interrupting a turn, and archiving or deleting a session, stop commands as a task stop does. An
+interrupt reaches only the turn's foreground command; the session's background commands run on.
+Archiving or deleting a session from the sidebar stops its background commands. The app's archive
+tool refuses a session whose background command is running, but the sidebar does not. A command
+and its child in its own session received SIGTERM within 7 ms of each other and ended by SIGKILL:
+1.40 and 1.48 s later after an archive, 1.04 and 1.10 s after a delete, within 2.5 s after an
+interrupt. In a second interrupt only the command received SIGTERM, and SIGKILL ended it 1.0 s
+later; its child in its own session received nothing and ran to its own end. Background commands
+ran to their own end through both interrupts (2026-10-23, Claude desktop app 3.6556.1 running
+Claude Code 2.1.308, macOS 27.0; the interrupts were sent with the app's session stop tool, which
+it describes as pressing Stop).
+
+Claude Code 2.1.308's code for stopping a shell command explains the second interrupt. It signals
+the shell's process group and each descendant that one `ps -A` scan lists, but abandons a scan
+that takes longer than 500 ms and then signals the group alone. SIGKILL follows 1.5 s after the
+stop begins, to the group, to the descendants found and to a fresh scan from the shell, which has
+usually exited by then. The host's load average was above 100 during these probes. `eng admit`
+runs in the shell's process group, so it always receives the SIGTERM and stops its command, but
+it has 1.0 to 1.5 s before its own SIGKILL, and nothing escalates after that. A command that has
+not ended by then leaves its entry uncertain and, if the scan missed it, runs on unsupervised.
+
+Codex does not time a command out. Its shell tool returns once the requested wait passes and
+leaves the command running, unsignaled, under a session handle. When the Codex session ends, the
+command, which leads its own session, is killed with SIGKILL and no SIGTERM first; its child in
+its own session receives nothing and runs on. `codex exec` ends its session with its turn: in two
+runs the command was killed without a logged signal, in the watched one 5 ms after the turn
+completed (2026-10-23, Codex 0.163.0-alpha.11.2 as ChatGPT's Codex Desktop bundles it, run as
+`codex exec`, macOS 27.0). An `eng admit` killed this way never marks its entry uncertain: the
+entry stays, dead, and its command runs on unsupervised. A Codex agent therefore follows an
+admitted command to its terminal result before ending its turn. How long a Codex Desktop thread
+keeps a command after its turn ends, and what quitting the Claude desktop app sends, were not
+measured.
+
 Recovery of a guard is attended. Inspect its recorded owner, that owner's command processes and
 any reserved tree; stop or wait for all of the transaction's children; then remove the abandoned
 markers by hand. A free owned descriptor or a later foreign acquisition, checked against the
