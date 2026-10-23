@@ -32,10 +32,13 @@ FINISHES = READY + ("parent = os.getppid()\n(here / f'ready-{os.getpid()}').touc
 
 
 class ProcessTests(unittest.TestCase):
-    def outlive_the_root(self, directory, *descendants, **limits):
+    def outlive_the_root(self, directory, *descendants, timeout=None, **limits):
         """Supervise ROOT with these descendants; return its result, stderr and their start identities."""
-        real, births = processes.snapshot, {}
+        real, births, begun = processes.snapshot, {}, time.monotonic()
         def observed():
+            # Bound a stall here: a timeout bounds only the root, so a lingering descendant must
+            # not hold the run until the test is stopped.
+            if time.monotonic() - begun > 30: self.fail("supervision was still waiting after 30 s")
             current = real()
             try: root, *children = map(int, (Path(directory) / "children").read_text().split())
             except FileNotFoundError: return current
@@ -49,8 +52,7 @@ class ProcessTests(unittest.TestCase):
         self.addCleanup(cleanup)
         with patch.object(processes, "snapshot", observed), contextlib.redirect_stderr(StringIO()) as error, \
              patch.multiple(processes, create=True, **limits):
-            # The timeout bounds a stall: a lingering descendant must not hold the run until it.
-            result = processes.supervise([sys.executable, "-c", ROOT, directory, *descendants], cwd=directory, timeout=30)
+            result = processes.supervise([sys.executable, "-c", ROOT, directory, *descendants], cwd=directory, timeout=timeout)
         current = real()
         self.assertEqual({pid for pid, birth in births.items() if current.get(pid, (0, 0, None))[2] == birth}, set())
         return result, error.getvalue(), births
@@ -66,6 +68,13 @@ class ProcessTests(unittest.TestCase):
             for pid in births:
                 self.assertIn(f"{pid} with parent {root}, group {pid}", error)
             self.assertIn("PPID", error)
+
+    def test_a_root_that_exits_in_time_keeps_its_status_when_its_timeout_expires_during_the_grace(self):
+        with tempfile.TemporaryDirectory() as directory:
+            # The root exits at once; its timeout expires before the grace stops the descendant.
+            result, error, _births = self.outlive_the_root(directory, IGNORES_TERM, timeout=2, LINGER=4, KILL_AFTER=0.5)
+            self.assertEqual(result, 3)
+            self.assertIn("stopping 1 process(es)", error)
 
     def test_a_descendant_that_ends_within_the_grace_is_awaited_and_never_signaled(self):
         with tempfile.TemporaryDirectory() as directory:

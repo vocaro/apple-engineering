@@ -43,7 +43,8 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
     raises so admission retains its orphan guard. A confirmed terminal exit keeps its status.
     Descendants still running LINGER seconds after the root exits are reported on stderr and
     stopped; the root's status stands once they are gone, and one that survives SIGKILL is
-    still awaited. A command that cannot start raises NotStarted, which admission releases.
+    still awaited. A timeout bounds only the root: one that exits in time keeps its status
+    through that grace. A command that cannot start raises NotStarted, which admission releases.
     """
     environment = dict(os.environ) if env is None else env
     token = json.loads(environment.get("VOCARO_RESOURCE_TOKEN", "{}"))
@@ -80,7 +81,7 @@ def supervise(command, *, cwd, stdout=None, timeout=None, env=None):
                 parents.update(added)
                 known.update({pid: current[pid] for pid in added})
             live = {pid for pid, seen in known.items() if pid in current and current[pid][2] == seen[2]}
-            if timeout is not None and time.monotonic() - started >= timeout:
+            if timeout is not None and exited is None and time.monotonic() - started >= timeout:
                 expired = True
                 if root_active:
                     try: os.killpg(child.pid, signal.SIGTERM)

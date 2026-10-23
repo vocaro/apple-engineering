@@ -385,10 +385,11 @@ Supervise the process group you own. The toolkit's `processes.supervise`, which 
 - Once the root exits, its observed descendants have 60 s to end. The supervisor lists any still
   running on stderr, as `ps -o pid,ppid,pgid,lstart,args` rows with the parent and group each
   had when first seen, and stops them: SIGTERM, then SIGKILL 10 s later. The root's status counts
-  once they are gone; a process that survives SIGKILL is still awaited. Agents reported Xcode's
-  `DTServiceHub` outliving an ad hoc `xcodebuild … test` on a fresh iOS simulator by 10 to 15
-  minutes, ignoring SIGTERM, until they killed it by hand (EPUBLib, macOS 27.0, Xcode 27.1,
-  October 2026).
+  once they are gone; a process that survives SIGKILL is still awaited. A lane's `timeout` bounds
+  only the root, so a root that exits in time keeps its status through the grace. Agents
+  reported Xcode's `DTServiceHub` outliving an ad hoc `xcodebuild … test` on a fresh iOS
+  simulator by 10 to 15 minutes, ignoring SIGTERM, until they killed it by hand (EPUBLib, macOS
+  27.0, Xcode 27.1, October 2026).
 - A command that cannot start, such as a mistyped name or a script without its executable bit,
   raises `NotStarted` and releases admission. `Popen` reaps the child whose exec failed before
   it raises, so nothing is left to inspect; keeping the guard would stop every session's
