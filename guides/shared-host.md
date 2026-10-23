@@ -174,9 +174,26 @@ The owner prepares the build host once:
    installer offers: `eng remote` runs in the build host's login shell. Without Homebrew, the
    system's Python 3.9 runs the toolkit, and lanes that need a newer Python fail.
 5. Keep it on power and awake. A sleeping build host leaves its run unmeasured.
+6. When a project's packages depend on private repositories, create a fine-grained GitHub token
+   with read-only Contents permission on exactly those repositories, and write it on the build
+   host, readable only by its owner, as one line `https://USER:TOKEN@github.com` in
+   `~/Development/build-host/git-credentials`. In zsh, without leaving the token in the shell's
+   history:
 
-The build host needs no GitHub credentials: commits arrive over SSH, and a heavy lane's policy
-refresh fetches the public toolkit over HTTPS. Check it with a light lane first, such as this
+   ```
+   read -rs "token?Token: "; echo
+   (umask 077; printf 'https://USER:%s@github.com\n' "$token" > ~/Development/build-host/git-credentials)
+   unset token
+   ```
+
+The project's commits reach the build host over SSH, and a heavy lane's policy refresh fetches
+the public toolkit over HTTPS, so neither needs a credential. SwiftPM clones a private dependency
+with git, and git's default helper on a Mac, osxkeychain, cannot read the keychain from an SSH
+session: it fails with `-25308`, and the clone fails. When `git-credentials` exists, `eng remote`
+gives each run's git that file through the store helper and no other helper, by
+`GIT_CONFIG_COUNT` variables that reach only the run, so the owner's own git configuration on
+the build host is unchanged. A token reaches only the repositories it names, read-only, and it
+expires: renew it before then. Check the build host with a light lane first, such as this
 toolkit's `python3 scripts/eng remote run python-tests`.
 
 ## Scratch and result directories

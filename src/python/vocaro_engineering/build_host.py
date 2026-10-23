@@ -12,6 +12,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import shlex
 import signal
 import subprocess
 import sys
@@ -129,6 +130,19 @@ def place(repository, checkout, commit, ref, origin=None):
     subprocess.run(["git", "--git-dir", str(repository), "update-ref", "-d", ref], capture_output=True)
 
 
+def credentials(environment, path):
+    """Give the run's git the build host's credential file and no other helper.
+
+    SwiftPM clones private dependencies with git, and an SSH session cannot unlock the keychain
+    that osxkeychain, Xcode's git default, reads. The variables reach only this run, so the
+    owner's own git configuration on the build host is unchanged."""
+    count = int(environment.get("GIT_CONFIG_COUNT", "0"))
+    for offset, value in enumerate(["", f"store --file={shlex.quote(str(path))}"]):
+        environment[f"GIT_CONFIG_KEY_{count + offset}"] = "credential.helper"
+        environment[f"GIT_CONFIG_VALUE_{count + offset}"] = value
+    environment["GIT_CONFIG_COUNT"] = str(count + 2)
+
+
 def relay(stream):
     for line in iter(stream.readline, b""):
         emit(b"O", line)
@@ -216,6 +230,7 @@ def main(plan):
         say(f"{checkout} at {project['commit'][:12]}")
         environment = {**os.environ, "VOCARO_ENGINEERING_ROOT": str(kit)}
         if plan.get("developerDir"): environment["DEVELOPER_DIR"] = plan["developerDir"]
+        if (root / "git-credentials").is_file(): credentials(environment, root / "git-credentials")
         eng = [sys.executable, str(kit / "bin/eng"), "--project", str(checkout)]
         steps = [("provision", [*eng, "run", "provision"], checkout / ".build/engineering/provision/run.log")] \
             if plan.get("provision") else []

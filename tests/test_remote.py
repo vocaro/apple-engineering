@@ -78,6 +78,14 @@ class RemoteTests(unittest.TestCase):
                                  "pathlib.Path('.build/slow.pid').write_text(str(os.getpid())); time.sleep(60)"],
                      "resource": "heavy"},
             "screen": {"command": [python, "-c", "pass"], "foreground": True},
+            # Asks for a credential only through the store helper, never this Mac's keychain.
+            "helpers": {"command": [python, "-c", "import os, subprocess; "
+                "env = {**os.environ, 'GIT_TERMINAL_PROMPT': '0'}; "
+                "helpers = subprocess.run(['git', 'config', '--get-all', 'credential.helper'], capture_output=True, "
+                "text=True, env=env).stdout.splitlines(); print('helpers', helpers); "
+                "fill = subprocess.run(['git', 'credential', 'fill'], input='protocol=https\\nhost=example.invalid\\n\\n', "
+                "capture_output=True, text=True, env=env).stdout if helpers[-1:] and 'store' in helpers[-1] else ''; "
+                "print([line for line in fill.splitlines() if line.startswith('username=')])"]},
         }
         (self.project / "engineering.json").write_text(json.dumps(
             {"schemaVersion": 1, "name": "Example", "lanes": lanes}, indent=2))
@@ -219,6 +227,18 @@ class RemoteTests(unittest.TestCase):
         finally:
             os.close(lock)
         self.assertFalse(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
+
+    def test_the_build_hosts_credential_file_is_the_runs_only_git_credential_helper(self):
+        log = self.project / ".build/engineering/remote/helpers/run.log"
+        self.assertEqual(self.eng("remote", "run", "helpers")[0], 0)
+        self.assertNotIn("store", log.read_text())
+        credentials = self.home / remote.ROOT / "git-credentials"
+        credentials.write_text("https://someone:dummy-not-a-token@example.invalid\n")
+        self.assertEqual(self.eng("remote", "run", "helpers")[0], 0)
+        text = log.read_text()
+        # An empty value resets the helpers that system and global configuration name.
+        self.assertIn(f"'', 'store --file={credentials}']", text)
+        self.assertIn("['username=someone']", text)
 
     def test_the_toolkit_runs_itself_without_a_second_checkout(self):
         settings = json.loads((self.toolkit / "engineering.json").read_text())
