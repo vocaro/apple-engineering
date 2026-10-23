@@ -3374,6 +3374,55 @@
         "https://github.com/vocaro/EPUBLib/blob/4b7a47e8d834ae4774b9d24edb9c1066d0c7b97e/Sources/EPUBViewing/Native/Rich/ReaderAttachment.swift",
         "https://github.com/vocaro/EPUBLib/blob/4b7a47e8d834ae4774b9d24edb9c1066d0c7b97e/Sources/EPUBViewing/Native/View/ReaderTextContainer.swift"
       ]
+    },
+    {
+      "id": 371,
+      "title": "Versions",
+      "path": "guides/releasing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/doc/releasing.md",
+        "https://github.com/vocaro/MathMLLayout/blob/100ef2b95e5edf67586497e7cde040f83139a38f/CHANGELOG.md"
+      ]
+    },
+    {
+      "id": 372,
+      "title": "The changelog",
+      "path": "guides/releasing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/AGENTS.md#where-a-write-up-goes",
+        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/CHANGELOG.md",
+        "https://github.com/vocaro/MathMLLayout/blob/100ef2b95e5edf67586497e7cde040f83139a38f/CHANGELOG.md"
+      ]
+    },
+    {
+      "id": 373,
+      "title": "Preparing a release",
+      "path": "guides/releasing.md",
+      "sources": [
+        "https://github.com/vocaro/MathMLLayout/commit/100ef2b95e5edf67586497e7cde040f83139a38f",
+        "https://github.com/vocaro/EPUBLib/commit/22cb27f53f0f274cbf937963315c3b8da9833159",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#031-release-verification"
+      ]
+    },
+    {
+      "id": 374,
+      "title": "Tagging and publishing",
+      "path": "guides/releasing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/releases/tag/0.2.5",
+        "https://github.com/vocaro/MathMLLayout/releases/tag/0.3.1"
+      ]
+    },
+    {
+      "id": 375,
+      "title": "Where release verification lives",
+      "path": "guides/releasing.md",
+      "sources": [
+        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/AGENTS.md#where-a-write-up-goes",
+        "https://github.com/vocaro/EPUBLib/blob/1ab4af2d9421e8546c5f576f38f9002734a76747/doc/releasing.md",
+        "https://github.com/vocaro/EPUBLib/releases/tag/0.2.5",
+        "https://github.com/vocaro/MathMLLayout/blob/542a370edfca7549732ce82b2b93561aedec067d/doc/testing.md#031-release-verification"
+      ]
     }
   ]
 }

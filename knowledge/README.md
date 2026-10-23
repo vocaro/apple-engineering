@@ -1,6 +1,6 @@
 # Shared engineering knowledge
 
-Search the 370 captured practices and technical lessons with `eng knowledge QUERY`. Guides hold
+Search the 375 captured practices and technical lessons with `eng knowledge QUERY`. Guides hold
 methods and procedures; knowledge articles hold observed Apple platform behavior and its limits.
 
 ## Shared host and maintenance
@@ -8,6 +8,7 @@ methods and procedures; knowledge articles hold observed Apple platform behavior
 - [maintenance](../guides/maintenance.md)
 - [shared host](../guides/shared-host.md)
 - [packaging](../guides/packaging.md)
+- [releasing](../guides/releasing.md)
 - [python environments](../guides/python-environments.md)
 
 ## Testing

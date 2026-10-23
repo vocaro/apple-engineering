@@ -41,15 +41,16 @@ existing files and starts no build, simulator, model, download or hosted job. Ed
 project's lanes and local rules for its product. Run `instructions` explicitly: a link to a
 shared AGENTS.md is not automatic agent instruction loading.
 
-See [adoption and maintenance](guides/adoption.md) for updates, rollback and new repositories.
+See [adoption and maintenance](guides/adoption.md) for updates, rollback and new repositories,
+and [releasing](guides/releasing.md) for preparing and publishing a library's version.
 
 ## Source and knowledge ownership
 
 - `agents/core.md` and `agents/capabilities/`: common operating rules and enabled methods.
 - `policies/shared-host.md`: current operating policy; `eng policy refresh` fetches main and
   reads that exact document without executing newly fetched code.
-- [Knowledge index](knowledge/README.md): 370 practices and technical lessons with their
-  applicability and limits, in 43 subject documents. Guides in `guides/` hold methods and
+- [Knowledge index](knowledge/README.md): 375 practices and technical lessons with their
+  applicability and limits, in 44 subject documents. Guides in `guides/` hold methods and
   procedures; articles in `knowledge/` hold observed Apple platform and model behavior. They are
   self-contained: a project keeps only its own fixtures, decisions and results, and links here.
 - `src/python/vocaro_engineering/`: standard-library-only engineering implementations.
