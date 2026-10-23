@@ -116,5 +116,44 @@ class WorktreeLauncherTests(unittest.TestCase):
         self.assertEqual(Path(result.stdout.strip()), config.TOOLKIT_ROOT)
 
 
+class InitToolkitPathTests(unittest.TestCase):
+    """init run from a session worktree of the toolkit names the main checkout, which outlives it."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.base = Path(temporary.name).resolve()
+        self.kit = self.base / "apple-engineering"
+        files = ["integrations/eng.py", "integrations/shared.py", "src/python/vocaro_engineering/__init__.py"]
+        for relative in files:
+            (self.kit / relative).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(config.TOOLKIT_ROOT / relative, self.kit / relative)
+        subprocess.run([*GIT, "init", "-q", str(self.kit)], check=True)
+        subprocess.run([*GIT, "-C", str(self.kit), "add", *files], check=True)
+        subprocess.run([*GIT, "-C", str(self.kit), "commit", "-q", "-m", "Toolkit"], check=True)
+        self.session = self.kit / ".claude/worktrees/session"
+        subprocess.run([*GIT, "-C", str(self.kit), "worktree", "add", "-q", "-b", "session", str(self.session)], check=True)
+        self.project = self.base / "NewRepo"
+
+    def initialize(self, toolkit):
+        with patch.object(cli, "TOOLKIT_ROOT", toolkit), contextlib.redirect_stdout(StringIO()):
+            self.assertEqual(cli.main(["--project", str(self.project), "init"]), 0)
+        return json.loads((self.project / "engineering.json").read_text())["toolkit"]["path"]
+
+    def test_init_from_a_session_worktree_names_the_main_checkout(self):
+        self.assertEqual(self.initialize(self.session), "../apple-engineering")
+        subprocess.run([*GIT, "-C", str(self.kit), "worktree", "remove", str(self.session)], check=True)
+        with patch.dict(os.environ):
+            os.environ.pop("VOCARO_ENGINEERING_ROOT", None)
+            self.assertEqual(shared_adapter().toolkit_location(self.project), self.kit)
+
+    def test_init_from_the_main_checkout_names_it(self):
+        self.assertEqual(self.initialize(self.kit), "../apple-engineering")
+
+    def test_a_main_checkout_without_the_toolkit_leaves_the_worktree_named(self):
+        shutil.rmtree(self.kit / "src")
+        self.assertEqual(self.initialize(self.session), "../apple-engineering/.claude/worktrees/session")
+
+
 if __name__ == "__main__":
     unittest.main()

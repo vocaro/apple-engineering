@@ -1,5 +1,6 @@
 """Shared engineering entry point. Initialization never starts a build or hosted job."""
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -11,13 +12,24 @@ from . import __version__, devices, disk, docs, evidence, processes, resources, 
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
 
 
+def named_checkout(toolkit):
+    """The toolkit checkout a new project names: the main checkout when toolkit is a linked
+    worktree, such as a session's, which is removed with its session. The project adapter's
+    main_checkout finds it, as the launcher does."""
+    spec = importlib.util.spec_from_file_location("_engineering", toolkit / "integrations/shared.py")
+    adapter = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(adapter)
+    main = adapter.main_checkout(toolkit)
+    return main if main and (main / "src/python/vocaro_engineering").is_dir() else toolkit
+
+
 def initialize(root, args):
     root.mkdir(parents=True, exist_ok=True)
     config_path = root / "engineering.json"
     if config_path.exists(): load(root)
     if not config_path.exists():
         config_path.write_text(json.dumps({"schemaVersion": 1, "name": args.name or root.name,
-            "toolkit": {"path": os.path.relpath(TOOLKIT_ROOT, root)}, "integration": "direct-main",
+            "toolkit": {"path": os.path.relpath(named_checkout(TOOLKIT_ROOT), root)}, "integration": "direct-main",
             "capabilities": args.capability, "lanes": {}, "exceptions": []}, indent=2) + "\n")
     ignored = root / ".gitignore"
     if not ignored.exists():

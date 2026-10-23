@@ -116,7 +116,9 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_local_launcher_works_offline_in_a_new_repository(self):
         with tempfile.TemporaryDirectory() as directory:
-            with contextlib.redirect_stdout(StringIO()): cli.main(["--project", directory, "init"])
+            # Name this checkout even from a worktree, so the launcher runs the toolkit under test.
+            with patch.object(cli, "named_checkout", lambda toolkit: toolkit), contextlib.redirect_stdout(StringIO()):
+                cli.main(["--project", directory, "init"])
             result = subprocess.run([sys.executable, str(Path(directory) / "scripts/eng"), "instructions"],
                 capture_output=True, text=True, env={**os.environ, "PATH": str(Path(sys.executable).parent)})
             self.assertEqual(result.returncode, 0, result.stderr)

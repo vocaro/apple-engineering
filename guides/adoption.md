@@ -20,7 +20,9 @@ use a device, screen, model, corpus or hosted runner.
 
 For a new repository, run
 `python3 /path/to/apple-engineering/bin/eng --project /path/to/NewRepo init`. Initialization is
-additive and runs no work. A missing .gitignore is initialized for generated outputs; an
+additive and runs no work. It sets `toolkit.path` relative to the toolkit's main checkout, also
+when run from a linked worktree of the toolkit, such as a session's, which is removed with its
+session. A missing .gitignore is initialized for generated outputs; an
 existing one is preserved. Existing projects must ignore .build/engineering so result logs do
 not become source inputs in subsequent evidence records. Select the applicable capabilities and
 add explicit argv-based lanes to engineering.json. Give each lane a `resource` of `light`,
