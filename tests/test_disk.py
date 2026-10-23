@@ -13,7 +13,7 @@ from unittest.mock import patch
 import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src/python"))
-from vocaro_engineering import cli, disk
+from vocaro_engineering import cli, devices, disk
 
 LATER = time.time() + 10 * 86400  # every fixture looks idle from here
 
@@ -184,6 +184,27 @@ class SimulatorTests(Fixture):
         for udid, reason in expected.items():
             self.assertEqual(items[udid].status, disk.KEPT, reason)
             self.assertIn(reason, items[udid].reason)
+
+    def test_a_disposable_device_named_only_in_the_record_at_the_override_is_kept(self):
+        reserved, unnamed = device(f"P-{uuid.uuid4()}"), device(f"P-{uuid.uuid4()}")
+        record = self.root / "isolated-record.json"
+        record.write_text(json.dumps({"devices": {"a": {"device": reserved["udid"]}}}))
+        with patch.dict(os.environ, {"VOCARO_DEVICE_RECORD": str(record)}):
+            items = self.simulators([reserved, unnamed], records=disk.device_records())
+        self.assertEqual(items[reserved["udid"]].status, disk.KEPT)
+        self.assertIn(f"named in the device record {record}", items[reserved["udid"]].reason)
+        self.assertEqual(items[unnamed["udid"]].status, disk.CANDIDATE, items[unnamed["udid"]].reason)
+
+    def test_device_records_follow_the_devices_module_and_keep_the_legacy_records(self):
+        # A record moved by the devices module, as on a host without ~/Library, and a legacy one.
+        moved, legacy = self.root / "moved/device-handoff.json", self.root / "old-device-handoff.json"
+        moved.parent.mkdir()
+        for path in [moved, legacy]: path.write_text("{}")
+        environment = {key: value for key, value in os.environ.items() if key != "VOCARO_DEVICE_RECORD"}
+        with patch.dict(os.environ, environment, clear=True), patch.object(devices, "default_path", return_value=moved), \
+             patch.object(devices, "LEGACY", str(self.root / "*device-handoff*.json")):
+            records = disk.device_records()
+        self.assertEqual(set(records) & {str(moved), str(legacy)}, {str(moved), str(legacy)})
 
     def test_an_unreadable_device_record_keeps_every_disposable_device(self):
         disposable = device(f"P-{uuid.uuid4()}")

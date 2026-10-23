@@ -14,6 +14,7 @@ Without --delete nothing is changed. guides/shared-host.md § Reclaiming disk sp
 import argparse
 from dataclasses import asdict, dataclass, field
 import datetime
+import glob
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,8 @@ import shutil
 import subprocess
 import sys
 import time
+
+from . import devices as device_record
 
 CANDIDATE, OWNER, KEPT = "candidate", "owner", "kept"
 STATUS_ORDER = {CANDIDATE: 0, OWNER: 1, KEPT: 2}
@@ -206,7 +209,7 @@ class Host:
         return cls(home=home, development=Path(development or home / "Development"), now=time.time(),
                    min_idle=min_idle, processes=census(run), simulators=_json(run, "list", "-j"),
                    runtimes=_json(run, "runtime", "list", "-j"), default_devices=default_devices(devices),
-                   device_directory=devices, records=device_records(home), temp_roots=temp,
+                   device_directory=devices, records=device_records(), temp_roots=temp,
                    session_scratch=Path(f"/private/tmp/claude-{os.getuid()}"),
                    map_roots=expanded_roots(home, user_temp), run=run)
 
@@ -233,11 +236,13 @@ def default_devices(directory):
                      for udid in types.values() if isinstance(udid, str))
 
 
-def device_records(home):
-    """Every device reservation record's text, or None when a record exists but cannot be read."""
-    paths = [Path(os.environ["VOCARO_DEVICE_RECORD"])] if os.environ.get("VOCARO_DEVICE_RECORD") else []
-    paths.append(Path(home) / "Library/Application Support/vocaro-engineering/device-handoff.json")
-    paths += sorted(Path("/private/tmp").glob("*device-handoff*.json"))
+def device_records():
+    """Every device reservation record's text, or None when a record exists but cannot be read.
+
+    The devices module owns the paths. The account's record is read even under an override, so an
+    isolated record never hides a real reservation, and legacy records still count."""
+    paths = list(dict.fromkeys([device_record.record_path(), device_record.default_path()]))
+    paths += sorted(map(Path, glob.glob(device_record.LEGACY)))
     records = {}
     for path in paths:
         if not path.exists(): continue

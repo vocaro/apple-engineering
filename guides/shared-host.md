@@ -189,8 +189,9 @@ not measure.
   name carries a UUID, as the [disposable lifecycle](simulator-testing.md#disposable-simulators)
   names it, and a pool or default device's name never does. It must also be shut down, unused
   for the idle time, absent from every process's arguments and files, and unnamed, by UDID or
-  name, in every device record (the device record and any legacy `/private/tmp` handoff file).
-  An unreadable record keeps every device. Xcode's default devices and unavailable named devices
+  name, in every device record: the one the devices module reads, the account's record when
+  `VOCARO_DEVICE_RECORD` names another, and any legacy `/private/tmp` handoff file. An
+  unreadable record keeps every device. Xcode's default devices and unavailable named devices
   are owner items; any other named device is a pool member or one made by hand and is kept. A
   runtime no device uses is an owner item: a lane may create its devices on it next.
 - **Build caches.** A DerivedData folder in `~/Library/Developer/Xcode` (named
