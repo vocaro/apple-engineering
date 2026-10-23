@@ -4,6 +4,7 @@
   "toolkit": {
     "path": "."
   },
+  "integration": "direct-main",
   "capabilities": [],
   "lanes": {
     "python-tests": {

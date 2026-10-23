@@ -9,4 +9,5 @@ Runtime libraries have separate repositories and do not import this toolkit.
 Run `python3 -m unittest discover -s tests -v` for Python changes. Preserve original upstream
 regression suites when extracting code. Test positive and negative controls and wrappers.
 Never run Mac VoiceOver, launch a debugger, or take over the owner's screen here. Shared
-resource actions consult current policy. Stage explicit file lists; integrate onto main.
+resource actions consult current policy. Stage explicit file lists. engineering.json sets
+`integration` to `direct-main`: push a tested main directly, as guides/maintenance.md describes.
