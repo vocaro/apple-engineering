@@ -682,6 +682,15 @@ with its admitting process and leaves its entry uncertain. To end an admitted co
 the command's own processes, which supervision then follows to a terminal result, rather than
 the task.
 
+In Claude Code, neither a foreground timeout nor a subagent's end stops a command. A command that
+outlasts its tool timeout moves to the background and runs on, and the session is told when it
+ends; a subagent that ends its turn leaves its background commands running. In each probe the
+command and its child in its own session ran to their own end without receiving a signal
+(2026-10-23, Claude Code 2.1.303 in the desktop app, macOS 27.0). A timed-out foreground command
+is therefore still the run: follow it to its terminal result rather than stopping it or starting
+another. Start an admitted command that can outlast the foreground wait in the background, and
+never stop its task to retry.
+
 Recovery of a guard is attended. Inspect its recorded owner, that owner's command processes and
 any reserved tree; stop or wait for all of the transaction's children; then remove the abandoned
 markers by hand. A free owned descriptor or a later foreign acquisition, checked against the

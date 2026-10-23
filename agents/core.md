@@ -76,7 +76,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
   the owner's personal phone), then reserve it. Approval of a run covers installing and
   launching, not operating the device.
 - A tool timeout is an observation timeout. Follow the owned process to a terminal result
-  before retrying. Preserve an uncertain orphan's reservation for recovery.
+  before retrying. Preserve an uncertain orphan's reservation for recovery. Start an admitted
+  command that can outlast the tool's wait in the background. To end it early, stop the
+  command's own processes, not its task: a task stop's SIGKILL can strand its guard entry.
 - Do not run Mac VoiceOver or foreground UI automation on the owner's Mac without the required
   explicit authorization; with it, reserve `mac-foreground` in the device record first. Run Mac
   speech on the allowed disposable hosted runner. Never run runner preparation commands on this

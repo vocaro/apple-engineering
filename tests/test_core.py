@@ -427,6 +427,51 @@ class ResourceTests(unittest.TestCase):
                     if pid is not None and resources.process_start(pid) == birth:
                         os.kill(pid, signal.SIGKILL)
 
+    def test_a_task_stop_beside_a_finishing_job_strands_neither_entry(self):
+        # A task stop signaled one job's whole process tree while another job ran beside it (#15,
+        # 2026-10-22). The stopped job's entry died with its admitting process, and the job beside
+        # it, finishing normally while that entry stood, left its own: two dead entries refused
+        # every session's heavy work until attended recovery.
+        root = Path(self.temp.name)
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        marker = root / "command.pids"
+        # The command ends on SIGTERM, as the lane's script did, and has a child in its own session.
+        command = [sys.executable, "-c", "import os, pathlib, subprocess, sys, time\n"
+                   "child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'], start_new_session=True)\n"
+                   f"pathlib.Path({str(marker)!r}).write_text(f'{{os.getpid()}} {{child.pid}}')\ntime.sleep(120)"]
+        environment = {**os.environ, "PYTHONPATH": str(config.TOOLKIT_ROOT / "src/python")}
+        stopped = subprocess.Popen([sys.executable, "-m", "vocaro_engineering.resources", "--", *command],
+                                   cwd=root, env=environment, stderr=subprocess.DEVNULL)
+        tree = {}
+        try:
+            deadline = time.monotonic() + 30
+            while not (marker.exists() and len(marker.read_text().split()) == 2):
+                self.assertIsNone(stopped.poll(), "the command was never started")
+                self.assertLess(time.monotonic(), deadline, "the command was never started")
+                time.sleep(0.01)
+            with contextlib.redirect_stderr(StringIO()), resources.Admission("beside", timeout=0):
+                # Claude Code's TaskStop sends SIGTERM to every process descended from the task.
+                current, pending = processes.snapshot(), [stopped.pid]
+                while pending:
+                    pid = pending.pop()
+                    tree[pid] = current[pid][2]
+                    pending.extend(child for child, (parent, _group, _birth) in current.items() if parent == pid)
+                self.assertLessEqual({int(pid) for pid in marker.read_text().split()}, tree.keys())
+                for pid in tree:
+                    with contextlib.suppress(ProcessLookupError): os.kill(pid, signal.SIGTERM)
+                self.assertEqual(stopped.wait(timeout=30), -signal.SIGTERM)
+            survivors = [pid for pid, (_parent, _group, birth) in processes.snapshot().items() if tree.get(pid) == birth]
+            self.assertEqual(survivors, [])
+            self.assertFalse(guard.exists())
+            with contextlib.redirect_stderr(StringIO()), resources.Admission("next", timeout=0): pass
+        finally:
+            if stopped.poll() is None:
+                stopped.kill()
+                stopped.wait()
+            for pid, (_parent, _group, birth) in processes.snapshot().items():
+                if tree.get(pid) == birth:
+                    with contextlib.suppress(ProcessLookupError): os.kill(pid, signal.SIGKILL)
+
     def test_a_stop_that_cannot_confirm_every_process_ended_leaves_the_entry_uncertain(self):
         guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
         real, roots, marked = processes.snapshot, [], []
