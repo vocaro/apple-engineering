@@ -146,14 +146,21 @@ class Admission:
         self.previous = None
         self.reused = False
 
-    def _guard(self):
-        if not self.guard.exists():
-            return {"vocaroEngineering": 1, "owners": {}}
+    def _recorded(self):
+        """The published guard with its owners unvalidated, or None if it is foreign or unreadable."""
         try:
             value = json.loads(self.guard.read_text())
         except (OSError, ValueError):
             return None
-        if value.get("vocaroEngineering") != 1:
+        if not isinstance(value, dict) or value.get("vocaroEngineering") != 1:
+            return None
+        return value
+
+    def _guard(self):
+        if not self.guard.exists():
+            return {"vocaroEngineering": 1, "owners": {}}
+        value = self._recorded()
+        if value is None:
             return None
         # Never reclaim a disappeared owner: its children may still use a different session.
         for owner in value.get("owners", {}).values():
@@ -275,15 +282,18 @@ class Admission:
                 os.close(fd)
             # An exception may leave unobserved children. Retain the guard for inspection,
             # unless the command could not start: a mistyped name must not stop the host.
-            state = self._guard()
-            if state is not None:
+            # Change only this job's entry, whatever the other owners' state: a release that
+            # waited for a dead owner's recovery would leave this entry dead once this process ends.
+            state = self._recorded()
+            owners = state.get("owners") if state is not None else None
+            if isinstance(owners, dict) and self.identity in owners:
                 from vocaro_engineering.processes import NotStarted
                 if kind is None or issubclass(kind, NotStarted):
-                    state["owners"].pop(self.identity, None)
-                    if state["owners"]: publish_guard(self.guard, state)
+                    del owners[self.identity]
+                    if owners: publish_guard(self.guard, state)
                     else: self.guard.unlink(missing_ok=True)
                 else:
-                    state["owners"][self.identity]["uncertain"] = True
+                    owners[self.identity]["uncertain"] = True
                     publish_guard(self.guard, state)
         return False
 

@@ -321,6 +321,35 @@ class ResourceTests(unittest.TestCase):
         with self.assertRaises(TimeoutError):
             with resources.Admission("blocked", timeout=0): pass
 
+    def test_a_killed_owner_does_not_strand_the_release_of_a_job_admitted_beside_it(self):
+        # A job admitted beside one killed by SIGKILL changes only its own entry when it leaves.
+        # Changing nothing stranded the queue for 80 minutes (2026-10-22): every job that finished
+        # while the killed job's entry stood became another dead owner.
+        guard = Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard")
+        holder = ("import sys\nfrom vocaro_engineering import resources\n"
+                  "with resources.Admission('killed', timeout=0):\n    print(flush=True)\n    sys.stdin.read()\n")
+        environment = {**os.environ, "PYTHONPATH": str(config.TOOLKIT_ROOT / "src/python")}
+        for failure in [None, RuntimeError]:
+            with self.subTest(failure=failure):
+                guard.unlink(missing_ok=True)
+                # Closing its stdin releases the holder if an assertion fails before the kill.
+                with subprocess.Popen([sys.executable, "-c", holder], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                        stderr=subprocess.DEVNULL, text=True, env=environment) as killed:
+                    self.assertEqual(killed.stdout.readline(), "\n")
+                    recorded = json.loads(guard.read_text())["owners"]
+                    with contextlib.redirect_stderr(StringIO()), contextlib.suppress(RuntimeError):
+                        with resources.Admission("beside", timeout=0) as beside:
+                            killed.kill()
+                            killed.wait()
+                            if failure: raise failure("children may remain")
+                owners = json.loads(guard.read_text())["owners"]
+                if failure:
+                    self.assertTrue(owners.pop(beside.identity).get("uncertain"))
+                self.assertEqual(owners, recorded)
+                # The killed job's entry still awaits attended recovery.
+                with self.assertRaises(TimeoutError), contextlib.redirect_stderr(StringIO()):
+                    with resources.Admission("blocked", timeout=0): pass
+
     def test_zero_test_failure_releases_a_confirmed_finished_lane(self):
         root = Path(self.temp.name)
         (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Zero",

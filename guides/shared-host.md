@@ -601,6 +601,23 @@ Three kinds of marker coexist, and they are reclaimed differently:
   file is never removed. A reservation in the record ends only by its owner's release or an
   attended recovery ([device reservations](#device-reservations)).
 
+A job leaving admission changes only its own guard entry, whatever state the other owners are
+in: a clean exit removes the entry, and the guard with its last one, and an exception marks it
+uncertain. It never changes or drops another owner's entry. Until 2026-10-22 a job that left
+while another owner was dead changed nothing, so its own entry died with its process: one lane
+killed by its agent stranded a run that finished normally beside it, and the host admitted no
+heavy work for 80 minutes, until the guard was recovered by hand.
+
+A signal that ends the admitting process before it leaves its context leaves its entry dead.
+`eng admit` and `eng run` install no signal handlers, so SIGTERM and SIGHUP end them as SIGKILL
+does, while the command, in its own session, keeps running unsupervised. SIGINT raises inside
+supervision, which stops the command's process group and marks the entry uncertain. An agent's
+task stop is such a signal: Claude Code's TaskStop sends SIGTERM to every process descended from
+the task's shell, the command in its own session included, and SIGKILL 1.5 s later (observed
+2026-10-22, macOS 27.0, Python 3.14). To end an admitted command early, stop the command's own
+processes, which supervision then follows to a terminal result, never the task or the admitting
+process.
+
 Recovery of a guard is attended. Inspect its recorded owner, that owner's command processes and
 any reserved tree; stop or wait for all of the transaction's children; then remove the abandoned
 markers by hand. A free owned descriptor or a later foreign acquisition, checked against the
