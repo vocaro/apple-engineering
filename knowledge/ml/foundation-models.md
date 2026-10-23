@@ -375,8 +375,8 @@ capability key gates installation on Apple Intelligence hardware, so degrade at 
 Run one model workload per machine. Two processes driving one Mac's on-device model both sat at
 about 0% CPU with no output for many minutes, and concurrent Core ML and FoundationModels work
 silently corrupted embeddings ([embedding correctness](embedding-correctness.md)). Before a run,
-check for other test processes on the host, including other checkouts', and admit the run
-through the shared heavy-work queue ([shared host](../../guides/shared-host.md)). During
+check for other test processes on the host, including other checkouts', and admit the run as
+exclusive work ([shared host](../../guides/shared-host.md#heavy-work-admission)). During
 on-device generation the test runner sits near idle while `TGOnDeviceInferenceProviderService`
 and `modelmanagerd` burn CPU: idle daemons with a stale log is a hang, busy daemons with an
 empty log is buffering. PCC generation shows about 0% local CPU, so check the connection to the

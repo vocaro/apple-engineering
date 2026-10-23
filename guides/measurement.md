@@ -7,8 +7,9 @@ universal behavior on later operating systems or in a different application.
 Run whole-machine measurements as exclusive work through heavy-work admission, for example a
 lane with `"resource": "exclusive"` started by `python3 scripts/eng run LANE`; see
 [shared host](shared-host.md). Measuring on a host that is building something else gives worse
-data than not measuring. Budgets stay local and platform-specific. Evidence handling is in
-[evidence](evidence.md).
+data than not measuring. A gate is not a measurement: its tests hold the load-tolerant limits
+below and run as heavy work beside others. Budgets stay local and platform-specific. Evidence
+handling is in [evidence](evidence.md).
 
 ## Fresh-process memory metrics
 

@@ -1,10 +1,12 @@
 # Current shared host policy
 
-The owner and concurrent sessions keep using this Mac. Builds, `swift test`, `xcodebuild` and
-simulator runs use the common heavy slots: `python3 scripts/eng run LANE` for a configured lane,
-otherwise `python3 scripts/eng admit -- COMMAND`. Whole-machine measurements and gate suites
-exclude heavy work: add `--exclusive`. A toolkit clone without `admit` runs
-`python3 -m vocaro_engineering.resources [--exclusive] -- COMMAND` with its `src/python` on
+The owner and concurrent sessions keep using this Mac. Builds, `swift test`, `xcodebuild`,
+simulator runs and gate suites use the common heavy slots: `python3 scripts/eng run LANE` for a
+configured lane, otherwise `python3 scripts/eng admit -- COMMAND`. Add `--exclusive` only for
+work that needs the host to itself: a whole-machine or timing measurement, or a generative-model
+run. A test that fails only on a busy host is a defect to fix, not a reason for exclusive
+admission; a gate stays exclusive only until its tests are fixed. A toolkit clone without `admit`
+runs `python3 -m vocaro_engineering.resources [--exclusive] -- COMMAND` with its `src/python` on
 `PYTHONPATH`. Never coordinate through a private slot pool. Physical devices need a window agreed
 with the owner first. Every device needs a real reservation in the host's one human-readable
 device record, changed only through `vocaro_engineering.devices`, which is a coordination

@@ -64,10 +64,12 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Coordinate heavy builds and measurements through the shared resource queue: a configured
   lane with `python3 scripts/eng run LANE`, adding `-- ARGUMENTS` such as a test filter, and any
   other build, `swift test`, `xcodebuild` or simulator run with
-  `python3 scripts/eng admit -- COMMAND`. Add `--exclusive` for a gate suite or a whole-machine
-  measurement, which conflicts with heavy work. Never build a private slot pool: the queue
-  cannot see it. Nested work reuses its inherited admission.
-- Before a full gate, inspect active test and gate processes across the host, including
+  `python3 scripts/eng admit -- COMMAND`. A gate suite is heavy work too. Add `--exclusive` only
+  for work that needs the host to itself: a whole-machine or timing measurement, or a
+  generative-model run. A test that fails only on a busy host is a defect to fix, not a reason for
+  exclusive admission. Never build a private slot pool: the queue cannot see it. Nested work
+  reuses its inherited admission.
+- Before exclusive work, inspect active test and gate processes across the host, including
   checkouts outside the usual worktree directories. A checkout path alone is not a complete
   inventory of other sessions' running work; never stop a process merely because it is busy.
 - Give simulator and device commands an explicit identifier. Never select `booted`, erase,

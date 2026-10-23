@@ -43,7 +43,7 @@ top, then one section per release headed `## X.Y.Z — YYYY-MM-DD`.
    - update the stated platform requirements if the deployment floor moved.
 
    Code, tests and documents land before it, in commits of their own.
-3. Run the release gate on that commit, through admission: the project's exclusive `gate` lane
+3. Run the release gate on that commit, through admission: the project's `gate` lane
    (`python3 scripts/eng run gate`). It runs every suite the project's testing runbook requires
    for a release, on every supported platform, in debug and optimized builds, with the
    documentation and spelling checks. Every required test passes, with none skipped and none

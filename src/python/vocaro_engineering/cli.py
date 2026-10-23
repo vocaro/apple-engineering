@@ -120,9 +120,10 @@ def main(argv=None):
         "run with arguments needs at least one in place of the lane's minimumTests")
     run.add_argument("lane")
     admission = commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
-        "test, a simulator run) through the host's heavy-work admission: eng admit -- COMMAND; add --exclusive "
-        "for a gate suite or whole-machine measurement")
-    admission.add_argument("--exclusive", action="store_true", help="hold every slot: a gate suite or whole-machine measurement")
+        "test, a simulator run, a gate suite) through the host's heavy-work admission: eng admit -- COMMAND; add "
+        "--exclusive only for work that needs the host to itself")
+    admission.add_argument("--exclusive", action="store_true",
+                           help="hold every slot: a whole-machine or timing measurement, or a generative-model run")
     admission.add_argument("--timeout", type=float, default=5400, help="seconds to wait for admission (default 5400)")
     admission.add_argument("command", nargs=argparse.REMAINDER, help="the command and its arguments, after --; "
         "it runs in the current directory")
@@ -168,7 +169,7 @@ def main(argv=None):
                            & set(config.get("capabilities", [])))
             if heavy and not any(lane.get("resource") in {"heavy", "exclusive"} for lane in config.get("lanes", {}).values()):
                 warnings.append(f"{', '.join(heavy)} work is heavy, but no lane is heavy or exclusive: add heavy lanes "
-                                "for the tests and an exclusive lane for the gate (guides/adoption.md)")
+                                "for the tests and the gate (guides/adoption.md)")
             if "integration" not in config:
                 warnings.append("engineering.json declares no integration: add \"integration\": \"direct-main\", "
                                 "or \"pull-request\" for a project that takes changes only by pull request (agents/core.md)")

@@ -18,8 +18,10 @@ python3 scripts/eng admit -- \
   xcodebuild test -scheme SCHEME -destination "platform=iOS Simulator,id=UDID"
 ```
 
-Add `--exclusive` for a whole-machine measurement or a gate suite whose budgets assume a quiet
-host; `--timeout` bounds the wait for admission. The command runs in the current directory with
+Add `--exclusive` only for work that needs the host to itself: a whole-machine or wall-clock
+measurement, or a generative-model workload
+([long-running measurements](#long-running-measurements)). A gate suite is heavy work.
+`--timeout` bounds the wait for admission. The command runs in the current directory with
 its output on the terminal. Like a heavy lane, `eng admit` first refreshes the operating policy,
 printing it to standard error, and records the command's receipt in
 `.build/engineering/admit/source.json`. It needs no `PYTHONPATH` and works from a session
@@ -35,17 +37,24 @@ machines; the admission rule is about this host. Project adapters (a `heavy_slot
 scripts that import `vocaro_engineering.resources`) all call
 `src/python/vocaro_engineering/resources.py`; there is no second queue to keep in step. A
 private slot pool, such as `mkdir` locks in a scratch directory, is a second queue that the host
-queue cannot see: it ignores load and memory pressure, and nothing makes its gate exclusive.
+queue cannot see: it ignores load and memory pressure, and exclusive work cannot exclude it.
 One such pool ran ten agents' builds beside another session's full gate, and the load average
 reached 764 (October 2026).
 
 Ten agents each building on every core, with other lanes and Xcode indexing, kept watchdogd from
 checking in for 93 seconds and panicked an 18-core, 36 GB Mac (2026-10-14). A fixed limit of
 three then left the host idle while queued work waited behind jobs blocked on simulators.
-Overlapping gate suites also fail for no reason of their own: a test that bounds a nested
-session with a fixed wall-clock budget expires when a second suite takes the cores, and a red
-gate that means "the host was busy" teaches people to rerun rather than read a failure. So a
-second suite waits.
+Overlapping gate suites also failed for no reason of their own: a test that bounded a nested
+session with a fixed wall-clock budget expired when a second suite took the cores, and a red
+gate that means "the host was busy" teaches people to rerun rather than read a failure. The
+defect was the test's, not the host's. A gate's limits tolerate a busy host: a time limit leaves
+out the seconds the work waited for a core
+([core-wait time](measurement.md#cpu-scheduling-and-core-wait-time)), and a ceiling that memory
+pressure spoiled is unmeasured, not failed
+([unmeasured ceilings](measurement.md#host-pressure-and-unmeasured-ceilings)). Such a gate is
+heavy work like any other; one whose tests still assume a quiet host stays exclusive until they
+are fixed. Admission counts a gate as one job however many workers it starts, so bound its build
+and test parallelism.
 
 HEAVY_SLOTS jobs (3) are always admitted. Beyond them one job at a time is admitted, up to
 HEAVY_SLOTS_MAX (half the CPU count), while the one-minute load average is below
