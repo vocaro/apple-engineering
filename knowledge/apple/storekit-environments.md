@@ -63,6 +63,31 @@ Source and evidence: Pagepour adoption `18f3f8d`, setup candidate `9cbab3f`, and
 [follow-up results at `bd73ab0`](https://github.com/vocaro/Pagepour/blob/bd73ab0/measurements/storekit-support-adoption/followup.md).
 The setup changed no shipping entitlement code or purchase-test assertions.
 
+## An isolated identity and prelaunch configuration can restore delivery
+
+On Xcode 27.1 (`27A9275`) and macOS 27.0 (`26A428`), a clean local-test identity restored
+external-purchase delivery while its first app-owned purchases still reached Sandbox. Creating
+configuration inside that first purchase-host process was insufficient. A separate background
+preparation process with the same test identity installed the local configuration through
+`SKTestSession`, cleared transactions and disabled dialogs before the real purchase host
+launched. All three update flows then passed on that fresh identity's first purchase-host
+launch. The full plan passed 19 identities with no expected failures or skips.
+
+The working lane uses the unchanged shipping purchase model and original listener assertions.
+It isolates test identities from the sandbox/archive app and derives a stable identity per
+checkout, so other worktrees do not share its StoreKit state. The preparation app has no
+window, purchase model or App Group; only its test bundle links the test support. It ends
+before the real app host starts. No foreground Xcode Run, account input or production sync is
+part of this setup.
+
+This qualifies that controlled local-test sequence, not an internal explanation for the old
+identity's Sandbox routing or a guarantee for every Mac. Subsequent full-plan runs retained
+host and test state. A changed manifest identifier field was not the cause: both versions
+passed against the same frozen binaries. Sandbox and TestFlight qualification remain separate.
+
+Evidence: [Pagepour `d9a514c`, Mac StoreKit updates](https://github.com/vocaro/Pagepour/blob/d9a514c43e0d7984313c31a04d7db104206425dc/measurements/mac-storekit-updates/record.md).
+The [runbook](../../guides/storekit-testing.md#the-mac-storekit-environment) describes preparation.
+
 ## A Mac keeps one StoreKit environment per bundle ID
 
 Observed on macOS 27.0 (26A428) with Xcode 27.0 and 27.1, October 2026; this is a recorded

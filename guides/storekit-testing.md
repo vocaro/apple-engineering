@@ -43,8 +43,15 @@ whether each passed, failed, was skipped or was unmeasured.
   (`storeKitConfigurationFileReference`). The app scheme used for archives and sandbox checks
   keeps StoreKit Configuration: None.
 - In the purchase test plan, turn off parallelization and enable test timeouts with a short
-  allowance (60 seconds was enough), so an unexpected payment sheet fails one test instead of
-  holding the run.
+  default allowance (60 seconds for store-only cases), so an unexpected payment sheet fails a
+  test instead of holding the run. Give a longer UI/conversion case its own bounded allowance:
+  a 60-second outer watchdog cannot contain an existing 90-second operation wait. Keep the
+  transaction waits and assertions intact.
+- For a custom debug configuration, include `Debug` in its name and verify the actual package
+  commands use `-Onone` and testability. With Xcode 27.1, `Purchases` selected optimized Swift
+  packages despite a project generator's debug classification; `Debug-Purchases` selected
+  debug packages. The [measured record](https://github.com/vocaro/Pagepour/blob/d9a514c43e0d7984313c31a04d7db104206425dc/measurements/mac-storekit-updates/record.md)
+  retains the stopped build as unmeasured purchase coverage.
 - Guard test-only launch arguments, fixtures and reset hooks with `#if DEBUG`, and check that
   Release binaries lack them (see [packaging](packaging.md)).
 - When the app is the host of a unit-test bundle (XCTest is loaded), skip starting the app's
@@ -149,6 +156,27 @@ Xcode]", never an ordinary Apple Account dialog.
 Treat each bundle ID's StoreKit environment on the Mac as a shared resource: local purchase
 suites and Xcode Runs with a configuration move it to `XcodeTest`, and sandbox and archive
 checks need `Sandbox`.
+
+For an automated local purchase lane, isolate the purchase host's bundle identifier from the
+ordinary app used for sandbox and archive checks. Install its local configuration in a
+separate background process before the first purchase-host launch:
+
+- Use a minimal app with the same test identifier to host one preparation test. Bundle the
+  configuration in that test bundle and link `StoreKitTestSupport` there, not into the app.
+- Check the expected test identifier before changing anything, then create the local session
+  and call `LocalStoreSession.prepare()`. Make no purchase, product lookup, restore or sync
+  request in this process. It needs no window or foreground input.
+- End preparation before launching the real purchase host. Preserve the shipping purchase
+  model, real update listener and all assertions. Require positive test counts in both stages
+  and successful identities for the three update flows, with no skips or expected failures.
+- Give different checkouts distinct, stable test identifiers, and check for an active copy of
+  the same identity before clearing transactions. Keep shared App Group, service and owner-data
+  access isolated by the project's existing fixtures.
+
+This setup qualified the [three update flows on a fresh identity's first purchase-host launch](../knowledge/apple/storekit-environments.md#an-isolated-identity-and-prelaunch-configuration-can-restore-delivery).
+It does not promise to repair an existing sandbox identity's routing. Carrying expected
+failures is not a delivery qualification when this controlled setup passes the required cases.
+For an existing app identity that needs its environment switched, follow the procedure below.
 
 1. Before either kind of run, find other sessions' copies of the app and planned StoreKit
    runs (list running copies' paths with `ps`), and agree an order with those sessions.
