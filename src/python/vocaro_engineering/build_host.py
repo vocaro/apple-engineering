@@ -75,8 +75,8 @@ def changes(checkout):
     return git("status", "--porcelain", "--untracked-files=normal", cwd=checkout) if checkout.exists() else ""
 
 
-def claim(base, count, directory):
-    """Lock a free checkout slot without changes, waiting while every one is in use.
+def claim(base, count, directory, wait=True):
+    """Lock a free checkout slot without changes, waiting while every one is in use, if wait.
 
     The lock is an flock the run's command inherits, so it holds while that command lives. A
     checkout with changes is left as it is, for inspection, and passed over.
@@ -103,6 +103,8 @@ def claim(base, count, directory):
                 named.add(index)
         if changed == count:
             raise RuntimeError(f"every checkout under {base} has changes a run left; inspect and remove them")
+        if not wait:
+            raise RuntimeError(f"every checkout of {directory} is in use")
         waited = int(time.monotonic() - started)
         if waited >= CLAIM_TIMEOUT:
             raise RuntimeError(f"no checkout of {directory} came free in {CLAIM_TIMEOUT}s")
@@ -208,6 +210,9 @@ def main(plan):
     threading.Thread(target=watch, daemon=True).start()
     result = {"started": time.time(), "exitStatus": None, "stopped": False,
               "host": identity(plan.get("developerDir"))}
+    # Until the first command starts, a failure is a refusal: nothing ran, so the dispatcher may
+    # run the work on its own Mac instead.
+    begun = False
     try:
         expected, found = plan.get("xcode"), result["host"]["xcode"]
         if expected and found != expected:
@@ -215,7 +220,7 @@ def main(plan):
                                f"{expected}; install the same Xcode there or select it with DEVELOPER_DIR")
         root, project, toolkit = Path.home() / plan["root"], plan["project"], plan.get("toolkit")
         base = root / "checkouts" / project["directory"]
-        claimed = claim(base, plan["checkouts"], project["directory"])
+        claimed = claim(base, plan["checkouts"], project["directory"], wait=not plan.get("decline"))
         if claimed is None:
             result["stopped"] = True
             return result
@@ -237,15 +242,21 @@ def main(plan):
         steps.append(("work", [*eng, *plan["work"]], checkout / plan["log"] if plan.get("log") else None))
         for stage, command, log in steps:
             if _stop.is_set(): break
+            begun = True
             result.update(stage=stage, exitStatus=step(command, checkout, environment, lock, log))
             if result["exitStatus"] != 0: break
         result["stopped"] = _stop.is_set()
         receipt = checkout / plan["receipt"]
         # A command that failed before it wrote a receipt leaves the previous run's in place.
-        if receipt.is_file() and receipt.stat().st_mtime >= result["started"]:
+        fresh = receipt.is_file() and receipt.stat().st_mtime >= result["started"]
+        if fresh:
             result["receipt"] = json.loads(receipt.read_text())
+        # `eng run --if-free` declined the lane before running it, and wrote no receipt.
+        if plan.get("decline") and result.get("stage") == "work" and result["exitStatus"] == plan["busy"] \
+                and not fresh:
+            result["refused"] = "its heavy-work queue cannot take the lane now"
     except (OSError, RuntimeError, ValueError) as error:
-        result["error"] = str(error)
+        result["error" if begun else "refused"] = str(error)
     finally:
         result["finished"] = time.time()
         emit(b"R", json.dumps(result).encode())

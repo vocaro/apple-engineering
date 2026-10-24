@@ -13,13 +13,15 @@ device record, changed only through `vocaro_engineering.devices`, which is a coo
 record, not a mutex. Do not reserve in the earlier `/private/tmp` handoff files. A deadline
 alone never releases a device.
 
-The owner's build host, a second Mac reached as the SSH alias `build-host`, may take gate suites
-and other heavy builds and tests of a commit: `python3 scripts/eng remote run LANE`, or
-`python3 scripts/eng remote admit -- COMMAND`, runs the committed HEAD there under that host's
-own admission and takes no slot here. A whole gate's pass there counts for a push from this Mac
-even when the two Macs run different macOS versions; its receipt records both, and as a
-qualification claim it names the build host's platform. Foreground work, simulators, devices
-and timing measurements stay on this Mac.
+Heavy work goes to the owner's build host first: a second Mac, reached as the SSH alias
+`build-host`, that is otherwise idle, while this Mac is the owner's busy workstation.
+`python3 scripts/eng run LANE` sends a lane marked `buildHost` there at a committed tree and runs
+it here only when the build host cannot start it now; `--here` keeps it here. Other heavy builds
+and tests of a commit go there with `python3 scripts/eng remote run LANE` or
+`python3 scripts/eng remote admit -- COMMAND`. Mark a lane `buildHost` only when it needs no
+simulator, device, screen or timing measurement: those stay on this Mac. A whole gate's pass
+there counts for a push from this Mac even when the two Macs run different macOS versions; its
+receipt records both, and as a qualification claim it names the build host's platform.
 
 Do not take over the screen, keyboard, pointer or Mac VoiceOver without the required explicit
 owner authorization; with it, first reserve `mac-foreground` in the device record with the

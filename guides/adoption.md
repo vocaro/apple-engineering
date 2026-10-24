@@ -32,9 +32,11 @@ and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, f
 successful run that executed fewer tests. `eng run LANE -- ARGUMENTS` appends arguments, such
 as a test filter, to the lane's command; such a run needs at least one executed test in place
 of `minimumTests`, or exactly N with `--expect N`. Other heavy work that no lane names goes
-through `eng admit [--exclusive] -- COMMAND`. `eng remote run LANE` runs a lane at HEAD on the
-owner's [build host](shared-host.md#build-host), first running the project's `provision` lane,
-when it has one, to provision the ignored inputs of the build host's checkout. Give a project with a simulator, measurement or
+through `eng admit [--exclusive] -- COMMAND`. Mark a heavy or exclusive lane that needs no
+simulator, device, screen or timing measurement `"buildHost": true`: `eng run` then sends it to
+the owner's [build host](shared-host.md#build-host) first, and `eng remote run LANE` sends any
+lane there. Either first runs the project's `provision` lane, when it has one, to provision the
+ignored inputs of the build host's checkout. Give a project with a simulator, measurement or
 VoiceOver capability heavy lanes for its tests and its gate, so the commands its agents run most
 are admitted by name; `doctor` warns when it has none. Make a lane exclusive only for work that
 needs the host to itself ([heavy-work admission](shared-host.md#heavy-work-admission)). Mark a

@@ -7,12 +7,17 @@ so builds stay warm, and runs `eng run` or `eng admit` under the build host's ow
 admission: that host's queue, not a private pool beside this one. The log and the result come
 back to this checkout's .build/engineering/remote. A whole lane's result is also kept by commit
 in the repository's Git directory, where every worktree of the repository can find it.
+
+`eng run` sends a lane marked buildHost here first: when the build host refuses it before
+anything runs, because its queue or every checkout is busy or it cannot be reached, the lane
+runs on this Mac instead.
 """
 import json
 import os
 from pathlib import Path
 import queue
 import shlex
+import shutil
 import subprocess
 import sys
 import threading
@@ -20,6 +25,7 @@ import time
 
 from . import build_host, processes
 from .config import TOOLKIT_ROOT
+from .resources import BUSY
 
 # The SSH destination when neither --host nor VOCARO_BUILD_HOST names one: an alias the owner
 # defines in ~/.ssh/config, so no machine's name is written here.
@@ -27,14 +33,36 @@ DEFAULT_HOST = "build-host"
 # The build host's directory for repositories and checkouts, relative to its home.
 ROOT = "Development/build-host"
 # Persistent checkouts per project on the build host; more wait for one to come free.
-CHECKOUTS = 2
-SSH = ["ssh", "-T", "-o", "BatchMode=yes", "-o", "ServerAliveInterval=30", "-o", "ServerAliveCountMax=4"]
+CHECKOUTS = 4
+SSH = ["ssh", "-T", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", "-o", "ServerAliveInterval=30",
+       "-o", "ServerAliveCountMax=4"]
 REF = "refs/vocaro/build-host/"
 # Seconds a stopped run has to end on the build host before the connection is closed.
 STOP_WAIT = 120
 # What a Git hook exports for its own repository must not reach another.
 GIT_LOCATION = {"GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                 "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_COMMON_DIR", "GIT_PREFIX"}
+
+
+class Unavailable(RuntimeError):
+    """The build host did not take the work, and nothing of it ran there."""
+
+
+def configured():
+    """The build host to send buildHost lanes to first, or None for this Mac only.
+
+    VOCARO_BUILD_HOST names it, and `none` turns it off. Otherwise it is the ssh alias, when
+    ~/.ssh/config defines one: `ssh -G` resolves an undefined alias to its own name.
+    """
+    named = os.environ.get("VOCARO_BUILD_HOST")
+    if named is not None:
+        return None if named.strip().lower() in {"", "none", "off"} else named
+    try:
+        resolved = subprocess.run(["ssh", "-G", DEFAULT_HOST], capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    names = [line.split(None, 1)[1] for line in resolved.stdout.splitlines() if line.startswith("hostname ")]
+    return DEFAULT_HOST if resolved.returncode == 0 and names and names[0] != DEFAULT_HOST else None
 
 
 def environment():
@@ -53,7 +81,7 @@ def committed(root, untracked):
     """HEAD of a checkout with nothing uncommitted: the build host runs commits, not working trees."""
     status = git(root, "status", "--porcelain", f"--untracked-files={'normal' if untracked else 'no'}")
     if status:
-        raise ValueError(f"{root} has changes the build host would not run; commit them first:\n{status}")
+        raise Unavailable(f"{root} has changes the build host would not run; commit them first:\n{status}")
     return git(root, "rev-parse", "HEAD")
 
 
@@ -95,7 +123,7 @@ def send(root, host, repository, commit):
     result = subprocess.run(["git", "-C", str(root), "push", "--no-verify", "--quiet", "--receive-pack=git receive-pack",
                              f"{host}:{repository}", f"{commit}:{REF}{commit}"], env=variables)
     if result.returncode:
-        raise RuntimeError(f"Could not send {commit} to {host}:{repository} (git push exited {result.returncode})")
+        raise Unavailable(f"Could not send {commit} to {host}:{repository} (git push exited {result.returncode})")
 
 
 def store(root):
@@ -126,29 +154,35 @@ def describe(identity):
             f"({identity.get('build')}), {', '.join(xcode)})")
 
 
-def execute(root, config, host, work, *, lane=None, arguments=(), expect=None):
+def execute(root, config, host, work, *, lane=None, arguments=(), expect=None, decline=False):
     """Run eng's work on the build host and return its exit status, with the log and receipt kept here.
 
     work is the build host's eng arguments: run [--expect N] LANE [-- ARGUMENTS] or
-    admit [--exclusive] -- COMMAND.
+    admit [--exclusive] -- COMMAND. With decline, the build host refuses work it cannot start now
+    rather than waiting for it, and Unavailable says why.
     """
-    commit = committed(root, untracked=True)
     toolkit = Path(TOOLKIT_ROOT).resolve()
-    directory = checkout_name(root)
-    project = {"directory": directory, "repository": f"repositories/{directory}.git", "commit": commit,
-               "ref": f"{REF}{commit}"}
-    kit = None
-    if toolkit == Path(root).resolve():
-        project["origin"] = origin(root)
-    else:
-        kit_commit = committed(toolkit, untracked=False)
-        kit_directory = checkout_name(toolkit)
-        kit = {"directory": kit_directory, "repository": f"repositories/{kit_directory}.git", "commit": kit_commit,
-               "ref": f"{REF}{kit_commit}", "origin": origin(toolkit)}
+    try:
+        commit = committed(root, untracked=True)
+        directory = checkout_name(root)
+        kept = store(root) / commit
+        kit = None
+        project = {"directory": directory, "repository": f"repositories/{directory}.git", "commit": commit,
+                   "ref": f"{REF}{commit}"}
+        if toolkit == Path(root).resolve():
+            project["origin"] = origin(root)
+        else:
+            kit_commit = committed(toolkit, untracked=False)
+            kit_directory = checkout_name(toolkit)
+            kit = {"directory": kit_directory, "repository": f"repositories/{kit_directory}.git",
+                   "commit": kit_commit, "ref": f"{REF}{kit_commit}", "origin": origin(toolkit)}
+    except RuntimeError as error:  # Git cannot name a commit to send, so nothing is sent.
+        raise Unavailable(str(error)) from error
     developer = developer_directory()
     local = build_host.identity(developer)
     name = lane if lane is not None else "admit"
     plan = {"root": ROOT, "checkouts": CHECKOUTS, "project": project, "toolkit": kit, "work": work,
+            "decline": decline, "busy": BUSY,
             "provision": "provision" in config.get("lanes", {}) and lane != "provision",
             "developerDir": developer, "xcode": local["xcode"],
             "log": f".build/engineering/{lane}/run.log" if lane is not None else None,
@@ -159,19 +193,22 @@ def execute(root, config, host, work, *, lane=None, arguments=(), expect=None):
         f"{{ [ -d {shlex.quote(path)} ] || git init --bare --quiet {shlex.quote(path)}; }}" for path in repositories)])
     print(f"remote: sending {commit[:12]} to {host}", file=sys.stderr, flush=True)
     if ssh(host, prepare, stdin=subprocess.DEVNULL).returncode:
-        raise RuntimeError(f"Could not reach {host} or prepare {ROOT} there; check `ssh {host} true`")
+        raise Unavailable(f"Could not reach {host} or prepare {ROOT} there; check `ssh {host} true`")
     send(root, host, repositories[0], commit)
     if kit is not None: send(toolkit, host, repositories[1], kit["commit"])
     if processes.requested() is not None:
         raise processes.Interrupted(processes.requested(), "before the build host started the run")
 
     results = Path(root) / ".build/engineering/remote" / name
-    results.mkdir(parents=True, exist_ok=True)
+    # Results are staged, so a refusal leaves the previous run's whole.
+    staging = results.with_name(f".{name}.{os.getpid()}")
+    shutil.rmtree(staging, ignore_errors=True)
+    staging.mkdir(parents=True)
     started = time.time()
     source = Path(build_host.__file__).read_text()
     command = [*SSH, host, login(shlex.join(["python3", "-c", source, json.dumps(plan)]))]
     lines, result, stopping = queue.Queue(), None, None
-    with (results / "run.log").open("wb") as log, (results / "output.log").open("wb") as output:
+    with (staging / "run.log").open("wb") as log, (staging / "output.log").open("wb") as output:
         channel = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                    env=environment())
         def relay():
@@ -204,6 +241,11 @@ def execute(root, config, host, work, *, lane=None, arguments=(), expect=None):
                 output.write(data)
                 write(sys.stdout, data)
         channel.wait()
+    if result is not None and result.get("refused"):
+        shutil.rmtree(staging, ignore_errors=True)
+        raise Unavailable(f"{host} did not take it: {result['refused']}")
+    shutil.rmtree(results, ignore_errors=True)
+    staging.rename(results)
     if result is None:
         raise RuntimeError(f"No result from {host} (ssh exited {channel.returncode}); the run is unmeasured. "
                            f"Its output is in {results / 'output.log'}")
@@ -212,7 +254,6 @@ def execute(root, config, host, work, *, lane=None, arguments=(), expect=None):
                "dispatched": started}
     (results / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if lane is not None and not arguments and expect is None:
-        kept = store(root) / commit
         kept.mkdir(parents=True, exist_ok=True)
         (kept / f"{lane}.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if result.get("error"):
@@ -245,7 +286,8 @@ def main(root, config, args):
         if lane.get("foreground"): raise ValueError(f"{args.lane} takes the screen; foreground lanes run only here")
         if args.expect is not None and args.expect < 1: raise ValueError("--expect needs at least 1 test")
         extra = args.passed or []
-        work = ["run", *(["--expect", str(args.expect)] if args.expect else []), args.lane, *(["--", *extra] if extra else [])]
+        work = ["run", "--here", *(["--expect", str(args.expect)] if args.expect else []), args.lane,
+                *(["--", *extra] if extra else [])]
         with processes.forwarding_signals():
             return execute(root, config, host, work, lane=args.lane, arguments=extra, expect=args.expect)
     # Without a leading --, argparse collected the command, and a later -- belongs to it.
@@ -253,3 +295,18 @@ def main(root, config, args):
     if not command: raise ValueError("Name the command: eng remote admit [--exclusive] -- COMMAND")
     with processes.forwarding_signals():
         return execute(root, config, host, ["admit", *(["--exclusive"] if args.exclusive else []), "--", *command])
+
+
+def first(root, config, lane, arguments, expect):
+    """Run a buildHost lane on the build host if it takes it now and return its status, or None
+    after saying why it runs on this Mac instead."""
+    host = configured()
+    if host is None: return None
+    work = ["run", "--here", "--if-free", *(["--expect", str(expect)] if expect else []), lane,
+            *(["--", *arguments] if arguments else [])]
+    try:
+        with processes.forwarding_signals():
+            return execute(root, config, host, work, lane=lane, arguments=arguments, expect=expect, decline=True)
+    except Unavailable as reason:
+        print(f"eng: running {lane} on this Mac: {reason}", file=sys.stderr, flush=True)
+        return None

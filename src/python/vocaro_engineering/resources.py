@@ -22,6 +22,9 @@ import time
 import uuid
 
 TOKEN = "VOCARO_RESOURCE_TOKEN"
+# `eng run --if-free` waits this many seconds for admission, then exits with BUSY (EX_TEMPFAIL)
+# without running: how the build host says it cannot take a lane now.
+FREE_WAIT, BUSY = 5, 75
 
 
 def process_start(pid):

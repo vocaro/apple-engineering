@@ -64,9 +64,10 @@ capabilities it uses and documents justified exceptions. Product policies remain
 - Coordinate heavy builds and measurements through the shared resource queue: a configured
   lane with `python3 scripts/eng run LANE`, adding `-- ARGUMENTS` such as a test filter, and any
   other build, `swift test`, `xcodebuild` or simulator run with
-  `python3 scripts/eng admit -- COMMAND`. A gate suite is heavy work too; the owner's build host
-  can run it instead, at HEAD, with `python3 scripts/eng remote run LANE`
-  (guides/shared-host.md, Build host). Add `--exclusive` only
+  `python3 scripts/eng admit -- COMMAND`. A gate suite is heavy work too. Heavy work goes to the
+  owner's build host first: `eng run` sends a lane marked `buildHost` there at a committed tree,
+  and `python3 scripts/eng remote run LANE` sends any other (guides/shared-host.md, Build host).
+  Add `--exclusive` only
   for work that needs the host to itself: a whole-machine or timing measurement, or a
   generative-model run. A test that fails only on a busy host is a defect to fix, not a reason for
   exclusive admission. Never build a private slot pool: the queue cannot see it. Nested work

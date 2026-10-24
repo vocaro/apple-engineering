@@ -1,5 +1,6 @@
 """Shared engineering entry point. Initialization never starts a build or hosted job."""
 import argparse
+import contextlib
 import importlib.util
 import json
 import os
@@ -10,6 +11,7 @@ import sys
 
 from . import __version__, devices, disk, docs, evidence, processes, remote, resources, spelling
 from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
+from .resources import BUSY, FREE_WAIT
 
 
 def named_checkout(toolkit):
@@ -130,6 +132,10 @@ def main(argv=None):
         "LANE [-- ARGUMENTS], which appends the arguments, such as a test filter, to the lane's command")
     run.add_argument("--expect", type=int, metavar="N", help="require exactly N executed tests; without it, a "
         "run with arguments needs at least one in place of the lane's minimumTests")
+    run.add_argument("--here", action="store_true", help="run a buildHost lane on this Mac rather than on the "
+        "build host first")
+    run.add_argument("--if-free", action="store_true", help=f"run only if heavy-work admission admits the lane within "
+        f"{FREE_WAIT}s; otherwise exit {BUSY} without running it")
     run.add_argument("lane")
     admission = commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
         "test, a simulator run, a gate suite) through the host's heavy-work admission: eng admit -- COMMAND; add "
@@ -233,6 +239,10 @@ def main(argv=None):
             # A foreground lane takes the owner's screen: only the session holding mac-foreground runs it.
             if lane.get("foreground"): devices.require_foreground(os.environ.get(devices.OWNER))
             extra = args.passed or []
+            # Nested work runs inside the admission it inherits, here.
+            if lane.get("buildHost") and not args.here and not os.environ.get(resources.TOKEN):
+                status = remote.first(root, config, args.lane, extra, args.expect)
+                if status is not None: return status
             command = [*lane["command"], *extra]
             resource = lane.get("resource", "light")
             policy_commit = refresh_policy(root) if resource != "light" else None
@@ -245,7 +255,15 @@ def main(argv=None):
             with processes.forwarding_signals():
                 if resource == "light": result = execute()
                 else:
-                    with resources.Admission(args.lane, exclusive=resource == "exclusive") as admission:
+                    with contextlib.ExitStack() as stack:
+                        try:
+                            admission = stack.enter_context(resources.Admission(args.lane,
+                                exclusive=resource == "exclusive", timeout=FREE_WAIT if args.if_free else 5400))
+                        except TimeoutError as error:
+                            # Admission published nothing, so declining leaves nothing to release.
+                            if not args.if_free: raise
+                            print(f"eng: {args.lane} not run: {error}", file=sys.stderr)
+                            return BUSY
                         result = execute(admission.interrupted)
             # The command has a confirmed terminal result. Coverage validation cannot turn
             # that completed process into an orphan reservation.

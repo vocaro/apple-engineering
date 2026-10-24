@@ -112,25 +112,50 @@ Admission reads the load before it admits and cannot account for work that never
 
 ## Build host
 
-The owner's second Mac, the build host, takes gate suites and other heavy work off this one. It
-runs them under its own heavy-work admission: each host's queue sees that host's load, so the
-build host is no private slot pool. `eng remote` reaches it by the SSH alias `build-host`;
-`--host` or `VOCARO_BUILD_HOST` names another destination.
+The owner's second Mac, the build host, takes heavy work first, and this Mac takes what the build
+host cannot. This Mac is the owner's workstation, busy with work the queue never sees, while the
+build host is otherwise idle and has more memory and disk. It runs work under its own
+heavy-work admission: each host's queue sees that host's load, so the build host is no private
+slot pool. `eng remote` reaches it by the SSH alias `build-host`; `--host` or
+`VOCARO_BUILD_HOST` names another destination.
 
 ```sh
-python3 scripts/eng remote run LANE [-- ARGUMENTS]
+python3 scripts/eng run LANE [-- ARGUMENTS]            # a buildHost lane: the build host first
+python3 scripts/eng remote run LANE [-- ARGUMENTS]     # any lane, on the build host
 python3 scripts/eng remote admit [--exclusive] -- COMMAND
 python3 scripts/eng remote passed LANE [--commit REV]
 ```
+
+### Which Mac runs a lane
+
+A lane marked `"buildHost": true` in engineering.json goes to the build host first. Mark a heavy
+or exclusive lane that needs no simulator, device, screen or timing measurement, such as a
+SwiftPM gate suite: those stay on this Mac. `eng run` sends a marked lane to the build host,
+which runs it only if it can start now. Its queue must admit the lane within five seconds
+(`eng run --if-free` there, which exits 75 without running otherwise), and one of the project's
+four checkouts there must be free. Otherwise, and when the tree has uncommitted changes, the
+build host cannot be reached, or its Xcode differs, the build host refuses before anything runs,
+and `eng run` says why and runs the lane here, under this Mac's admission as before. A run that
+starts there finishes there: a connection lost during it leaves the run unmeasured rather than
+running the lane a second time here.
+
+`eng run --here` keeps a marked lane on this Mac, for instance when a session needs the lane's
+build products here. Nested work runs inside the admission it inherits, here. `eng run` looks for
+the build host only when `VOCARO_BUILD_HOST` names one or `~/.ssh/config` defines the
+`build-host` alias, which `ssh -G` reports; `VOCARO_BUILD_HOST=none` keeps every lane here. A
+lane's results come back to `.build/engineering/remote/LANE/` when it ran on the build host and
+stay in `.build/engineering/LANE/` when it ran here; the last lines `eng run` prints name them.
+
+### How a run reaches the build host
 
 `eng remote` runs HEAD, never a working tree: it refuses a checkout with uncommitted changes or
 nonignored untracked files. It takes no slot here. It pushes the commit, and the toolkit commit
 that runs it, by git over SSH and without hooks to bare repositories under
 `~/Development/build-host` on the build host, so nothing reaches GitHub. There `build_host.py`,
-sent along and run by the host's own Python, takes one of two persistent checkouts of the
+sent along and run by the host's own Python, takes one of four persistent checkouts of the
 project, checks the commit out detached with the toolkit beside it, and runs `eng run` or
 `eng admit` in the checkout's root. A checkout keeps its ignored inputs and build products, so
-its next build is warm; a third concurrent run waits for one. A project's `provision` lane, when
+its next build is warm; `eng remote` waits for one when all four are in use. A project's `provision` lane, when
 it has one, runs first to provision the checkout's ignored inputs, and the work runs only if it
 passes. A checkout that a run left with changes stays as it is for inspection and is passed
 over. Once it is read, remove it with
@@ -175,7 +200,8 @@ The owner prepares the build host once:
    system's Python 3.9 runs the toolkit, and lanes that need a newer Python fail.
 5. Keep it on power and awake. A sleeping build host leaves its run unmeasured.
 6. When a project's packages depend on private repositories, create a fine-grained GitHub token
-   with read-only Contents permission on exactly those repositories, and write it on the build
+   with read-only Contents permission on them (on all of the owner's repositories, if the owner
+   prefers not to update it as dependencies change), and write it on the build
    host, readable only by its owner, as one line `https://USER:TOKEN@github.com` in
    `~/Development/build-host/git-credentials`. In zsh, without leaving the token in the shell's
    history:

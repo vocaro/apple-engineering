@@ -4,6 +4,7 @@ from io import StringIO
 import json
 import os
 from pathlib import Path
+import shlex
 import shutil
 import signal
 import subprocess
@@ -28,7 +29,8 @@ while [ $# -gt 0 ]; do
 done
 shift
 cd "$FAKE_HOME" || exit 255
-HOME="$FAKE_HOME" SHELL="$FAKE_SHELL" exec /bin/sh -c "$*"
+# The build host has its own heavy-work queue.
+HOME="$FAKE_HOME" SHELL="$FAKE_SHELL" HEAVY_SLOT_DIR="$FAKE_SLOTS" SW_GATE_LOCK_FILE="$FAKE_GATE" exec /bin/sh -c "$*"
 """
 # A login shell that reads no profile, so the test's PATH reaches the build host.
 FAKE_SHELL = """#!/bin/sh
@@ -78,6 +80,9 @@ class RemoteTests(unittest.TestCase):
                                  "pathlib.Path('.build/slow.pid').write_text(str(os.getpid())); time.sleep(60)"],
                      "resource": "heavy"},
             "screen": {"command": [python, "-c", "pass"], "foreground": True},
+            "gate": {"command": [python, "-c", "import os; print('Ran 2 tests in', os.getcwd())"],
+                     "resource": "heavy", "minimumTests": 2, "buildHost": True},
+            "build": {"command": [python, "-c", "print('Ran 1 tests')"], "resource": "heavy"},
             # Asks for a credential only through the store helper, never this Mac's keychain.
             "helpers": {"command": [python, "-c", "import os, subprocess; "
                 "env = {**os.environ, 'GIT_TERMINAL_PROMPT': '0'}; "
@@ -95,7 +100,8 @@ class RemoteTests(unittest.TestCase):
         self.environment = patch.dict(os.environ, {
             "PATH": f"{tools}{os.pathsep}{os.environ['PATH']}", "FAKE_HOME": str(self.home),
             "FAKE_SHELL": str(tools / "login-shell"), "HEAVY_SLOT_DIR": str(base / "slots"),
-            "SW_GATE_LOCK_FILE": str(base / "gate"), "HEAVY_POLL_SECONDS": "0.01", "VOCARO_BUILD_HOST": "fake"})
+            "SW_GATE_LOCK_FILE": str(base / "gate"), "HEAVY_POLL_SECONDS": "0.01", "VOCARO_BUILD_HOST": "fake",
+            "FAKE_SLOTS": str(base / "build-host-slots"), "FAKE_GATE": str(base / "build-host-gate")})
         self.environment.start()
         os.environ.pop("VOCARO_RESOURCE_TOKEN", None)
         os.environ.pop("DEVELOPER_DIR", None)
@@ -190,6 +196,7 @@ class RemoteTests(unittest.TestCase):
         self.assertIn(f"ran in {self.checkout(0).resolve()}", output)
         self.assertIn("ran in", (self.project / ".build/engineering/remote/admit/output.log").read_text())
 
+    @patch.object(remote, "CHECKOUTS", 2)
     def test_a_checkout_a_run_left_changed_is_kept_and_passed_over(self):
         self.assertEqual(self.eng("remote", "run", "check")[0], 0)
         (self.checkout(0) / "stray.txt").write_text("left by a run\n")
@@ -226,7 +233,7 @@ class RemoteTests(unittest.TestCase):
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         finally:
             os.close(lock)
-        self.assertFalse(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
+        self.assertFalse(Path(os.environ["FAKE_GATE"] + ".warm-push-guard").exists())
 
     def test_the_build_hosts_credential_file_is_the_runs_only_git_credential_helper(self):
         log = self.project / ".build/engineering/remote/helpers/run.log"
@@ -239,6 +246,75 @@ class RemoteTests(unittest.TestCase):
         # An empty value resets the helpers that system and global configuration name.
         self.assertIn(f"'', 'store --file={credentials}']", text)
         self.assertIn("['username=someone']", text)
+
+    def run_here(self, *arguments):
+        """eng run, with this Mac's policy refresh, which would fetch GitHub, left out."""
+        with patch.object(cli, "refresh_policy", return_value="policy"):
+            return self.eng("run", *arguments)
+
+    def test_a_build_host_lane_runs_there_first(self):
+        status, output, error = self.eng("run", "gate")
+        self.assertEqual(status, 0, output + error)
+        self.assertIn(f"Ran 2 tests in {self.checkout(0).resolve()}",
+                      (self.project / ".build/engineering/remote/gate/run.log").read_text())
+        self.assertFalse((self.project / ".build/engineering/gate").exists())
+        self.assertEqual(self.eng("remote", "passed", "gate")[0], 0)
+
+    def test_a_busy_build_host_sends_the_lane_back_here(self):
+        # Exclusive work holds every slot of the build host's queue.
+        holder = subprocess.Popen([sys.executable, "-m", "vocaro_engineering.resources", "--exclusive", "--",
+                                   sys.executable, "-c", "print('held', flush=True); import time; time.sleep(120)"],
+                                  stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, env={
+                                      **os.environ, "PYTHONPATH": str(config.TOOLKIT_ROOT / "src/python"),
+                                      "HEAVY_SLOT_DIR": os.environ["FAKE_SLOTS"],
+                                      "SW_GATE_LOCK_FILE": os.environ["FAKE_GATE"]})
+        try:
+            self.assertEqual(holder.stdout.readline().strip(), "held")
+            status, output, error = self.run_here("gate")
+        finally:
+            holder.send_signal(signal.SIGTERM)
+            holder.wait(timeout=60)
+        self.assertEqual(status, 0, output + error)
+        self.assertIn("running gate on this Mac: fake did not take it: its heavy-work queue cannot take the lane now",
+                      error)
+        self.assertIn(f"Ran 2 tests in {self.project.resolve()}",
+                      (self.project / ".build/engineering/gate/run.log").read_text())
+        # Nothing ran there, so no result of the build host's is recorded.
+        self.assertFalse((self.project / ".build/engineering/remote/gate").exists())
+        self.assertEqual(self.eng("remote", "passed", "gate")[0], 1)
+
+    def test_a_lane_stays_here_when_asked_unmarked_uncommitted_or_without_a_build_host(self):
+        for arguments in [["--here", "gate"], ["build"]]:
+            with self.subTest(arguments):
+                self.assertEqual(self.run_here(*arguments)[0], 0)
+        for setting in [{"VOCARO_BUILD_HOST": "none"}, {}]:
+            with self.subTest(setting), patch.dict(os.environ, setting):
+                # Without VOCARO_BUILD_HOST, `ssh -G` names no build-host alias.
+                if not setting: del os.environ["VOCARO_BUILD_HOST"]
+                self.assertEqual(self.run_here("gate")[0], 0)
+        self.assertFalse((self.home / remote.ROOT).exists())
+        (self.project / "notes.txt").write_text("uncommitted\n")
+        status, _output, error = self.run_here("gate")
+        self.assertEqual(status, 0)
+        self.assertIn("running gate on this Mac", error)
+        self.assertIn("commit them first", error)
+        self.assertFalse((self.home / remote.ROOT / "checkouts").exists())
+
+    def test_nested_work_runs_its_lane_inside_the_admission_it_inherits(self):
+        inner = [sys.executable, str(self.toolkit / "bin/eng"), "--project", str(self.project), "run", "gate"]
+        with patch.object(cli, "refresh_policy", return_value="policy"):
+            self.assertEqual(self.eng("admit", "--", "/bin/sh", "-c", f"exec {shlex.join(inner)} >/dev/null 2>&1")[0], 0)
+        self.assertIn(f"Ran 2 tests in {self.project.resolve()}",
+                      (self.project / ".build/engineering/gate/run.log").read_text())
+        self.assertFalse((self.home / remote.ROOT).exists())
+
+    def test_only_a_heavy_lane_that_keeps_off_the_screen_may_go_to_the_build_host(self):
+        for lane in [{"command": ["true"], "buildHost": True}, {"command": ["true"], "resource": "heavy", "buildHost": 1},
+                     {"command": ["true"], "resource": "heavy", "foreground": True, "buildHost": True}]:
+            with self.subTest(lane):
+                (self.project / "engineering.json").write_text(json.dumps(
+                    {"schemaVersion": 1, "name": "Example", "lanes": {"lane": lane}}))
+                with self.assertRaises(ValueError): config.load(self.project)
 
     def test_the_toolkit_runs_itself_without_a_second_checkout(self):
         settings = json.loads((self.toolkit / "engineering.json").read_text())
