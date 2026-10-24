@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,37 @@ def named_checkout(toolkit):
     spec.loader.exec_module(adapter)
     main = adapter.main_checkout(toolkit)
     return main if main and (main / "src/python/vocaro_engineering").is_dir() else toolkit
+
+
+# The Swift manifests that can name a toolkit package by a path relative to themselves.
+MANIFESTS = ("Package.swift", "project.yml", "project.pbxproj")
+
+
+def unlinked_packages(root, config):
+    """Warnings for toolkit packages that the project's tracked Swift manifests name by a relative
+    path that does not resolve from this checkout, as from a linked worktree with no toolkit beside
+    it. The launcher falls back to the main checkout's sibling; Xcode and SwiftPM do not."""
+    name = re.escape(Path(config.get("toolkit", {}).get("path", "../apple-engineering")).name)
+    try:
+        listed = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--", *(f"*{m}" for m in MANIFESTS)],
+                                capture_output=True, text=True, timeout=60, check=True).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    links = {}
+    for relative in filter(None, listed.split("\0")):
+        manifest = root / relative
+        if manifest.name not in MANIFESTS: continue
+        # An Xcode project's paths are relative to the folder that holds the .xcodeproj.
+        base = manifest.parent.parent if manifest.name == "project.pbxproj" else manifest.parent
+        try: text = manifest.read_text(errors="replace")
+        except OSError: continue
+        for match in re.finditer(rf"((?:\.\./)+{name})/src/swift/[\w.-]+", text):
+            if not (base / match.group(0)).exists():
+                links.setdefault(Path(os.path.normpath(base / match.group(1))), set()).add(relative)
+    return [f"{', '.join(sorted(manifests))} name{'s' if len(manifests) == 1 else ''} toolkit packages under {link}, "
+            "which does not exist from this checkout: link the toolkit there with "
+            f"`ln -s {named_checkout(TOOLKIT_ROOT)} {link}` (guides/adoption.md)"
+            for link, manifests in sorted(links.items())]
 
 
 def initialize(root, args):
@@ -219,6 +251,7 @@ def main(argv=None):
             if "integration" not in config:
                 warnings.append("engineering.json declares no integration: add \"integration\": \"direct-main\", "
                                 "or \"pull-request\" for a project that takes changes only by pull request (agents/core.md)")
+            warnings += unlinked_packages(root, config)
             print(json.dumps({"project": config["name"], "toolkit": str(TOOLKIT_ROOT),
                 "source": source_identity(TOOLKIT_ROOT), "capabilities": config.get("capabilities", []),
                 "missingCommands": missing, "warnings": warnings}, indent=2))

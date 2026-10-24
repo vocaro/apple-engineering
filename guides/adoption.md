@@ -8,8 +8,9 @@ install a wheel of the Python directory without the repository's policies and so
 Use `VOCARO_ENGINEERING_ROOT` when the checkout is elsewhere. Python guidance and knowledge
 commands work offline; guarded shared-resource lanes refresh operating policy from the remote.
 The existing StudyWright and Pagepour Swift test-support dependencies expect the sibling
-checkout path. A different Swift support location also requires updating those project
-manifests and their graph contracts; the Python environment variable changes only tool lookup.
+checkout path, from a linked worktree too ([below](#locating-the-toolkit-from-a-worktree)). A
+different Swift support location also requires updating those project manifests and their graph
+contracts; the Python environment variable changes only tool lookup.
 
 ## Existing and new projects
 
@@ -69,6 +70,23 @@ leads to the shared `.git`, whose parent is the main checkout. Reading those fil
 command, so script tests that replace Git with fakes still work. A submodule's `.git` file has
 no `commondir`, and a main checkout's `.git` is a directory; neither falls back. The adapter
 passes the clone it found to every shared script it runs.
+
+The fallback serves the launcher alone. A Swift manifest that names a toolkit package by a
+relative path, as Pagepour's `project.yml` and Xcode project and StudyWright's `app/project.yml`
+name `src/swift/EngineeringTestSupport`, resolves that path from the checkout it is in, so in a
+linked worktree with no toolkit beside it, package resolution fails with "cannot be accessed".
+Keep a symbolic link to the toolkit's main checkout where that path leads. Codex keeps one beside
+each of its worktrees; for the Claude app's session worktrees, one link in the repository's
+`.claude/worktrees` folder serves them all, and the repository's exclude for that folder keeps
+it out of status:
+
+```sh
+ln -s ~/Development/apple-engineering ~/Development/PROJECT/.claude/worktrees/apple-engineering
+```
+
+`doctor` warns when a tracked `Package.swift`, XcodeGen `project.yml` or Xcode project names a
+toolkit package that does not resolve from the checkout, and prints the link to make. It makes
+no link itself.
 
 `toolkit_location` in `integrations/shared.py` implements this, and `integrations/eng.py`
 imports it. `init` installs them as `scripts/_engineering.py` and `scripts/eng`; a project that

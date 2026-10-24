@@ -91,6 +91,44 @@ class ConfigurationTests(unittest.TestCase):
                     for warning in warnings:
                         self.assertIn("integration", warning)
 
+    def test_doctor_warns_when_swift_manifests_name_a_toolkit_package_that_does_not_resolve(self):
+        with tempfile.TemporaryDirectory() as directory:
+            # A session worktree, as under .claude/worktrees, with no toolkit beside it.
+            worktrees = Path(directory) / "worktrees"
+            root = worktrees / "session"
+            (root / "app").mkdir(parents=True)
+            (root / "App.xcodeproj").mkdir()
+            (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Example",
+                "toolkit": {"path": "../apple-engineering"}, "integration": "direct-main"}))
+            package = "apple-engineering/src/swift/EngineeringTestSupport"
+            (root / "project.yml").write_text(f"packages:\n  EngineeringTestSupport:\n    path: ../{package}\n"
+                                              "  Other:\n    path: ../OtherLib\n")
+            (root / "App.xcodeproj/project.pbxproj").write_text(f'relativePath = "../{package}";\n')
+            (root / "app/project.yml").write_text(f"packages:\n  EngineeringTestSupport:\n    path: ../../{package}\n")
+            # An untracked manifest is not the project's.
+            (root / "scratch").mkdir()
+            (root / "scratch/Package.swift").write_text(f'.package(path: "../../elsewhere/{package}")\n')
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "engineering.json", "project.yml", "app", "App.xcodeproj"],
+                           check=True)
+
+            def warnings():
+                with patch.object(cli.shutil, "which", return_value="/usr/bin/true"), patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stdout(StringIO()) as output:
+                    self.assertEqual(cli.main(["--project", str(root), "doctor"]), 0)
+                return json.loads(output.getvalue())["warnings"]
+
+            # doctor resolves the project, and with it the temporary directory's /private prefix.
+            link = worktrees.resolve() / "apple-engineering"
+            found = warnings()
+            # The three manifests name one missing folder, so one link fixes them all.
+            self.assertEqual(len(found), 1, found)
+            self.assertIn("App.xcodeproj/project.pbxproj, app/project.yml, project.yml name", found[0])
+            self.assertIn(f"ln -s {cli.named_checkout(config.TOOLKIT_ROOT)} {link}`", found[0])
+            self.assertNotIn("OtherLib", found[0])
+            self.assertNotIn("scratch", found[0])
+            (link / "src/swift/EngineeringTestSupport").mkdir(parents=True)
+            self.assertEqual(warnings(), [])
+
     def test_instructions_note_a_toolkit_checkout_behind_origin_main_without_fetching(self):
         with tempfile.TemporaryDirectory() as directory:
             clone, plain = Path(directory) / "clone", Path(directory) / "plain"
