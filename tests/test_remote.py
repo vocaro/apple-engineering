@@ -105,6 +105,9 @@ class RemoteTests(unittest.TestCase):
         self.environment.start()
         os.environ.pop("VOCARO_RESOURCE_TOKEN", None)
         os.environ.pop("DEVELOPER_DIR", None)
+        # A run on the real build host hands its git the credential file through these.
+        for key in [key for key in os.environ if key.startswith("GIT_CONFIG_") and key != "GIT_CONFIG_GLOBAL"]:
+            del os.environ[key]
         self.patches = [patch.object(remote, "TOOLKIT_ROOT", self.toolkit),
                         patch.object(remote, "developer_directory", return_value=None)]
         for item in self.patches: item.start()
