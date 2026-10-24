@@ -10,11 +10,12 @@
     "python-tests": {
       "command": [
         "python3",
-        "-m",
+        "scripts/eng",
         "unittest",
-        "discover",
         "-s",
         "tests",
+        "--split",
+        "test",
         "-v"
       ],
       "resource": "light",

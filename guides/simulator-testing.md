@@ -71,6 +71,10 @@ host authorization is pending. Report a boot timeout as unmeasured, with its cau
 from test failures, and continue with the next device. Never retry a failed test. Report each
 device's outcome and exit nonzero when any device failed.
 
+`python3 scripts/eng simulator-tests` carries out these steps for several devices at once: it
+builds the tests once while every device boots, then tests every device side by side
+([parallel tests](parallel-tests.md#simulators-side-by-side)).
+
 ## Reserved simulator pool
 
 - Use only the project's approved pool; its device names and runtimes stay with the project.

@@ -10,9 +10,10 @@ import shutil
 import subprocess
 import sys
 
-from . import __version__, devices, disk, docs, evidence, processes, remote, resources, spelling
+from . import __version__, devices, disk, docs, evidence, parallel, processes, remote, resources, spelling
 from .config import TOOLKIT_ROOT, CAPABILITIES, DEFAULT_TOOLKIT, FORMER_TOOLKIT, load, source_identity
 from .resources import BUSY, FREE_WAIT
+from .simulators import matrix
 
 
 def named_checkout(toolkit):
@@ -145,6 +146,29 @@ def record(directory, receipt, work):
     return result
 
 
+def judge(lane, result, log, extra=(), expect=None):
+    """A lane's status and unmeasured tests from its command's status and its log. A completed run
+    that executed too few tests raises ValueError."""
+    measured = result in (0, evidence.UNMEASURED)
+    if measured and (lane.get("minimumTests") or expect):
+        # Arguments such as a filter select part of the lane, which must still run a test.
+        minimum = 1 if extra or expect else lane["minimumTests"]
+        try:
+            evidence.require_tests(log, minimum, expected=expect)
+        except ValueError as error:
+            # An unmeasured part may not have run at all, so the run stays unmeasured.
+            if result == 0: raise
+            print(f"eng: {error}", file=sys.stderr)
+    unmeasured = evidence.unmeasured_tests(log) if measured else []
+    if unmeasured or result == evidence.UNMEASURED:
+        # A skip or cancellation leaves the command's own status at 0, and unmeasured is never green.
+        if unmeasured:
+            print(f"eng: unmeasured: {len(unmeasured)} test(s) reported unmeasured:", *unmeasured,
+                  sep="\n", file=sys.stderr)
+        return evidence.UNMEASURED, unmeasured
+    return result, []
+
+
 def admit(root, args):
     # Without a leading --, argparse collected the command, and a later -- belongs to it.
     command = args.command + ([] if args.passed is None else ["--", *args.passed]) if args.command else args.passed
@@ -179,8 +203,15 @@ def main(argv=None):
         "build host first")
     run.add_argument("--if-free", action="store_true", help=f"run only if heavy-work admission admits the lane within "
         f"{FREE_WAIT}s; otherwise exit {BUSY} without running it")
+    run.add_argument("--serial", action="store_true", help="run a lane group's lanes one after another, on this "
+        "Mac: the reference a failure seen only side by side is checked against")
     run.add_argument("lane")
-    admission = commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
+    # Listed for help only: main passes everything after these to their own parsers.
+    commands.add_parser("simulator-tests", help="build a scheme's tests once and run them on several disposable "
+        "simulators side by side: eng simulator-tests --scheme S --runtime R --device T --device T; -h for the rest")
+    commands.add_parser("unittest", help="run a unittest suite's modules in processes of their own, side by side: "
+        "eng unittest [-s START] [-p PATTERN] [-j JOBS] [-v]; eng unittest -h for the rest")
+    admission =commands.add_parser("admit", help="run any other heavy command (a build, swift test, xcodebuild "
         "test, a simulator run, a gate suite) through the host's heavy-work admission: eng admit -- COMMAND; add "
         "--exclusive only for work that needs the host to itself")
     admission.add_argument("--exclusive", action="store_true",
@@ -225,6 +256,10 @@ def main(argv=None):
     # Everything after the first -- belongs to the command. Python 3.9's argparse rejects options
     # before it and drops a later --, so argparse never sees it.
     argv = sys.argv[1:] if argv is None else list(argv)
+    # unittest's options are its own runner's, which this parser would refuse. It reads no project.
+    first = 2 if argv[:1] == ["--project"] else 1 if argv[:1] and argv[0].startswith("--project=") else 0
+    if argv[first:first + 1] == ["unittest"]: return parallel.unittest_main(argv[first + 1:])
+    if argv[first:first + 1] == ["simulator-tests"]: return matrix.main(argv[first + 1:])
     split = argv.index("--") if "--" in argv else len(argv)
     args = parser.parse_args(argv[:split])
     args.passed = argv[split + 1:] if split < len(argv) else None
@@ -283,19 +318,33 @@ def main(argv=None):
             # A foreground lane takes the owner's screen: only the session holding mac-foreground runs it.
             if lane.get("foreground"): devices.require_foreground(os.environ.get(devices.OWNER))
             extra = args.passed or []
-            # Nested work runs inside the admission it inherits, here.
-            if lane.get("buildHost") and not args.here and not os.environ.get(resources.TOKEN):
+            group = lane.get("parallel")
+            if group is not None and (extra or args.expect):
+                raise ValueError(f"{args.lane} runs a group of lanes, which takes no arguments or --expect; "
+                                 "pass them to one of its lanes")
+            if group is None and args.serial: raise ValueError(f"--serial runs a lane group, and {args.lane} is not one")
+            # Nested work runs inside the admission it inherits, here. The serial reference runs here too.
+            if lane.get("buildHost") and not args.here and not args.serial and not os.environ.get(resources.TOKEN):
                 status = remote.first(root, config, args.lane, extra, args.expect)
                 if status is not None: return status
-            command = [*lane["command"], *extra]
             resource = lane.get("resource", "light")
             policy_commit = refresh_policy(root) if resource != "light" else None
             directory = root / ".build/engineering" / args.lane
             receipt = {"project": source_identity(root), "toolkit": source_identity(TOOLKIT_ROOT),
-                       "policy": policy_commit, "command": command, "arguments": extra}
-            def execute(on_stop=None):
-                return record(directory, receipt, lambda: processes.run(command, cwd=root,
-                              log_path=directory / "run.log", timeout=lane.get("timeout"), on_stop=on_stop))
+                       "policy": policy_commit}
+            if group is None:
+                command = [*lane["command"], *extra]
+                receipt.update(command=command, arguments=extra)
+                def execute(on_stop=None):
+                    return record(directory, receipt, lambda: processes.run(command, cwd=root,
+                                  log_path=directory / "run.log", timeout=lane.get("timeout"), on_stop=on_stop))
+            else:
+                jobs = 1 if args.serial else lane.get("jobs", len(group))
+                receipt.update(parallel=group, jobs=jobs)
+                members = [(name, config["lanes"][name]) for name in group]
+                def execute(on_stop=None):
+                    return record(directory, receipt, lambda: parallel.lanes(root, members, directory / "lanes", jobs,
+                                  lambda member, status, log: judge(member, status, log)[0], receipt, on_stop))
             try:
                 with processes.forwarding_signals():
                     if resource == "light": result = execute()
@@ -315,29 +364,20 @@ def main(argv=None):
                 # unmeasured (guides/measurement.md). Its log is incomplete and counts nothing.
                 print(f"eng: unmeasured: {error}", file=sys.stderr)
                 return evidence.UNMEASURED
+            # A group's lanes were each judged by their own logs.
+            if "parallel" in lane:
+                if result == evidence.UNMEASURED:
+                    receipt.update(outcome="unmeasured")
+                    (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
+                return result
             # The command has a confirmed terminal result. Coverage validation cannot turn
             # that completed process into an orphan reservation.
             log = (directory / "run.log").read_text(errors="replace")
-            measured = result in (0, evidence.UNMEASURED)
-            if measured and (lane.get("minimumTests") or args.expect):
-                # Arguments such as a filter select part of the lane, which must still run a test.
-                minimum = 1 if extra or args.expect else lane["minimumTests"]
-                try:
-                    evidence.require_tests(log, minimum, expected=args.expect)
-                except ValueError as error:
-                    # An unmeasured part may not have run at all, so the run stays unmeasured.
-                    if result == 0: raise
-                    print(f"eng: {error}", file=sys.stderr)
-            unmeasured = evidence.unmeasured_tests(log) if measured else []
-            if unmeasured or result == evidence.UNMEASURED:
-                # A skip or cancellation leaves the command's own status at 0, and unmeasured is never green.
-                if unmeasured:
-                    print(f"eng: unmeasured: {len(unmeasured)} test(s) reported unmeasured:", *unmeasured,
-                          sep="\n", file=sys.stderr)
+            status, unmeasured = judge(lane, result, log, extra, args.expect)
+            if status == evidence.UNMEASURED:
                 receipt.update(outcome="unmeasured", unmeasured=unmeasured)
                 (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
-                return evidence.UNMEASURED
-            return result
+            return status
         return 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"eng: {error}", file=sys.stderr)

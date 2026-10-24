@@ -31,7 +31,9 @@ add explicit argv-based lanes to engineering.json. Give each lane a `resource` o
 lanes through [heavy-work admission](shared-host.md#heavy-work-admission), writes the lane's log
 and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, fails a
 successful run that executed fewer tests. A lane whose log reports a test unmeasured, or whose
-`timeout` stops it, exits 3 ([evidence commands](evidence.md#evidence-commands)).
+`timeout` stops it, exits 3 ([evidence commands](evidence.md#evidence-commands)). A lane whose
+`parallel` names other lanes runs them side by side under its one admission
+([parallel tests](parallel-tests.md#suites-side-by-side)).
 `eng run LANE -- ARGUMENTS` appends arguments, such
 as a test filter, to the lane's command; such a run needs at least one executed test in place
 of `minimumTests`, or exactly N with `--expect N`. Other heavy work that no lane names goes

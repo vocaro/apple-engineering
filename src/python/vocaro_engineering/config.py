@@ -51,7 +51,11 @@ def load(root):
         raise ValueError("Choose one simulator ownership policy")
     if not isinstance(value.get("lanes", {}), dict):
         raise ValueError("lanes must be an object")
-    for name, lane in value.get("lanes", {}).items():
+    lanes = value.get("lanes", {})
+    for name, lane in lanes.items():
+        if isinstance(lane, dict) and "parallel" in lane:
+            group(name, lane, lanes)
+            continue
         if not isinstance(lane, dict) or set(lane) - {"command", "resource", "minimumTests", "timeout", "foreground",
                                                        "buildHost"}:
             raise ValueError(f"Invalid lane {name}")
@@ -79,6 +83,38 @@ def load(root):
     if not isinstance(exceptions, list) or any(not isinstance(x, dict) or not all(isinstance(x.get(k), str) and x[k] for k in ["rule", "reason"]) for x in exceptions):
         raise ValueError("Exceptions require a rule and a reason")
     return value
+
+
+RESOURCES = ["light", "heavy", "exclusive"]
+
+
+def group(name, lane, lanes):
+    """A lane group names other lanes to run side by side under its one admission, so it needs
+    the heaviest resource among them (guides/parallel-tests.md)."""
+    if set(lane) - {"parallel", "jobs", "resource", "buildHost"}:
+        raise ValueError(f"Lane group {name} takes only parallel, jobs, resource and buildHost")
+    members = lane["parallel"]
+    if not isinstance(members, list) or not members or len(set(members)) != len(members) \
+            or any(not isinstance(member, str) for member in members):
+        raise ValueError(f"{name}.parallel must list distinct lane names")
+    resource = lane.get("resource", "light")
+    if resource not in RESOURCES:
+        raise ValueError(f"Invalid resource for {name}")
+    for member in members:
+        other = lanes.get(member)
+        if not isinstance(other, dict) or "command" not in other:
+            raise ValueError(f"{name}.parallel names {member}, which is not a lane with a command")
+        if other.get("foreground"):
+            raise ValueError(f"{name}.parallel names {member}, which takes the screen and runs alone")
+        if RESOURCES.index(other.get("resource", "light")) > RESOURCES.index(resource):
+            raise ValueError(f"{name} runs {member} under its own admission, so it needs a resource of at least "
+                             f"{other.get('resource')}")
+    if "jobs" in lane and (type(lane["jobs"]) is not int or not 1 <= lane["jobs"] <= len(members)):
+        raise ValueError(f"{name}.jobs must be from 1 to the number of its lanes")
+    if "buildHost" in lane and type(lane["buildHost"]) is not bool:
+        raise ValueError(f"{name}.buildHost must be true or false")
+    if lane.get("buildHost") and resource == "light":
+        raise ValueError(f"{name}.buildHost needs a heavy or exclusive lane that does not take the screen")
 
 
 def source_identity(root):

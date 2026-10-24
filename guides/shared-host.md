@@ -55,7 +55,8 @@ pressure spoiled is unmeasured, not failed
 heavy work like any other; one whose tests still assume a quiet host stays exclusive until they
 are fixed. A test that a busy host decided reports itself unmeasured, and its lane exits 3
 ([honest outcome states](evidence.md#honest-outcome-states)). Admission counts a gate as one job
-however many workers it starts, so bound its build and test parallelism.
+however many workers it starts, so bound its build and test parallelism
+([parallel tests](parallel-tests.md#bound-what-runs-at-once)).
 
 HEAVY_SLOTS jobs (3) are always admitted. Beyond them one job at a time is admitted, up to
 HEAVY_SLOTS_MAX (half the CPU count), while the one-minute load average is below

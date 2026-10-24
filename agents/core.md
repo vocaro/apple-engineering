@@ -40,6 +40,9 @@ capabilities it uses and documents justified exceptions. Product policies remain
   said to need a finger usually needs a timing or input a UI test can make. Behavior a simulator
   or the Mac does not enforce, such as data protection or extension memory limits, is qualified
   only on the device.
+- Run a gate's independent suites, devices and tests side by side, bounded, each with its own log
+  and outcome; a failure seen only side by side is checked against the serial reference and
+  fixed in the test (guides/parallel-tests.md).
 - Use the smallest relevant checks first. Verify a filtered run's executed count and expected
   identities: a successful command with zero selected tests establishes no coverage.
 - Keep passed, failed, skipped and unmeasured distinct. An unmeasured result records its cause
