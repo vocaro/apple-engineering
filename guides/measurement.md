@@ -134,6 +134,23 @@ so concurrent waits are each counted and the seconds held against the limit can 
 CPU seconds. That leniency toward a multithreaded run on a loaded host is bounded by the
 backstop. Record the core-wait seconds in every receipt.
 
+A test reports a limit the host spoiled as unmeasured
+([honest outcome states](evidence.md#honest-outcome-states)). EPUBLib's
+[`TestDeadline`](https://github.com/vocaro/EPUBLib/blob/42146d0a/Tests/EPUBTestSupport/TestDeadline.swift)
+holds XCTest waits this way, and found these pitfalls (vocaro/EPUBLib#859, October 2026):
+
+- `rusage_info` times are Mach ticks, not nanoseconds: 125/3 ns a tick on an M5 Max. Scale them
+  by `mach_timebase_info`.
+- `<libproc.h>` is not in the iOS SDK, but libSystem exports `proc_pid_rusage` there as well.
+  Declared with `@_silgen_name("proc_pid_rusage")`, it read core-wait in iPhone and iPad
+  simulators' test processes.
+- On a crowded host the threads' summed waits can outrun the clock, and a backstop of four times
+  a short limit is soon reached. Give the backstop a floor: at least 10 s more than a wait's
+  limit, and 2 s more for a settling pause, so that many pauses do not each run to 10 s.
+- XCTest refuses a second wait on one expectation. Wait once, with
+  `XCTWaiter.fulfillment(of:timeout:)` to the backstop, and judge the result by the deadline
+  afterwards.
+
 ## Counting work instead of time
 
 Pin an algorithm's cost by counting the questions it asks, never the seconds it takes. A rule

@@ -27,7 +27,8 @@
       "tests/test_spelling.py": "plants British spellings as the check's negative controls"
     },
     "exemptPhrases": {
-      "colour type": "the PNG specification's name for the IHDR field"
+      "colour type": "the PNG specification's name for the IHDR field",
+      "was cancelled after": "Swift Testing's own line for a canceled test, which eng reads in lane logs"
     }
   },
   "exceptions": []

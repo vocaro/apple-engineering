@@ -152,7 +152,17 @@ Testing run and each unittest run: `swift test` and `xcodebuild` run each bundle
 top suite, so the largest total counted one bundle (2,516 of a 3,355-test EPUBLib run, Xcode
 27.1, October 2026). A wrapper's own `Executed N tests` line, one per simulator for example,
 counts only when the log holds no XCTest totals that it would repeat, so a two-device run counts
-both devices. A run with arguments replaces the lane's last log and receipt like any other run.
+both devices.
+
+A lane is unmeasured, exit 3, when its command exits 3, when its command exits 0 but its log
+reports a test unmeasured ([honest outcome states](#honest-outcome-states)), or when its
+`timeout` stops it. Its receipt then records `"outcome": "unmeasured"`, with the log's lines for
+those tests under `unmeasured`, or the timeout under `error`. A lane's timeout is a wall-clock
+backstop that a busy host can reach
+([core-wait time](measurement.md#cpu-scheduling-and-core-wait-time)), and the log it cuts short
+counts nothing. A run that exits 3 is counted too, but a shortfall only prints, because the
+unmeasured part may not have run at all. A run with arguments replaces the lane's last log and
+receipt like any other run.
 
 `python3 scripts/eng admit -- COMMAND` records the same fields, with the directory the command
 ran in and whether it was exclusive, in `.build/engineering/admit/source.json`. Its output stays
@@ -275,6 +285,14 @@ that stand between a run and a pass; 2 stays a usage or tool error, as in `eng` 
 listed. Require an independent positive control before blaming an unavailable framework or
 model.
 
+A test reports itself unmeasured with a reason that begins `Unmeasured:` and says what the host
+decided: `throw XCTSkip("Unmeasured: REASON")` in XCTest, `try Test.cancel("Unmeasured: REASON")`
+in Swift Testing, or `skipTest("Unmeasured: REASON")` in unittest, which prints the reason only
+under `-v`. `swift test` and `xcodebuild test` print the first two alike and still exit 0 (Swift
+6.4, Xcode 27.1, October 2026), so the test alone reads green. `eng run` finds those lines in the
+lane's log and exits 3 ([evidence commands](#evidence-commands)). A lane script that sends a
+suite's output to a file of its own copies those lines to its standard output.
+
 Gate an opt-in test visibly. An early `return` when a variable is unset reports the un-run
 harness as a pass; Swift Testing's `.enabled(if:)` trait reports a skip, which keeps "nothing
 ran" apart from "everything passed". Keep the predicate a site was measured under: presence of a
@@ -296,11 +314,12 @@ own expectations:
   [Swift concurrency](../knowledge/apple/swift-concurrency.md)).
 - An end-of-test probe sees only a framework that is still failing; a failure that recovered
   during the test goes unseen.
-- `swift test` can only pass or fail, and a canceled test passes. Run it through a wrapper that
-  reads an out-of-band report of unmeasured tests, starts from a fresh report file each run,
-  treats an unreadable report as a failure and maps the result to 0, 1 or 3. A simulation switch
-  that makes the probe report unavailability proves the treatment on a working host; every line
-  it causes says SIMULATED.
+- `swift test` can only pass or fail, and a canceled test passes. Cancel it with a reason that
+  begins `Unmeasured:`, which a lane's `eng run` maps to 3. Outside `eng run`, run it through a
+  wrapper that reads an out-of-band report of unmeasured tests, starts from a fresh report file
+  each run, treats an unreadable report as a failure and maps the result to 0, 1 or 3. A
+  simulation switch that makes the probe report unavailability proves the treatment on a working
+  host; every line it causes says SIMULATED.
 
 Classify device and assistive results as product defects, observer failures, transport failures
 or unavailable coverage. Reproduce a supplied control's failure in a minimal host before

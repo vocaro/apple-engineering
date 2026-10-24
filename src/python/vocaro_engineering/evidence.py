@@ -45,6 +45,23 @@ def require_tests(text, minimum=1, expected=None):
     return observed
 
 
+# The exit status of a run whose unmeasured results are all that stand between it and a pass.
+UNMEASURED = 3
+
+# A test the host left unmeasured skips (XCTest, unittest) or cancels itself (Swift Testing) with a
+# reason that begins "Unmeasured:", and swift test and xcodebuild still exit 0. unittest prints the
+# reason only when verbose.
+UNMEASURED_TEST = re.compile(r"^.*:\d+: -\[[^\]\n]+\] : Test skipped - Unmeasured: .*$"
+                             r"|^\S+ Test .* was cancelled after [^:\n]*: \"Unmeasured: .*\"$"
+                             r"|^.* \.\.\. skipped 'Unmeasured: .*'$", re.M)
+
+
+def unmeasured_tests(text):
+    """The distinct lines in which a log reports a test unmeasured, in order. A wrapper that
+    repeats them in a summary adds none."""
+    return list(dict.fromkeys(match.group(0).strip() for match in UNMEASURED_TEST.finditer(text)))
+
+
 def contained(root, relative):
     root = Path(root).resolve()
     relative = Path(relative)

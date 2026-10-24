@@ -29,7 +29,9 @@ add explicit argv-based lanes to engineering.json. Give each lane a `resource` o
 `heavy` or `exclusive`: `eng run` refreshes the operating policy and admits heavy and exclusive
 lanes through [heavy-work admission](shared-host.md#heavy-work-admission), writes the lane's log
 and source receipt under `.build/engineering/LANE/`, and, with `minimumTests`, fails a
-successful run that executed fewer tests. `eng run LANE -- ARGUMENTS` appends arguments, such
+successful run that executed fewer tests. A lane whose log reports a test unmeasured, or whose
+`timeout` stops it, exits 3 ([evidence commands](evidence.md#evidence-commands)).
+`eng run LANE -- ARGUMENTS` appends arguments, such
 as a test filter, to the lane's command; such a run needs at least one executed test in place
 of `minimumTests`, or exactly N with `--expect N`. Other heavy work that no lane names goes
 through `eng admit [--exclusive] -- COMMAND`. Mark a heavy or exclusive lane that needs no

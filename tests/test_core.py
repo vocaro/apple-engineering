@@ -178,6 +178,33 @@ class ConfigurationTests(unittest.TestCase):
             cli.main(["--project", directory, "run", *arguments])
         return error.getvalue()
 
+    def test_a_lane_that_reports_an_unmeasured_test_or_reaches_its_timeout_is_unmeasured(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unmeasured = "/p/T.swift:6: -[P.T testA] : Test skipped - Unmeasured: the 80 s backstop passed"
+            def lane(output, status=0, **options):
+                return {"command": [sys.executable, "-c", f"import sys; print({output!r}); sys.exit({status})"], **options}
+            lanes = {"unmeasured": lane(f"{unmeasured}\nRan 2 tests"),
+                     "skipped": lane("/p/T.swift:6: -[P.T testA] : Test skipped - needs a Mac\nRan 2 tests"),
+                     # A lane that exits 3 itself may not have run every test.
+                     "short": lane("Ran 1 test", 3, minimumTests=2),
+                     "short-passed": lane("Ran 1 test", minimumTests=2),
+                     "failed": lane(f"{unmeasured}\nRan 2 tests", 1),
+                     "slow": {"command": [sys.executable, "-c", "import time; time.sleep(60)"], "timeout": 1}}
+            (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Lanes", "lanes": lanes}))
+            cases = {"unmeasured": (3, "unmeasured"), "skipped": (0, None), "short": (3, "unmeasured"),
+                     "short-passed": (2, None), "failed": (1, None), "slow": (3, "unmeasured")}
+            for name, (status, outcome) in cases.items():
+                with self.subTest(name):
+                    with patch.object(cli, "source_identity", return_value={}), contextlib.redirect_stderr(StringIO()) as error:
+                        self.assertEqual(cli.main(["--project", directory, "run", name]), status, error.getvalue())
+                    recorded = json.loads((root / ".build/engineering" / name / "source.json").read_text())
+                    self.assertEqual(recorded.get("outcome"), outcome)
+            recorded = json.loads((root / ".build/engineering/unmeasured/source.json").read_text())
+            self.assertEqual((recorded["exitStatus"], recorded["unmeasured"]), (0, [unmeasured]))
+            self.assertIn("timed out after 1s", json.loads((root / ".build/engineering/slow/source.json").read_text())["error"])
+            self.assertIn("Expected at least 2 executed tests; observed 1", self.run_lane(directory, "short"))
+
 
 
 class EvidenceTests(unittest.TestCase):
@@ -216,6 +243,22 @@ class EvidenceTests(unittest.TestCase):
         for text in ["Ran 2 tests", "Ran 4 tests", "** TEST SUCCEEDED **"]:
             with self.subTest(text), self.assertRaisesRegex(ValueError, "exactly 3"):
                 evidence.require_tests(text, expected=3)
+
+    def test_a_skip_or_cancellation_whose_reason_begins_unmeasured_reports_an_unmeasured_test(self):
+        # swift test and xcodebuild print the first two alike, and exit 0; unittest prints its reason
+        # only when verbose (Swift 6.4, Xcode 27.1, Python 3.14, October 2026).
+        xctest = "/p/Tests/T.swift:6: -[ProbeTests.ProbeXCTests testUnmeasured] : Test skipped - Unmeasured: the 80 s backstop passed"
+        swift_testing = '➜ Test swiftTestingUnmeasured() was cancelled after 0.001 seconds: "Unmeasured: the 80 s backstop passed"'
+        python = "test_unmeasured (test_probe.Probe.test_unmeasured) ... skipped 'Unmeasured: the 80 s backstop passed'"
+        measured = ["/p/Tests/T.swift:9: -[ProbeTests.ProbeXCTests testOther] : Test skipped - needs a Mac",
+                    "Test Case '-[ProbeTests.ProbeXCTests testUnmeasured]' skipped (0.002 seconds).",
+                    '➜ Test other() was cancelled after 0.001 seconds: "the window closed"',
+                    "test_other (test_probe.Probe.test_other) ... skipped 'needs a Mac'",
+                    "Unmeasured: macOS: 1 tests a busy host decided; see mac.log"]
+        # A wrapper's summary that repeats a line adds no test.
+        log = "\n".join([*measured, xctest, swift_testing, python, xctest]) + "\n"
+        self.assertEqual(evidence.unmeasured_tests(log), [xctest, swift_testing, python])
+        self.assertEqual(evidence.unmeasured_tests("\n".join(measured)), [])
 
     def test_changed_missing_and_escaping_evidence_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:

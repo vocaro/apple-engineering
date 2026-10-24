@@ -101,7 +101,8 @@ def record(directory, receipt, work):
         result = work()
         receipt["exitStatus"] = result
     except BaseException as error:
-        receipt["outcome"] = "failed-or-interrupted"
+        # A timeout is a wall-clock backstop that a busy host can reach, not a verdict on the work.
+        receipt["outcome"] = "unmeasured" if isinstance(error, processes.TimedOut) else "failed-or-interrupted"
         receipt["error"] = str(error)
         raise
     finally:
@@ -259,25 +260,47 @@ def main(argv=None):
             def execute(on_stop=None):
                 return record(directory, receipt, lambda: processes.run(command, cwd=root,
                               log_path=directory / "run.log", timeout=lane.get("timeout"), on_stop=on_stop))
-            with processes.forwarding_signals():
-                if resource == "light": result = execute()
-                else:
-                    with contextlib.ExitStack() as stack:
-                        try:
-                            admission = stack.enter_context(resources.Admission(args.lane,
-                                exclusive=resource == "exclusive", timeout=FREE_WAIT if args.if_free else 5400))
-                        except TimeoutError as error:
-                            # Admission published nothing, so declining leaves nothing to release.
-                            if not args.if_free: raise
-                            print(f"eng: {args.lane} not run: {error}", file=sys.stderr)
-                            return BUSY
-                        result = execute(admission.interrupted)
+            try:
+                with processes.forwarding_signals():
+                    if resource == "light": result = execute()
+                    else:
+                        with contextlib.ExitStack() as stack:
+                            try:
+                                admission = stack.enter_context(resources.Admission(args.lane,
+                                    exclusive=resource == "exclusive", timeout=FREE_WAIT if args.if_free else 5400))
+                            except TimeoutError as error:
+                                # Admission published nothing, so declining leaves nothing to release.
+                                if not args.if_free: raise
+                                print(f"eng: {args.lane} not run: {error}", file=sys.stderr)
+                                return BUSY
+                            result = execute(admission.interrupted)
+            except processes.TimedOut as error:
+                # The lane's timeout is its backstop, so a run a busy host slowed past it is
+                # unmeasured (guides/measurement.md). Its log is incomplete and counts nothing.
+                print(f"eng: unmeasured: {error}", file=sys.stderr)
+                return evidence.UNMEASURED
             # The command has a confirmed terminal result. Coverage validation cannot turn
             # that completed process into an orphan reservation.
-            if result == 0 and (lane.get("minimumTests") or args.expect):
+            log = (directory / "run.log").read_text(errors="replace")
+            measured = result in (0, evidence.UNMEASURED)
+            if measured and (lane.get("minimumTests") or args.expect):
                 # Arguments such as a filter select part of the lane, which must still run a test.
                 minimum = 1 if extra or args.expect else lane["minimumTests"]
-                evidence.require_tests((directory / "run.log").read_text(), minimum, expected=args.expect)
+                try:
+                    evidence.require_tests(log, minimum, expected=args.expect)
+                except ValueError as error:
+                    # An unmeasured part may not have run at all, so the run stays unmeasured.
+                    if result == 0: raise
+                    print(f"eng: {error}", file=sys.stderr)
+            unmeasured = evidence.unmeasured_tests(log) if measured else []
+            if unmeasured or result == evidence.UNMEASURED:
+                # A skip or cancellation leaves the command's own status at 0, and unmeasured is never green.
+                if unmeasured:
+                    print(f"eng: unmeasured: {len(unmeasured)} test(s) reported unmeasured:", *unmeasured,
+                          sep="\n", file=sys.stderr)
+                receipt.update(outcome="unmeasured", unmeasured=unmeasured)
+                (directory / "source.json").write_text(json.dumps(receipt, indent=2) + "\n")
+                return evidence.UNMEASURED
             return result
         return 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
