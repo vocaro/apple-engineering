@@ -386,6 +386,13 @@ TEST_RUNNER_EXAMPLE_FLAG=1 python3 scripts/eng admit -- \
 - `-destination-timeout` defaults to 30 seconds. Under load, 120 to 600 seconds has been needed.
 - `-parallel-testing-enabled NO` keeps one test process per destination. With several
   destinations that must not overlap, add `-maximum-concurrent-test-simulator-destinations 1`.
+- Leave `-quiet` off a build whose log someone reads. With it, xcodebuild prints `error: the
+  following command failed with exit code 0 but produced no further output` above each compile
+  step that only warned: 212 such lines in one PDFReflowLib `build-for-testing` that succeeded
+  (Xcode 27.1, October 2026). Without it, the log ends `** TEST BUILD SUCCEEDED **` and holds no
+  `error:` line.
+- `generic/platform=iOS Simulator` builds every simulator architecture, arm64 and x86_64. That
+  build's derived data took 5.1 GiB.
 
 ### Test environment
 
