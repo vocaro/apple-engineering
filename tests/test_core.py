@@ -129,6 +129,22 @@ class ConfigurationTests(unittest.TestCase):
             (link / "src/swift/EngineeringTestSupport").mkdir(parents=True)
             self.assertEqual(warnings(), [])
 
+    def test_doctor_reads_both_toolkit_names_in_manifests_only_with_the_default_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "worktrees/session"
+            root.mkdir(parents=True)
+            (root / "project.yml").write_text("a: ../vocaro-engineering/src/swift/EngineeringTestSupport\n"
+                                              "b: ../apple-engineering/src/swift/EngineeringTestSupport\n")
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "project.yml"], check=True)
+            for configured, names in [({}, ["apple-engineering", "vocaro-engineering"]),
+                                      ({"path": "../vocaro-engineering"}, ["apple-engineering", "vocaro-engineering"]),
+                                      ({"path": "../apple-engineering"}, ["apple-engineering"])]:
+                with self.subTest(configured=configured):
+                    found = cli.unlinked_packages(root, {"toolkit": configured})
+                    self.assertEqual([name for name in names for warning in found if f"/{name}," in warning], names)
+                    self.assertEqual(len(found), len(names), found)
+
     def test_instructions_note_a_toolkit_checkout_behind_origin_main_without_fetching(self):
         with tempfile.TemporaryDirectory() as directory:
             clone, plain = Path(directory) / "clone", Path(directory) / "plain"

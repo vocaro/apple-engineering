@@ -37,7 +37,7 @@ from .resources import process_start
 SCHEMA = 1
 OVERRIDE = "VOCARO_DEVICE_RECORD"
 ABOUT = ("Device reservations on this Mac. Change entries only through "
-         "`python3 -m vocaro_engineering.devices` (apple-engineering guides/shared-host.md).")
+         "`python3 -m vocaro_engineering.devices` (vocaro-engineering guides/shared-host.md).")
 # Earlier ad hoc records. Status names one whose current bytes were never imported.
 LEGACY = "/private/tmp/*device-handoff*.json"
 UDID = re.compile(r"[0-9A-F]{8}(?:-[0-9A-F]{4,16}){1,4}|[0-9A-F]{40}")

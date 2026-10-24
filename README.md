@@ -1,17 +1,23 @@
-# Vocaro Apple engineering
+# Vocaro engineering
 
 Maintained engineering rules, tools, test support and cross-project technical knowledge for
-EPUBLib, PDFReflowLib, StudyWright, Pagepour, MathMLLayout and new projects. This repository is
-public and [MIT licensed](LICENSE). The shipping libraries BackgroundTaskLib, FileProtectionLib and FileHandoffLib have
-separate private repositories that use this toolkit for engineering; their packages do not
-depend on it.
+EPUBLib, PDFReflowLib, StudyWright, Pagepour, MathMLLayout, mpm and new projects. The core rules,
+lanes, heavy-work admission, evidence receipts and spelling and documentation checks apply to
+any project; capabilities add platform methods, most of them for Apple platforms. This
+repository is public and [MIT licensed](LICENSE). The shipping libraries BackgroundTaskLib,
+FileProtectionLib and FileHandoffLib have separate private repositories that use this toolkit for
+engineering; their packages do not depend on it.
+
+This repository was named `apple-engineering`. GitHub redirects the former URLs, and the launcher
+falls back to a `../apple-engineering` clone while projects migrate
+([adoption](guides/adoption.md#locating-the-toolkit-from-a-worktree)).
 
 ## Local use
 
-Clone this repository beside a project as `apple-engineering` without credentials:
+Clone this repository beside a project as `vocaro-engineering` without credentials:
 
 ```sh
-git clone https://github.com/vocaro/apple-engineering.git
+git clone https://github.com/vocaro/vocaro-engineering.git
 ```
 
 From the project checkout, run:

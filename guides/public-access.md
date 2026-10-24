@@ -8,13 +8,13 @@ knowledge articles are separate private projects; none is a dependency of this t
 ## Contributor setup
 
 Clone this repository beside the consumer with
-`git clone https://github.com/vocaro/apple-engineering.git`. In the consumer, run
+`git clone https://github.com/vocaro/vocaro-engineering.git`. In the consumer, run
 `python3 scripts/eng doctor`, `python3 scripts/eng instructions` and its documented lanes.
 Set VOCARO_ENGINEERING_ROOT for a different checkout location. See
 [adoption](adoption.md) for new projects and updates.
 
 A public GitHub Actions workflow can use actions/checkout with repository:
-vocaro/apple-engineering and persist-credentials: false. No custom SSH key or private-repository
+vocaro/vocaro-engineering and persist-credentials: false. No custom SSH key or private-repository
 secret is needed. Dispatching a workflow still requires permission on the consumer repository.
 Fork owners set their own repository and hostedRepositories values in engineering.json before
 dispatching their workflows; read-only local regression tests dispatch nothing.

@@ -64,7 +64,7 @@ class RemoteTests(unittest.TestCase):
         # The build host's Python is the Mac's own when it has one: Python 3.9 without Homebrew.
         system = Path("/usr/bin/python3")
         (tools / "python3").symlink_to(system if sys.platform == "darwin" and system.exists() else sys.executable)
-        self.toolkit = self.make_toolkit(base / "apple-engineering")
+        self.toolkit = self.make_toolkit(base / "vocaro-engineering")
         self.project = base / "example"
         self.project.mkdir()
         python = sys.executable
@@ -121,7 +121,7 @@ class RemoteTests(unittest.TestCase):
         """A committed copy of this toolkit, whose origin is itself, as the build host receives it."""
         for part in ["bin", "integrations", "policies", "agents", "src/python"]:
             shutil.copytree(config.TOOLKIT_ROOT / part, root / part, ignore=shutil.ignore_patterns("__pycache__"))
-        (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "apple-engineering",
+        (root / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "vocaro-engineering",
                                                            "toolkit": {"path": "."}}))
         subprocess.run(["git", "init", "-q", "-b", "main", str(root)], check=True)
         commit_all(root)
@@ -151,7 +151,7 @@ class RemoteTests(unittest.TestCase):
         self.assertIn("Policy source:", output)
         self.assertIn(f"check at {self.commit[:12]}", error)
         # The toolkit checkout sits beside the project's, at the dispatched commit.
-        kit = self.checkout(0).parent / "apple-engineering"
+        kit = self.checkout(0).parent / "vocaro-engineering"
         self.assertEqual(git(kit, "rev-parse", "HEAD"), git(self.toolkit, "rev-parse", "HEAD"))
         # The pushed refs only carried the commits; the checkouts keep them.
         self.assertEqual(git(self.home / remote.ROOT / "repositories/example.git", "for-each-ref"), "")
@@ -328,11 +328,11 @@ class RemoteTests(unittest.TestCase):
         commit = commit_all(self.toolkit)
         with contextlib.redirect_stdout(StringIO()), contextlib.redirect_stderr(StringIO()) as error:
             self.assertEqual(cli.main(["--project", str(self.toolkit), "remote", "run", "check"]), 0, error.getvalue())
-        slot = self.home / remote.ROOT / "checkouts/apple-engineering/0"
-        self.assertEqual([path.name for path in slot.iterdir()], ["apple-engineering"])
-        self.assertEqual(git(slot / "apple-engineering", "rev-parse", "HEAD"), commit)
+        slot = self.home / remote.ROOT / "checkouts/vocaro-engineering/0"
+        self.assertEqual([path.name for path in slot.iterdir()], ["vocaro-engineering"])
+        self.assertEqual(git(slot / "vocaro-engineering", "rev-parse", "HEAD"), commit)
         self.assertEqual([path.name for path in (self.home / remote.ROOT / "repositories").iterdir()],
-                         ["apple-engineering.git"])
+                         ["vocaro-engineering.git"])
 
 
 if __name__ == "__main__":

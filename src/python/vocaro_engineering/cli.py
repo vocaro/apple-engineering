@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 from . import __version__, devices, disk, docs, evidence, processes, remote, resources, spelling
-from .config import TOOLKIT_ROOT, CAPABILITIES, load, source_identity
+from .config import TOOLKIT_ROOT, CAPABILITIES, DEFAULT_TOOLKIT, FORMER_TOOLKIT, load, source_identity
 from .resources import BUSY, FREE_WAIT
 
 
@@ -33,8 +33,11 @@ MANIFESTS = ("Package.swift", "project.yml", "project.pbxproj")
 def unlinked_packages(root, config):
     """Warnings for toolkit packages that the project's tracked Swift manifests name by a relative
     path that does not resolve from this checkout, as from a linked worktree with no toolkit beside
-    it. The launcher falls back to the main checkout's sibling; Xcode and SwiftPM do not."""
-    name = re.escape(Path(config.get("toolkit", {}).get("path", "../apple-engineering")).name)
+    it. The launcher falls back to the main checkout's sibling; Xcode and SwiftPM do not. With
+    the default path, a manifest may still name the toolkit by its former name."""
+    location = config.get("toolkit", {}).get("path", DEFAULT_TOOLKIT)
+    name = "|".join(re.escape(Path(path).name)
+                    for path in ([location, FORMER_TOOLKIT] if location == DEFAULT_TOOLKIT else [location]))
     try:
         listed = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--", *(f"*{m}" for m in MANIFESTS)],
                                 capture_output=True, text=True, timeout=60, check=True).stdout
@@ -48,7 +51,7 @@ def unlinked_packages(root, config):
         base = manifest.parent.parent if manifest.name == "project.pbxproj" else manifest.parent
         try: text = manifest.read_text(errors="replace")
         except OSError: continue
-        for match in re.finditer(rf"((?:\.\./)+{name})/src/swift/[\w.-]+", text):
+        for match in re.finditer(rf"((?:\.\./)+(?:{name}))/src/swift/[\w.-]+", text):
             if not (base / match.group(0)).exists():
                 links.setdefault(Path(os.path.normpath(base / match.group(1))), set()).add(relative)
     return [f"{', '.join(sorted(manifests))} name{'s' if len(manifests) == 1 else ''} toolkit packages under {link}, "
@@ -83,7 +86,7 @@ def initialize(root, args):
         agents.write_text("# Contributor instructions\n\n## Shared engineering guidance\n\n"
             "Before work, run `python3 scripts/eng instructions` to read the common rules and enabled\n"
             "capabilities, then follow the project-specific instructions below. `engineering.json` locates\n"
-            "the shared `apple-engineering` checkout; set `VOCARO_ENGINEERING_ROOT` for another location.\n"
+            "the shared `vocaro-engineering` checkout; set `VOCARO_ENGINEERING_ROOT` for another location.\n"
             "Before shared device, foreground or runner use, run `python3 scripts/eng policy refresh` and\n"
             "read this project's current main instructions.\n\n"
             "Record project-specific product rules and justified exceptions here.\n")

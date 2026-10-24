@@ -1,7 +1,7 @@
 # Adoption and maintenance
 
-Clone the public MIT-licensed `vocaro/apple-engineering` beside your projects with
-`git clone https://github.com/vocaro/apple-engineering.git`. No GitHub credentials or private
+Clone the public MIT-licensed `vocaro/vocaro-engineering` beside your projects with
+`git clone https://github.com/vocaro/vocaro-engineering.git`. No GitHub credentials or private
 repository access are needed for that checkout. No installation or network is
 needed for normal local invocation. Python 3.9+ runs the source checkout directly; do not
 install a wheel of the Python directory without the repository's policies and source resources.
@@ -20,7 +20,7 @@ configuration and prerequisites. A capability enables guidance; it does not gran
 use a device, screen, model, corpus or hosted runner.
 
 For a new repository, run
-`python3 /path/to/apple-engineering/bin/eng --project /path/to/NewRepo init`. Initialization is
+`python3 /path/to/vocaro-engineering/bin/eng --project /path/to/NewRepo init`. Initialization is
 additive and runs no work. It sets `toolkit.path` relative to the toolkit's main checkout, also
 when run from a linked worktree of the toolkit, such as a session's, which is removed with its
 session. A missing .gitignore is initialized for generated outputs; an
@@ -62,7 +62,7 @@ belong in src/swift and link only to test/tool targets. No production package im
 ## Locating the toolkit from a worktree
 
 The launcher resolves `VOCARO_ENGINEERING_ROOT` first, then `toolkit.path` from
-`engineering.json` (default `../apple-engineering`) relative to the checkout it runs in. A
+`engineering.json` (default `../vocaro-engineering`) relative to the checkout it runs in. A
 linked worktree, such as a session's under `.claude/worktrees`, usually has no clone beside it,
 so the launcher then tries the same relative path beside the repository's main checkout: a
 linked worktree's `.git` is a file naming its private Git directory, whose `commondir` file
@@ -70,6 +70,12 @@ leads to the shared `.git`, whose parent is the main checkout. Reading those fil
 command, so script tests that replace Git with fakes still work. A submodule's `.git` file has
 no `commondir`, and a main checkout's `.git` is a directory; neither falls back. The adapter
 passes the clone it found to every shared script it runs.
+
+The toolkit was named `apple-engineering`. When the path is the default, whether configured or
+not, and no `vocaro-engineering` clone is found in either place, the launcher tries
+`../apple-engineering` in the same places, so a project can adopt the new adapter and default
+before every clone is renamed. Any other configured path, `../apple-engineering` included, is
+used as written.
 
 The fallback serves the launcher alone. A Swift manifest that names a toolkit package by a
 relative path, as Pagepour's `project.yml` and Xcode project and StudyWright's `app/project.yml`
@@ -81,7 +87,7 @@ each of its worktrees; for the Claude app's session worktrees, one link in the r
 it out of status:
 
 ```sh
-ln -s ~/Development/apple-engineering ~/Development/PROJECT/.claude/worktrees/apple-engineering
+ln -s ~/Development/vocaro-engineering ~/Development/PROJECT/.claude/worktrees/vocaro-engineering
 ```
 
 `doctor` warns when a tracked `Package.swift`, XcodeGen `project.yml` or Xcode project names a

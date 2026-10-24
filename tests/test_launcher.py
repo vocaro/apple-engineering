@@ -44,8 +44,8 @@ class WorktreeLauncherTests(unittest.TestCase):
         self.environment = {key: value for key, value in os.environ.items() if key != "VOCARO_ENGINEERING_ROOT"}
         self.environment["PATH"] = str(Path(sys.executable).parent)
 
-    def provision(self, beside):
-        (beside / "apple-engineering").symlink_to(config.TOOLKIT_ROOT, target_is_directory=True)
+    def provision(self, beside, name="vocaro-engineering"):
+        (beside / name).symlink_to(config.TOOLKIT_ROOT, target_is_directory=True)
 
     def launch(self, checkout, *arguments, **environment):
         return subprocess.run([sys.executable, str(checkout / "scripts/eng"), *(arguments or ["instructions"])],
@@ -58,7 +58,7 @@ class WorktreeLauncherTests(unittest.TestCase):
 
     def test_worktree_launcher_finds_the_clone_beside_the_main_checkout(self):
         self.provision(self.base)
-        self.assertFalse((self.worktree.parent / "apple-engineering").exists())
+        self.assertFalse((self.worktree.parent / "vocaro-engineering").exists())
         result = self.launch(self.worktree)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Common engineering rules", result.stdout)
@@ -80,7 +80,41 @@ class WorktreeLauncherTests(unittest.TestCase):
     def test_worktree_without_any_clone_names_the_main_checkout_sibling(self):
         result = self.launch(self.worktree)
         self.assertEqual(result.returncode, 2)
-        self.assertIn(f"Shared toolkit missing at {self.base / 'apple-engineering'}", result.stderr)
+        self.assertIn(f"Shared toolkit missing at {self.base / 'vocaro-engineering'}", result.stderr)
+
+    def test_default_falls_back_to_a_clone_under_the_former_name(self):
+        self.provision(self.base, "apple-engineering")
+        result = self.launch(self.worktree)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Common engineering rules", result.stdout)
+        self.assertEqual(shared_adapter().toolkit_location(self.main), config.TOOLKIT_ROOT)
+
+    def test_current_name_wins_over_the_former_one(self):
+        self.provision(self.base)
+        (self.base / "apple-engineering/src/python/vocaro_engineering").mkdir(parents=True)
+        adapter = shared_adapter()
+        self.assertEqual(adapter.toolkit_location(self.worktree), config.TOOLKIT_ROOT)
+        self.assertEqual(adapter.toolkit_location(self.main), config.TOOLKIT_ROOT)
+
+    def test_configured_default_falls_back_and_other_paths_do_not(self):
+        self.provision(self.base, "apple-engineering")
+        adapter = shared_adapter()
+        project = self.base / "Configured"
+        project.mkdir()
+
+        def configure(path):
+            (project / "engineering.json").write_text(json.dumps({"schemaVersion": 1, "name": "Configured",
+                                                                  "toolkit": {"path": path}}))
+        for path, expected in [("../vocaro-engineering", config.TOOLKIT_ROOT),
+                               ("../apple-engineering", config.TOOLKIT_ROOT),
+                               ("../elsewhere", self.base / "elsewhere")]:
+            configure(path)
+            self.assertEqual(adapter.toolkit_location(project), expected, path)
+        # The former name, configured, never moves on to the current one.
+        (self.base / "apple-engineering").unlink()
+        self.provision(self.base)
+        configure("../apple-engineering")
+        self.assertEqual(adapter.toolkit_location(project), self.base / "apple-engineering")
 
     def test_main_checkout_does_not_fall_back(self):
         adapter = shared_adapter()
@@ -123,7 +157,7 @@ class InitToolkitPathTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.base = Path(temporary.name).resolve()
-        self.kit = self.base / "apple-engineering"
+        self.kit = self.base / "vocaro-engineering"
         files = ["integrations/eng.py", "integrations/shared.py", "src/python/vocaro_engineering/__init__.py"]
         for relative in files:
             (self.kit / relative).parent.mkdir(parents=True, exist_ok=True)
@@ -141,18 +175,18 @@ class InitToolkitPathTests(unittest.TestCase):
         return json.loads((self.project / "engineering.json").read_text())["toolkit"]["path"]
 
     def test_init_from_a_session_worktree_names_the_main_checkout(self):
-        self.assertEqual(self.initialize(self.session), "../apple-engineering")
+        self.assertEqual(self.initialize(self.session), "../vocaro-engineering")
         subprocess.run([*GIT, "-C", str(self.kit), "worktree", "remove", str(self.session)], check=True)
         with patch.dict(os.environ):
             os.environ.pop("VOCARO_ENGINEERING_ROOT", None)
             self.assertEqual(shared_adapter().toolkit_location(self.project), self.kit)
 
     def test_init_from_the_main_checkout_names_it(self):
-        self.assertEqual(self.initialize(self.kit), "../apple-engineering")
+        self.assertEqual(self.initialize(self.kit), "../vocaro-engineering")
 
     def test_a_main_checkout_without_the_toolkit_leaves_the_worktree_named(self):
         shutil.rmtree(self.kit / "src")
-        self.assertEqual(self.initialize(self.session), "../apple-engineering/.claude/worktrees/session")
+        self.assertEqual(self.initialize(self.session), "../vocaro-engineering/.claude/worktrees/session")
 
 
 if __name__ == "__main__":

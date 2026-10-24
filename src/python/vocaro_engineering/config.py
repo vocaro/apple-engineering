@@ -4,6 +4,9 @@ import os
 from pathlib import Path
 
 TOOLKIT_ROOT = Path(__file__).resolve().parents[3]
+# integrations/shared.py, copied into each project, keeps its own copy of these paths.
+DEFAULT_TOOLKIT = "../vocaro-engineering"
+FORMER_TOOLKIT = "../apple-engineering"
 CAPABILITIES = {
     "simulator-disposable", "simulator-pool", "voiceover", "background-mac",
     "packaging", "measurement", "native-python", "external-validation",
@@ -24,7 +27,7 @@ def load(root):
     if not isinstance(value.get("name"), str) or not value["name"]:
         raise ValueError("Project name must be a nonempty string")
     toolkit = value.get("toolkit", {})
-    if not isinstance(toolkit, dict) or set(toolkit) - {"path"} or not isinstance(toolkit.get("path", "../apple-engineering"), str):
+    if not isinstance(toolkit, dict) or set(toolkit) - {"path"} or not isinstance(toolkit.get("path", DEFAULT_TOOLKIT), str):
         raise ValueError("toolkit must contain only an optional checkout path")
     if value.get("integration", "direct-main") not in {"direct-main", "pull-request"}:
         raise ValueError("Unknown integration policy")
