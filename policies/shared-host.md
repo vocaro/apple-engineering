@@ -19,7 +19,8 @@ Heavy work goes to the owner's build host first: a second Mac, reached as the SS
 it here only when the build host cannot start it now; `--here` keeps it here. Other heavy builds
 and tests of a commit go there with `python3 scripts/eng remote run LANE` or
 `python3 scripts/eng remote admit -- COMMAND`. Mark a lane `buildHost` only when it needs no
-simulator, device, screen or timing measurement: those stay on this Mac. A whole gate's pass
+simulator, device, screen (background Mac UI tests included) or timing measurement: those stay
+on this Mac. A whole gate's pass
 there counts for a push from this Mac even when the two Macs run different macOS versions; its
 receipt records both, and as a qualification claim it names the build host's platform.
 

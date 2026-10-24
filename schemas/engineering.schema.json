@@ -132,7 +132,7 @@
             "type": "boolean"
           },
           "buildHost": {
-            "description": "A heavy or exclusive lane that needs no simulator, device, screen or timing measurement: eng run sends it at a committed tree to the owner's build host first, and runs it here when the build host cannot take it",
+            "description": "A heavy or exclusive lane that needs no simulator, device, screen (background Mac UI tests included) or timing measurement: eng run sends it at a committed tree to the owner's build host first, and runs it here when the build host cannot take it",
             "type": "boolean"
           }
         }

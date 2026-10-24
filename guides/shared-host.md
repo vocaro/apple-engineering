@@ -130,7 +130,12 @@ python3 scripts/eng remote passed LANE [--commit REV]
 
 A lane marked `"buildHost": true` in engineering.json goes to the build host first. Mark a heavy
 or exclusive lane that needs no simulator, device, screen or timing measurement, such as a
-SwiftPM gate suite: those stay on this Mac. `eng run` sends a marked lane to the build host,
+SwiftPM gate suite: those stay on this Mac. Background Mac tests need the screen too: they need
+it unlocked and the display awake
+([lock screen and display sleep](background-mac-testing.md#lock-screen-and-display-sleep)), and
+the build host's screen is usually locked. A command started over SSH there can open an
+offscreen window, so a locked screen leaves such tests unmeasured as it does here, and it is
+not trusted for accessibility (observed on macOS 27.2 beta 26B5091g, October 2026). `eng run` sends a marked lane to the build host,
 which runs it only if it can start now. Its queue must admit the lane within five seconds
 (`eng run --if-free` there, which exits 75 without running otherwise), and one of the project's
 four checkouts there must be free. Otherwise, and when the tree has uncommitted changes, the
