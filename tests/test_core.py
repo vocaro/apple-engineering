@@ -123,6 +123,8 @@ class ConfigurationTests(unittest.TestCase):
                 capture_output=True, text=True, env={**os.environ, "PATH": str(Path(sys.executable).parent)})
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("Common engineering rules", result.stdout)
+            self.assertEqual((Path(directory) / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+            self.assertIn("run `python3 scripts/eng instructions`", (Path(directory) / "AGENTS.md").read_text())
 
 
     def test_generated_lane_outputs_do_not_change_the_project_source_identity(self):
@@ -381,6 +383,26 @@ class ResourceTests(unittest.TestCase):
                 self.assertTrue(nested.reused)
             self.assertTrue(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
         self.assertFalse(Path(os.environ["SW_GATE_LOCK_FILE"] + ".warm-push-guard").exists())
+
+    def test_the_project_adapter_reuses_heavy_or_exclusive_admission_only_in_its_namespace(self):
+        adapter = config.TOOLKIT_ROOT / "integrations/shared.py"
+        lock = os.environ["SW_GATE_LOCK_FILE"]
+        # Read at each call: an admission adds its token to the environment.
+        environment = lambda: {**os.environ, "VOCARO_ENGINEERING_ROOT": str(config.TOOLKIT_ROOT)}
+        def verify(namespace, descriptors=()):
+            return subprocess.run([sys.executable, str(adapter), "--verify-admission", namespace],
+                                  env=environment(), pass_fds=descriptors).returncode
+        for exclusive in [False, True]:
+            with self.subTest(exclusive=exclusive), resources.Admission("gate", exclusive=exclusive, timeout=0):
+                descriptors = tuple(item["fd"] for item in json.loads(os.environ[resources.TOKEN])["locks"])
+                self.assertEqual(verify(lock, descriptors), 0)
+                self.assertEqual(verify(lock + "-fixture", descriptors), 1)
+        self.assertEqual(verify(lock), 1)
+        admitted = subprocess.run([sys.executable, str(adapter), "--admit", "0", "--", sys.executable, "-c",
+                                   f"import os; print('{resources.TOKEN}' in os.environ)"],
+                                  env=environment(), capture_output=True, text=True)
+        self.assertEqual(admitted.returncode, 0, admitted.stderr)
+        self.assertEqual(admitted.stdout.strip(), "True")
 
     def test_exclusive_escalation_inside_shared_work_fails_instead_of_deadlocking(self):
         with resources.Admission("shared", timeout=0):

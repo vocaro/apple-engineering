@@ -48,9 +48,16 @@ def initialize(root, args):
         shutil.copyfile(TOOLKIT_ROOT / "integrations/shared.py", adapter)
     agents = root / "AGENTS.md"
     if not agents.exists():
-        agents.write_text("# Contributor instructions\n\nRead shared guidance before work: `python3 scripts/eng instructions`.\n\nRecord project-specific product rules and justified exceptions here.\n")
+        agents.write_text("# Contributor instructions\n\n## Shared engineering guidance\n\n"
+            "Before work, run `python3 scripts/eng instructions` to read the common rules and enabled\n"
+            "capabilities, then follow the project-specific instructions below. `engineering.json` locates\n"
+            "the shared `apple-engineering` checkout; set `VOCARO_ENGINEERING_ROOT` for another location.\n"
+            "Before shared device, foreground or runner use, run `python3 scripts/eng policy refresh` and\n"
+            "read this project's current main instructions.\n\n"
+            "Record project-specific product rules and justified exceptions here.\n")
+    # Claude Code loads an imported AGENTS.md at session start; it may not follow a link.
     bridge = root / "CLAUDE.md"
-    if not bridge.exists(): bridge.write_text("Read [AGENTS.md](AGENTS.md) before work.\n")
+    if not bridge.exists(): bridge.write_text("@AGENTS.md\n")
     load(root)
     print(f"Initialized {root}; existing instructions and commands were preserved")
 

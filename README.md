@@ -3,7 +3,8 @@
 Maintained engineering rules, tools, test support and cross-project technical knowledge for
 EPUBLib, PDFReflowLib, StudyWright, Pagepour, MathMLLayout and new projects. This repository is
 public and [MIT licensed](LICENSE). The shipping libraries BackgroundTaskLib, FileProtectionLib and FileHandoffLib have
-separate private repositories and no dependency on this toolkit.
+separate private repositories that use this toolkit for engineering; their packages do not
+depend on it.
 
 ## Local use
 

@@ -47,7 +47,9 @@ refuses it unless `VOCARO_DEVICE_OWNER` names the session holding `mac-foregroun
 Disposable simulators and the approved reserved pool are separate capabilities and cannot both
 be enabled. Conflicts or unknown fields fail validation. Existing AGENTS.md files are
 preserved: add the explicit `scripts/eng instructions` entry yourself when adopting into a
-repository that already has instructions.
+repository that already has instructions. The CLAUDE.md that init writes imports AGENTS.md
+(`@AGENTS.md`), which Claude Code loads at session start, where it may not follow a link; give
+an existing CLAUDE.md the same import.
 
 Use `eng knowledge QUERY` to find subject documents. Capture future findings with their source
 commit, the original evidence link, applicability and limits; add an index entry. Runtime
