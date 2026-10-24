@@ -15,24 +15,66 @@ def sha256(path):
 
 
 # XCTest prints each suite's total on the line after its result. swift test and xcodebuild run
-# each bundle under its own top suite, All tests, or Selected tests when filtered.
-SUITE_TOTAL = re.compile(r"^Test Suite '([^'\n]*)' (?:passed|failed) at [^\n]*\n\s*Executed (\d+) tests?\b", re.M)
+# each bundle under its own top suite, All tests, or Selected tests when filtered. A total
+# includes the tests it skipped.
+SUITE_TOTAL = re.compile(
+    r"^Test Suite '([^'\n]*)' (?:passed|failed) at [^\n]*\n"
+    r"\s*Executed (\d+) tests?\b(?:, with (\d+) tests? skipped\b)?", re.M)
+
+# unittest's "Ran N tests" includes skipped tests; its status line names how many.
+UNIT_RUN = re.compile(r"^Ran (\d+) tests?\b", re.M)
+UNIT_SKIPPED = re.compile(r"\bskipped=(\d+)")
+
+# Swift Testing counts a skipped test in "Test run with N tests" and prints one line naming it.
+# A skipped suite counts a suite, not a test.
+SWIFT_RUN = re.compile(r"Test run with (\d+) tests?(?: in \d+ suites?)? (?:passed|failed)")
+SWIFT_SKIPPED = re.compile(r"^[^\n]*\bTest \S.* skipped(?:: \"[^\n]*\"|\.)$", re.M)
+
+
+def _swift_testing_counts(text):
+    """Each Swift Testing run's total, less the tests it reported skipped before its summary."""
+    counts = []
+    skipped = 0
+    previous_end = 0
+    for run in SWIFT_RUN.finditer(text):
+        skipped += len(SWIFT_SKIPPED.findall(text, previous_end, run.start()))
+        counts.append(max(int(run.group(1)) - skipped, 0))
+        skipped = 0
+        previous_end = run.end()
+    return counts
+
+
+def _unittest_counts(text):
+    """Each unittest run's total, less the count its following status line reports skipped."""
+    runs = list(UNIT_RUN.finditer(text))
+    counts = []
+    for index, run in enumerate(runs):
+        end = runs[index + 1].start() if index + 1 < len(runs) else len(text)
+        status = re.search(r"^(?:OK|FAILED)\b(?: \(([^)\n]*)\))?", text[run.end():end], re.M)
+        skipped = 0
+        if status and status.group(1):
+            match = UNIT_SKIPPED.search(status.group(1))
+            skipped = int(match.group(1)) if match else 0
+        counts.append(max(int(run.group(1)) - skipped, 0))
+    return counts
 
 
 def executed_tests(text):
     """The tests a log reports executed, or None when it reports no count.
 
     The sum of each XCTest bundle's top-level total, each Swift Testing run and each unittest
-    run. A wrapper's own "Executed N tests" line, one per simulator for example, counts only
-    when the log holds no XCTest totals, which it would repeat."""
+    run, less the tests they report skipped: a skipped test establishes no coverage. A wrapper's
+    own "Executed N tests" line, one per simulator for example, counts only when the log holds
+    no XCTest totals, which it would repeat."""
     suites = list(SUITE_TOTAL.finditer(text))
-    top = [int(match.group(2)) for match in suites if match.group(1) in ("All tests", "Selected tests")]
+    top = [(int(match.group(2)), int(match.group(3) or 0)) for match in suites
+           if match.group(1) in ("All tests", "Selected tests")]
     within = {match.start(2) for match in suites}
     wrapper = [int(match.group(1)) for match in re.finditer(r"Executed (\d+) tests?\b", text)
                if match.start(1) not in within]
-    counts = top or wrapper
-    counts += [int(n) for n in re.findall(r"Test run with (\d+) tests?(?: in \d+ suites?)? (?:passed|failed)", text)]
-    counts += [int(n) for n in re.findall(r"^Ran (\d+) tests?\b", text, flags=re.M)]
+    counts = [max(executed - skipped, 0) for executed, skipped in top] if top else wrapper
+    counts += _swift_testing_counts(text)
+    counts += _unittest_counts(text)
     return sum(counts) if counts else None
 
 

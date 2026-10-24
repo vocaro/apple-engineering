@@ -152,7 +152,9 @@ Testing run and each unittest run: `swift test` and `xcodebuild` run each bundle
 top suite, so the largest total counted one bundle (2,516 of a 3,355-test EPUBLib run, Xcode
 27.1, October 2026). A wrapper's own `Executed N tests` line, one per simulator for example,
 counts only when the log holds no XCTest totals that it would repeat, so a two-device run counts
-both devices.
+both devices. A skipped test is not an executed test: XCTest's and unittest's skipped counts are
+subtracted from their totals, as is each Swift Testing `Test … skipped` line, because its run
+total includes skipped tests. A skipped suite counts a suite, not a test.
 
 A lane is unmeasured, exit 3, when its command exits 3, when its command exits 0 but its log
 reports a test unmeasured ([honest outcome states](#honest-outcome-states)), or when its

@@ -276,6 +276,28 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(evidence.require_tests(device + summaries.splitlines()[0], expected=3252), 3252)
         self.assertEqual(evidence.require_tests("Ran 40 tests in 1.0s\n\nOK\nRan 3 tests in 0.1s\n\nOK\n", expected=43), 43)
 
+    def test_a_skipped_test_is_not_an_executed_test(self):
+        def xctest(count, skipped):
+            return ("Test Suite 'All tests' passed at 2026-10-24 09:12:00.000.\n"
+                    f"\t Executed {count} tests, with {skipped} tests skipped and 0 failures (0 unexpected) in 0.3 (0.3) seconds\n")
+        self.assertEqual(evidence.executed_tests(xctest(6, 6)), 0)
+        self.assertEqual(evidence.executed_tests(xctest(6, 2)), 4)
+        self.assertEqual(evidence.executed_tests(xctest(1, 1).replace("tests skipped", "test skipped")), 0)
+        self.assertEqual(evidence.executed_tests("Ran 4 tests in 0.01s\n\nOK (skipped=4)"), 0)
+        self.assertEqual(evidence.executed_tests("Ran 5 tests in 0.01s\n\nFAILED (failures=1, skipped=2)"), 3)
+        self.assertEqual(evidence.executed_tests("Ran 40 tests in 0.5s\n\nOK\nRan 3 tests in 0.1s\n\nOK (skipped=1)"), 42)
+        # Swift Testing counts a skipped test in its run total; its skip line names it.
+        self.assertEqual(evidence.executed_tests('➜ Test foo() skipped: "needs a Mac"\n'
+                                                 "✔ Test run with 5 tests in 2 suites passed after 1.0 seconds."), 4)
+        self.assertEqual(evidence.executed_tests("➜ Test foo() skipped.\n"
+                                                 "✔ Test run with 2 tests in 1 suite passed after 0.1 seconds.\n"
+                                                 "✔ Test run with 3 tests in 1 suite passed after 0.1 seconds."), 4)
+        # A skipped suite counts a suite, not a test.
+        self.assertEqual(evidence.executed_tests("➜ Suite Foo skipped.\n"
+                                                 "✔ Test run with 2 tests in 1 suite passed after 0.1 seconds."), 2)
+        with self.assertRaisesRegex(ValueError, "at least 1 executed tests; observed 0"):
+            evidence.require_tests(xctest(6, 6))
+
     def test_an_expected_count_must_match_exactly(self):
         self.assertEqual(evidence.require_tests("Executed 0 tests\nTest run with 3 tests in 1 suite passed", expected=3), 3)
         for text in ["Ran 2 tests", "Ran 4 tests", "** TEST SUCCEEDED **"]:
